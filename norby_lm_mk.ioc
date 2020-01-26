@@ -1,6 +1,6 @@
 #MicroXplorer Configuration settings - do not modify
 File.Version=6
-I2C3.ClockSpeed=10000
+I2C3.ClockSpeed=20000
 I2C3.IPParameters=ClockSpeed
 KeepUserPlacement=false
 Mcu.Family=STM32F4
@@ -57,6 +57,7 @@ NVIC.BusFault_IRQn=true\:0\:0\:false\:false\:true\:false\:false
 NVIC.DebugMonitor_IRQn=true\:0\:0\:false\:false\:true\:false\:false
 NVIC.ForceEnableDMAVector=true
 NVIC.HardFault_IRQn=true\:0\:0\:false\:false\:true\:false\:false
+NVIC.I2C3_EV_IRQn=true\:0\:0\:false\:false\:true\:true\:true
 NVIC.MemoryManagement_IRQn=true\:0\:0\:false\:false\:true\:false\:false
 NVIC.NonMaskableInt_IRQn=true\:0\:0\:false\:false\:true\:false\:false
 NVIC.OTG_FS_IRQn=true\:0\:0\:false\:false\:true\:false\:true

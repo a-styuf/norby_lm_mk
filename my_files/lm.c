@@ -17,9 +17,7 @@ void lm_init(type_LM_DEVICE* lm_ptr)
   */
 void pwr_init(type_PWR_CONTROL* pwr_ptr, I2C_HandleTypeDef* hi2c_ptr)
 {
-	uint8_t i;
 	// установка общих шин
-	pwr_ptr->i2c_ptr = hi2c_ptr;
 	pwr_ptr->gd = gpio_parameters_set(GPIOC, 11);
 	pwr_ptr->alert = gpio_parameters_set(GPIOC, 10);
 	
@@ -28,37 +26,37 @@ void pwr_init(type_PWR_CONTROL* pwr_ptr, I2C_HandleTypeDef* hi2c_ptr)
 	pwr_ptr->ch[0].ena[0] = gpio_parameters_set(GPIOC, 0); // NU - всегда включено: установил такое-же как для ena[2] унификации програмной модели канала
 	pwr_ptr->ch[0].ena[1] = gpio_parameters_set(GPIOC, 0); // NU - всегда включено: установил такое-же как для ena[2] унификации програмной модели канала
 	pwr_ptr->ch[0].ena[2] = gpio_parameters_set(GPIOC, 0);
+	ina226_init(&pwr_ptr->ch[0].ina226, hi2c_ptr, 0x40);
 	// 1 - ПН1.1A
 	pwr_ptr->ch[1].ena[0] = gpio_parameters_set(GPIOF, 0);
 	pwr_ptr->ch[1].ena[1] = gpio_parameters_set(GPIOF, 1);
 	pwr_ptr->ch[1].ena[2] = gpio_parameters_set(GPIOF, 2);
+	ina226_init(&pwr_ptr->ch[1].ina226, hi2c_ptr, 0x41);
 	// 2 - ПН1.1Б
 	pwr_ptr->ch[2].ena[0] = gpio_parameters_set(GPIOF, 3);
 	pwr_ptr->ch[2].ena[1] = gpio_parameters_set(GPIOF, 4);
 	pwr_ptr->ch[2].ena[2] = gpio_parameters_set(GPIOF, 5);
+	ina226_init(&pwr_ptr->ch[2].ina226, hi2c_ptr, 0x42);
 	// 3 - ПН1.2
 	pwr_ptr->ch[3].ena[0] = gpio_parameters_set(GPIOF, 6);
 	pwr_ptr->ch[3].ena[1] = gpio_parameters_set(GPIOF, 7);
 	pwr_ptr->ch[3].ena[2] = gpio_parameters_set(GPIOF, 8);
+	ina226_init(&pwr_ptr->ch[3].ina226, hi2c_ptr, 0x43);
 	// 4 - ПН2.0
 	pwr_ptr->ch[4].ena[0] = gpio_parameters_set(GPIOF, 9);
 	pwr_ptr->ch[4].ena[1] = gpio_parameters_set(GPIOF, 10);
 	pwr_ptr->ch[4].ena[2] = gpio_parameters_set(GPIOF, 11);
+	ina226_init(&pwr_ptr->ch[4].ina226, hi2c_ptr, 0x44);
 	// 5 - ПН_ДКР1
 	pwr_ptr->ch[5].ena[0] = gpio_parameters_set(GPIOF, 12);
 	pwr_ptr->ch[5].ena[1] = gpio_parameters_set(GPIOF, 13);
 	pwr_ptr->ch[5].ena[2] = gpio_parameters_set(GPIOF, 13); // NU - всегда включено: установил такое-же как для ena[1] унификации програмной модели канала
+	ina226_init(&pwr_ptr->ch[5].ina226, hi2c_ptr, 0x45);
 	// 6 - ПН_ДКР2
 	pwr_ptr->ch[6].ena[0] = gpio_parameters_set(GPIOF, 14);
 	pwr_ptr->ch[6].ena[1] = gpio_parameters_set(GPIOF, 15);
 	pwr_ptr->ch[6].ena[2] = gpio_parameters_set(GPIOF, 15); // NU - всегда включено: установил такое-же как для ena[1] унификации програмной модели канала
-	
-	//установка параметров по умолчанию для токов, напряжения и мощностей
-	for(i=0; i<7; i++){
-		pwr_ptr->ch[i].current = 0;
-		pwr_ptr->ch[i].voltage = 0;
-		pwr_ptr->ch[i].power = 0;
-	}
+	ina226_init(&pwr_ptr->ch[6].ina226, hi2c_ptr, 0x46);
 }
 
 /**
@@ -103,7 +101,7 @@ void pwr_on_off(type_PWR_CONTROL* pwr_ptr, uint8_t pwr_switches) //работа�
   */
 int16_t pwr_сh_control(uint8_t channel_num)
 {
-	
+	return 0;
 }
 
 /**
@@ -112,7 +110,7 @@ int16_t pwr_сh_control(uint8_t channel_num)
   */
 int16_t pwr_all_control()
 {
-	
+	return 0;
 }
 
 

@@ -130,10 +130,8 @@ int main(void)
 				pwr_on_off(&lm.pwr, vcp.rx_buff[6]);
 				tx_data_len = 0;
 			}
-			else if (vcp.rx_buff[4] == 0x02){ //чтение телеметрии питания
-				rx_data[0] = 0xFE;
-				HAL_I2C_Master_Transmit(&hi2c3, 0x80, rx_data, 1, 100);
-				HAL_I2C_Master_Receive(&hi2c3, 0x80, rx_data, 2, 100);
+			else if (vcp.rx_buff[4] == 0x02){ //
+				lm_init(&lm);
 				tx_data_len = 0;
 			}
 			vcp.tx_size = com_ans_form(vcp.rx_buff[1], DEV_ID, &vcp.tx_seq_num, vcp.rx_buff[4], tx_data_len, tx_data, vcp.tx_buff);
@@ -194,7 +192,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		led_processor(&con_state_led, 10);
 	}
 }
-/* USER CODE END 4 */
+
+void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+		if(hi2c == &hi2c3){
+			
+		}
+}
+
 
 /**
   * @brief  This function is executed in case of error occurrence.

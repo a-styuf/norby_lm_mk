@@ -5,6 +5,7 @@
 #include "i2c.h"
 #include "crc16.h"
 #include "math.h"
+#include "ina226.h"
 #include <stdlib.h>
 
 #define max(A, B) ((A) > (B) ? (A) : (B))
@@ -22,9 +23,7 @@ typedef unsigned short uint16_t;
 // описание рабочих структур
 typedef struct
 {
-	uint16_t current;
-	uint16_t voltage;
-	uint16_t power;
+	type_INA226_DEVICE ina226;
 	type_GPIO_setting ena[3];
 } type_PWR_CHANNEL;
 
