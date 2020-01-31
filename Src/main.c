@@ -55,6 +55,7 @@ type_LED_INDICATOR mcu_state_led, con_state_led;
 uint8_t tx_data[256], tx_data_len=0; //массив для формирования данных для отправки через VCP
 uint8_t rx_data[256], rx_data_len=0; //массив для формирования данных для отправки через VCP
 type_GPIO_setting test_gpio;
+uint8_t time_slot_flag = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -101,43 +102,56 @@ int main(void)
   MX_TIM5_Init();
   MX_I2C3_Init();
   MX_TIM6_Init();
+  MX_TIM2_Init();
+  MX_TIM3_Init();
+  MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
   lm_init(&lm);
   led_init(&mcu_state_led, GPIOD, 6);
   led_init(&con_state_led, GPIOD, 7);
   led_setup(&con_state_led, 0, 0, 0);
   //
-  HAL_TIM_Base_Start_IT(&htim6);
-	
+  HAL_TIM_Base_Start_IT(&htim6); //LED timer
+  HAL_TIM_Base_Start_IT(&htim2); //global clock timer
+  HAL_TIM_Base_Start_IT(&htim3); //100ms time slot timer
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+		if (time_slot_flag){ // 100ms
+			//опрос мониторов питания и температур
+			pwr_process_100ms(&lm.pwr);
+			//опрос тремодатчиков
+			tmp_process_100ms(&lm.tmp);
+			//reset flag
+			time_slot_flag = 0;
+		}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 	// обработка команд USB-VCP
-	if (vcp_uart_read(&vcp)){
-		led_alt_setup(&con_state_led, 2, 300, 127, 1000);	
-		if (vcp.rx_buff[0] == DEV_ID){
-			if (vcp.rx_buff[4] == 0x00){ //зеркало для ответа
-				tx_data_len = vcp.rx_buff[5];
-				memcpy(tx_data, &vcp.rx_buff[6], vcp.tx_size);
+		if (vcp_uart_read(&vcp)){
+			led_alt_setup(&con_state_led, 2, 300, 127, 1000);	
+			if (vcp.rx_buff[0] == DEV_ID){
+				if (vcp.rx_buff[4] == 0x00){ //зеркало для ответа
+					memcpy(tx_data, &vcp.rx_buff[6], vcp.rx_buff[5]&0x7F);
+					tx_data_len = vcp.rx_buff[5];
+					memcpy(tx_data, &vcp.rx_buff[6], vcp.tx_size);
+				}
+				else if (vcp.rx_buff[4] == 0x01){ //включение/отклюение каналов питания по выбору
+					pwr_on_off(&lm.pwr, vcp.rx_buff[6]);
+					tx_data_len = 0;
+				}
+				else if (vcp.rx_buff[4] == 0x02){ //ТМ�? системы питания
+					memcpy(tx_data, &lm.pwr.report, sizeof(lm.pwr.report));
+					tx_data_len = sizeof(lm.pwr.report);
+				}
+				vcp.tx_size = com_ans_form(vcp.rx_buff[1], DEV_ID, &vcp.tx_seq_num, vcp.rx_buff[4], tx_data_len, tx_data, vcp.tx_buff);
+				vcp_uart_write(&vcp, vcp.tx_buff, vcp.tx_size);
 			}
-			else if (vcp.rx_buff[4] == 0x01){ //включение/отклюение каналов питания по выбору
-				pwr_on_off(&lm.pwr, vcp.rx_buff[6]);
-				tx_data_len = 0;
-			}
-			else if (vcp.rx_buff[4] == 0x02){ //
-				lm_init(&lm);
-				tx_data_len = 0;
-			}
-			vcp.tx_size = com_ans_form(vcp.rx_buff[1], DEV_ID, &vcp.tx_seq_num, vcp.rx_buff[4], tx_data_len, tx_data, vcp.tx_buff);
-			vcp_uart_write(&vcp, vcp.tx_buff, vcp.tx_size);
 		}
-	}
   }
   /* USER CODE END 3 */
 }
@@ -191,15 +205,52 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		led_processor(&mcu_state_led, 10);
 		led_processor(&con_state_led, 10);
 	}
+	if (htim == &htim2) {
+		lm.global_time_s += 1;
+	}
+	if (htim == &htim3) {
+		time_slot_flag = 1;
+	}
+}
+
+void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+		if(hi2c == &hi2c3){
+			ina226_body_read_queue(&lm.pwr.ch[lm.pwr.ch_read_queue].ina226);
+		}
+		if(hi2c == &hi2c2){
+			tmp1075_body_read_queue(&lm.tmp.tmp1075[lm.tmp.ch_read_queue]);
+		}
 }
 
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
 		if(hi2c == &hi2c3){
-			
+			ina226_body_read_queue(&lm.pwr.ch[lm.pwr.ch_read_queue].ina226);
+		}
+		if(hi2c == &hi2c2){
+			tmp1075_body_read_queue(&lm.tmp.tmp1075[lm.tmp.ch_read_queue]);
 		}
 }
 
+void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
+{
+		if(hi2c == &hi2c3){
+		   ina226_error_process(&lm.pwr.ch[lm.pwr.ch_read_queue].ina226);
+		}
+		if(hi2c == &hi2c2){
+			tmp1075_error_process(&lm.tmp.tmp1075[lm.tmp.ch_read_queue]);
+		}
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	pwr_alert_gd_it_process(&lm.pwr, GPIO_Pin);
+	tmp_alert_it_process(&lm.tmp, GPIO_Pin);
+	led_alt_setup(&mcu_state_led, 2, 600, 127, 10000);	
+}
+
+/* USER CODE END 4 */
 
 /**
   * @brief  This function is executed in case of error occurrence.

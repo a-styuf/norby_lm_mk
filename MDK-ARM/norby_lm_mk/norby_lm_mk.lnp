@@ -6,6 +6,8 @@
 "norby_lm_mk\lm.o"
 "norby_lm_mk\led.o"
 "norby_lm_mk\ina226.o"
+"norby_lm_mk\tmp1075.o"
+"norby_lm_mk\fft_test.o"
 "norby_lm_mk\main.o"
 "norby_lm_mk\gpio.o"
 "norby_lm_mk\i2c.o"
