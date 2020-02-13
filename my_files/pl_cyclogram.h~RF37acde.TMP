@@ -1,0 +1,61 @@
+#ifndef _PL_CYCLOGRAM_H
+#define _PL_CYCLOGRAM_H
+
+#include "pn11.h"
+
+#define max(A, B) ((A) > (B) ? (A) : (B))
+#define min(A, B) ((A) < (B) ? (A) : (B))
+
+// настройка циклограмм
+#define PL11A (0x00)
+#define PL11B (0x01)
+
+// раскрашивание переменных
+#define CYCLEGRAMM_NUM (16)
+#define STEP_NUM (32)
+
+typedef struct
+{ 
+	type_PN11_model _11A;
+	type_PN11_model _11B;
+} type_PL;
+
+// CYCLOGRAM //
+typedef struct
+{ 
+	int8_t (*function)(type_PL*);
+	uint32_t state;
+	uint32_t delay_to_next_step_ms;
+} type_CYCLOGRAM_single_step;
+
+typedef struct
+{ 
+	type_CYCLOGRAM_single_step step[32];
+	uint32_t state;
+	int32_t step_timeout;
+	uint8_t step_num;
+} type_CYCLOGRAM_control;
+
+// PL //
+typedef struct
+{ 
+	type_CYCLOGRAM_control array[16];
+	uint32_t time_ms;
+	uint8_t num;
+	uint8_t mode;
+} type_CYCLOGRAM;
+
+void pl_init(type_PL* pl_ptr, type_PWR_CHANNEL* pwr_arr, type_TMP1075_DEVICE* tmp_arr);
+void cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr);
+void cyclogram_step_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t cyclogramm, uint8_t step, int8_t (*function)(type_PL*), uint32_t delay);
+int8_t cyclogram_process_100ms(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr);
+
+// pl_1.1A
+int8_t pl_pn11A_set_iku_default(type_PL* pl_ptr);
+int8_t pl_pn11A_check_temp(type_PL* pl_ptr);
+int8_t pl_pn11A_pwr_on(type_PL* pl_ptr);
+int8_t pl_pn11A_fpga_on(type_PL* pl_ptr);
+int8_t pl_pn11A_get_hw_telemetry(type_PL* pl_ptr);
+int8_t pl_pn11A_check_INT(type_PL* pl_ptr);
+
+#endif

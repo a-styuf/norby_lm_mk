@@ -28,7 +28,9 @@ void led_init(type_LED_INDICATOR* led_ptr, GPIO_TypeDef* bank, uint16_t position
 void led_processor(type_LED_INDICATOR* led_ptr, uint32_t process_period_ms)
 {
 	uint8_t led_val;
+	uint16_t period_time = 0;
 	led_ptr->time_ms += process_period_ms;
+	period_time = led_ptr->time_ms % led_ptr->period_ms;
 	if (led_ptr->alt_timeout_ms == 0){
 		switch (led_ptr->mode){
 		case LED_OFF:
@@ -38,7 +40,18 @@ void led_processor(type_LED_INDICATOR* led_ptr, uint32_t process_period_ms)
 			led_val = 1;
 			break;
 		case LED_BLINK:
-			if ((led_ptr->time_ms % led_ptr->period_ms) > ((led_ptr->period_ms*led_ptr->duty) >> 8)){
+			if (period_time > ((led_ptr->period_ms*led_ptr->duty) >> 8)){
+				led_val = 1;
+			}
+			else{
+				led_val = 0;
+			}
+			break;
+		case LED_HEART_BEAT:
+			if ((period_time > (led_ptr->period_ms * 0 / 100)) && (period_time <= (led_ptr->period_ms * 15 / 100))){
+				led_val = 1;
+			}
+			else if ((period_time > (led_ptr->period_ms * 30 / 100)) && (period_time <= (led_ptr->period_ms * 45 / 100))){
 				led_val = 1;
 			}
 			else{

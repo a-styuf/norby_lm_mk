@@ -9,6 +9,10 @@ void lm_init(type_LM_DEVICE* lm_ptr)
 	pwr_init(&lm_ptr->pwr, &hi2c3);
 	//инициализируем измерение температуры
 	tmp_init(&lm_ptr->tmp, &hi2c2);
+	//PL
+	pl_init(&lm_ptr->pl, lm_ptr->pwr.ch, lm_ptr->tmp.tmp1075);
+	//Cyclogram
+	cyclogram_init(&lm_ptr->cyclogram, &lm_ptr->pl);
 }
 
 //*** управление питанием ***//
@@ -27,61 +31,19 @@ void pwr_init(type_PWR_CONTROL* pwr_ptr, I2C_HandleTypeDef* hi2c_ptr)
 	memset(&pwr_ptr->report, 0x00, 32);
 	// установка парамеров отдельных каналов
 	// 0 - МС
-	pwr_ptr->ch[0].ena[0] = gpio_parameters_set(GPIOC, 0); // NU - всегда включено: установил такое-же как для ena[2] унификации програмной модели канала
-	pwr_ptr->ch[0].ena[1] = gpio_parameters_set(GPIOC, 0); // NU - всегда включено: установил такое-же как для ena[2] унификации програмной модели канала
-	pwr_ptr->ch[0].ena[2] = gpio_parameters_set(GPIOC, 0);
-	ina226_init(&pwr_ptr->ch[0].ina226, hi2c_ptr, 0x40, 3);
+	pwr_ch_init(&pwr_ptr->ch[0], hi2c_ptr, 0x40, 3, GPIOC, 0, GPIOC, 0, GPIOC, 0); // ena0-1 - всегда включено: установил такое-же как для ena[2] 
 	// 1 - ПН1.1A
-	pwr_ptr->ch[1].ena[0] = gpio_parameters_set(GPIOF, 0);
-	pwr_ptr->ch[1].ena[1] = gpio_parameters_set(GPIOF, 1);
-	pwr_ptr->ch[1].ena[2] = gpio_parameters_set(GPIOF, 2);
-	ina226_init(&pwr_ptr->ch[1].ina226, hi2c_ptr, 0x41, 5);
+	pwr_ch_init(&pwr_ptr->ch[1], hi2c_ptr, 0x41, 8, GPIOF, 0, GPIOF, 1, GPIOF, 2);
 	// 2 - ПН1.1Б
-	pwr_ptr->ch[2].ena[0] = gpio_parameters_set(GPIOF, 3);
-	pwr_ptr->ch[2].ena[1] = gpio_parameters_set(GPIOF, 4);
-	pwr_ptr->ch[2].ena[2] = gpio_parameters_set(GPIOF, 5);
-	ina226_init(&pwr_ptr->ch[2].ina226, hi2c_ptr, 0x42, 8);
+	pwr_ch_init(&pwr_ptr->ch[2], hi2c_ptr, 0x42, 8, GPIOF, 3, GPIOF, 4, GPIOF, 5);
 	// 3 - ПН1.2
-	pwr_ptr->ch[3].ena[0] = gpio_parameters_set(GPIOF, 6);
-	pwr_ptr->ch[3].ena[1] = gpio_parameters_set(GPIOF, 7);
-	pwr_ptr->ch[3].ena[2] = gpio_parameters_set(GPIOF, 8);
-	ina226_init(&pwr_ptr->ch[3].ina226, hi2c_ptr, 0x43, 8);
+	pwr_ch_init(&pwr_ptr->ch[3], hi2c_ptr, 0x43, 8, GPIOF, 6, GPIOF, 7, GPIOF, 8);
 	// 4 - ПН2.0
-	pwr_ptr->ch[4].ena[0] = gpio_parameters_set(GPIOF, 9);
-	pwr_ptr->ch[4].ena[1] = gpio_parameters_set(GPIOF, 10);
-	pwr_ptr->ch[4].ena[2] = gpio_parameters_set(GPIOF, 11);
-	ina226_init(&pwr_ptr->ch[4].ina226, hi2c_ptr, 0x44, 15);
+	pwr_ch_init(&pwr_ptr->ch[4], hi2c_ptr, 0x44, 15, GPIOF, 9, GPIOF, 10, GPIOF, 11);
 	// 5 - ПН_ДКР1
-	pwr_ptr->ch[5].ena[0] = gpio_parameters_set(GPIOF, 12);
-	pwr_ptr->ch[5].ena[1] = gpio_parameters_set(GPIOF, 13);
-	pwr_ptr->ch[5].ena[2] = gpio_parameters_set(GPIOF, 13); // NU - всегда включено: установил такое-же как для ena[1] унификации програмной модели канала
-	ina226_init(&pwr_ptr->ch[5].ina226, hi2c_ptr, 0x45, 3);
+	pwr_ch_init(&pwr_ptr->ch[5], hi2c_ptr, 0x45, 3, GPIOF, 12, GPIOF, 13, GPIOF, 13); // ena3: установил такое-же как для ena[1]
 	// 6 - ПН_ДКР2
-	pwr_ptr->ch[6].ena[0] = gpio_parameters_set(GPIOF, 14);
-	pwr_ptr->ch[6].ena[1] = gpio_parameters_set(GPIOF, 15);
-	pwr_ptr->ch[6].ena[2] = gpio_parameters_set(GPIOF, 15); // NU - всегда включено: установил такое-же как для ena[1] унификации програмной модели канала
-	ina226_init(&pwr_ptr->ch[6].ina226, hi2c_ptr, 0x46, 3);
-}
-
-/**
-  * @brief  включение/отключение питания выбранной ПН или канала ПН
-  * @param  pwr_ptr: структура управления питанием
-  * @param  channel_num: номер канала для управления
-  * @param  mode: 1 - включить, 0 -отключить, обрезается по (&0x01)
-  */
-void pwr_ch_on_off(type_PWR_CONTROL* pwr_ptr, uint8_t channel_num, uint8_t mode) //работает для всех каналов, кроме 0-го (МС) - он всегда включен
-{
-	if (channel_num == 0) return;
-	if (mode&0x01){
-		gpio_set(&pwr_ptr->ch[channel_num].ena[0], 1);
-		gpio_set(&pwr_ptr->ch[channel_num].ena[1], 1);
-		gpio_set(&pwr_ptr->ch[channel_num].ena[2], 1);
-	}
-	else{
-		gpio_set(&pwr_ptr->ch[channel_num].ena[0], 0);
-		gpio_set(&pwr_ptr->ch[channel_num].ena[1], 0);
-		gpio_set(&pwr_ptr->ch[channel_num].ena[2], 0);
-	}
+	pwr_ch_init(&pwr_ptr->ch[6], hi2c_ptr, 0x46, 3, GPIOF, 14, GPIOF, 15, GPIOF, 15); // ena3: установил такое-же как для ena[1]
 }
 
 /**
@@ -94,7 +56,7 @@ void pwr_on_off(type_PWR_CONTROL* pwr_ptr, uint8_t pwr_switches) //работа�
 	uint8_t i, state;
 	for(i=0; i<7; i++){
 		state = ((pwr_switches & (1<<i)) != 0) ? 1 : 0;
-		pwr_ch_on_off(pwr_ptr, i, state);
+		pwr_ch_on_off(&pwr_ptr->ch[i], state);
 	}
 }
 
@@ -169,6 +131,20 @@ void pwr_alert_gd_it_process(type_PWR_CONTROL* pwr_ptr, uint16_t it_position)
 	}
 }
 
+/**
+  * @brief  обработка callback функций
+  * @param  pwr_ptr: структура управления измерением температуры
+  * @param  error: 1 - обработка ошибки, 0 - обработка callback окончания транзакции
+  */
+void pwr_cb_it_process(type_PWR_CONTROL* pwr_ptr, uint8_t error)
+{
+	if (error){
+		ina226_error_process(&pwr_ptr->ch[pwr_ptr->ch_read_queue].ina226);
+		return;
+	}
+	ina226_body_read_queue(&pwr_ptr->ch[pwr_ptr->ch_read_queue].ina226);
+}
+
 //*** управление измерением температуры ***//
 void tmp_init(type_TMP_CONTROL* tmp_ptr, I2C_HandleTypeDef* hi2c_ptr)
 {
@@ -207,7 +183,7 @@ void tmp_create_report(type_TMP_CONTROL* tmp_ptr)
 }
 
 /**
-  * @brief  организация работы в 100ms слотах
+  * @brief  организация работы в 100ms слотах: запуск псевдопотока на измерение температуры
   * @param  tmp_ptr: структура управления измерением температуры
   */
 void tmp_process_100ms(type_TMP_CONTROL* tmp_ptr)
@@ -232,6 +208,21 @@ void tmp_alert_it_process(type_TMP_CONTROL* tmp_ptr, uint16_t it_position)
 		tmp_ptr->alert.state = gpio_get(&tmp_ptr->alert);
 	}
 }
+
+/**
+  * @brief  обработка callback функций
+  * @param  tmp_ptr: структура управления измерением температуры
+  * @param  error: 1 - обработка ошибки, 0 - обработка callback окончания транзакции
+  */
+void tmp_cb_it_process(type_TMP_CONTROL* tmp_ptr, uint8_t error)
+{
+	if (error){
+		tmp1075_error_process(&tmp_ptr->tmp1075[tmp_ptr->ch_read_queue]);
+		return;
+	}
+	tmp1075_body_read_queue(&tmp_ptr->tmp1075[tmp_ptr->ch_read_queue]);
+}
+
 
 //*** протокол для передачи через VCP ***//
 uint16_t com_ans_form(uint8_t req_id, uint8_t self_id, uint8_t* seq_num, uint8_t type, uint8_t leng, uint8_t* com_data, uint8_t* ans_com)

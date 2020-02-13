@@ -3,6 +3,7 @@
 
 #include "my_gpio.h"
 
+#define LED_HEART_BEAT 3
 #define LED_BLINK 2
 #define LED_OFF 0
 #define LED_ON 1

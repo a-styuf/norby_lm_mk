@@ -5,8 +5,10 @@
 #include "i2c.h"
 #include "crc16.h"
 #include "math.h"
-#include "ina226.h"
 #include "tmp1075.h"
+#include "pn11.h"
+#include "pwr_ch.h"
+#include "pl_cyclogram.h"
 #include <stdlib.h>
 
 #define max(A, B) ((A) > (B) ? (A) : (B))
@@ -22,13 +24,7 @@ typedef unsigned short uint16_t;
 // раскрашивание переменных
 
 // описание рабочих структур
-// ina226
-typedef struct
-{
-	type_INA226_DEVICE ina226;
-	type_GPIO_setting ena[3];
-} type_PWR_CHANNEL;
-
+// Power //
 typedef struct
 {
 	uint32_t gpio_state;  // 31:pwr_gd, 30:pwr_alert, 29-21:NU, 20-18: ena[2:0] LM ... 2-0: ena[2:0] PL_DCR2
@@ -49,7 +45,7 @@ typedef struct
 	type_PWR_REPORT report;
 } type_PWR_CONTROL;
 
-// tmp1075
+// Temperature //
 typedef struct
 {
 	uint8_t gpio_state;  // 0: tmp_alert
@@ -64,28 +60,32 @@ typedef struct
 	type_TMP_REPORT report;
 } type_TMP_CONTROL;
 
-// lm
+// lm //
 typedef struct
 {
 	uint32_t global_time_s;
 	type_PWR_CONTROL pwr;
 	type_TMP_CONTROL tmp;
+	type_CYCLOGRAM cyclogram;
+	type_PL pl;
 } type_LM_DEVICE;
 
 // прототипы функций
 
 //*** ITB ***//
 void lm_init(type_LM_DEVICE* lm_ptr);
+
 void pwr_init(type_PWR_CONTROL* pwr_ptr, I2C_HandleTypeDef* hi2c_ptr);
-void pwr_ch_on_off(type_PWR_CONTROL* pwr_ptr, uint8_t channel_num, uint8_t mode);
 void pwr_on_off(type_PWR_CONTROL* pwr_ptr, uint8_t pwr_switches);
 void pwr_process_100ms(type_PWR_CONTROL* pwr_ptr);
 void pwr_create_report(type_PWR_CONTROL* pwr_ptr);
 void pwr_alert_gd_it_process(type_PWR_CONTROL* pwr_ptr, uint16_t it_position);
+void pwr_cb_it_process(type_PWR_CONTROL* pwr_ptr, uint8_t error);
 
 void tmp_init(type_TMP_CONTROL* tmp_ptr, I2C_HandleTypeDef* hi2c_ptr);
 void tmp_process_100ms(type_TMP_CONTROL* tmp_ptr);
 void tmp_alert_it_process(type_TMP_CONTROL* tmp_ptr, uint16_t it_position);
+void tmp_cb_it_process(type_TMP_CONTROL* tmp_ptr, uint8_t error);
 
 uint16_t com_ans_form(uint8_t req_id, uint8_t self_id, uint8_t* seq_num, uint8_t type, uint8_t leng, uint8_t* com_data, uint8_t* ans_com);
 #endif

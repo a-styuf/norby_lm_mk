@@ -21,6 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "i2c.h"
+#include "rtc.h"
 #include "tim.h"
 #include "usb_device.h"
 #include "gpio.h"
@@ -52,10 +53,10 @@
 type_VCP_UART vcp;
 type_LM_DEVICE lm;
 type_LED_INDICATOR mcu_state_led, con_state_led;
+
 uint8_t tx_data[256], tx_data_len=0; //массив для формирования данных для отправки через VCP
-uint8_t rx_data[256], rx_data_len=0; //массив для формирования данных для отправки через VCP
-type_GPIO_setting test_gpio;
 uint8_t time_slot_flag = 0;
+int8_t int8_val = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -105,11 +106,13 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   MX_I2C2_Init();
+  MX_RTC_Init();
   /* USER CODE BEGIN 2 */
   lm_init(&lm);
   led_init(&mcu_state_led, GPIOD, 6);
   led_init(&con_state_led, GPIOD, 7);
-  led_setup(&con_state_led, 0, 0, 0);
+  led_setup(&con_state_led, LED_OFF, 0, 0);
+	led_setup(&mcu_state_led, LED_HEART_BEAT, 1000, 0);	
   //
   HAL_TIM_Base_Start_IT(&htim6); //LED timer
   HAL_TIM_Base_Start_IT(&htim2); //global clock timer
@@ -125,6 +128,16 @@ int main(void)
 			pwr_process_100ms(&lm.pwr);
 			//опрос тремодатчиков
 			tmp_process_100ms(&lm.tmp);
+			//работа с циклограммой
+			int8_val = cyclogram_process_100ms(&lm.cyclogram, &lm.pl);
+			if (int8_val > 0){
+				led_alt_setup(&mcu_state_led, LED_BLINK, 300, 64, 1000);	
+			}
+			else if (int8_val < 0){
+				led_alt_setup(&mcu_state_led, LED_BLINK, 300, 191, 1000);	
+			}
+			else{
+			}
 			//reset flag
 			time_slot_flag = 0;
 		}
@@ -133,7 +146,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
 	// обработка команд USB-VCP
 		if (vcp_uart_read(&vcp)){
-			led_alt_setup(&con_state_led, 2, 300, 127, 1000);	
+			led_alt_setup(&con_state_led, LED_BLINK, 300, 127, 1000);	
 			if (vcp.rx_buff[0] == DEV_ID){
 				if (vcp.rx_buff[4] == 0x00){ //зеркало для ответа
 					memcpy(tx_data, &vcp.rx_buff[6], vcp.rx_buff[5]&0x7F);
@@ -147,6 +160,13 @@ int main(void)
 				else if (vcp.rx_buff[4] == 0x02){ //ТМ�? системы питания
 					memcpy(tx_data, &lm.pwr.report, sizeof(lm.pwr.report));
 					tx_data_len = sizeof(lm.pwr.report);
+				}
+				else if (vcp.rx_buff[4] == 0x03){ //одиночный запуск циклограммы по выбору c выбранным режимом
+					tx_data[0] = cyclogram_start(&lm.cyclogram, vcp.rx_buff[6], vcp.rx_buff[7]);
+					tx_data_len = 1;
+				}
+				else if (vcp.rx_buff[4] == 0x04){ //состояние полезной нагрузки по выбору
+					pl_report_get(&lm.pl, vcp.rx_buff[6], tx_data, &tx_data_len);
 				}
 				vcp.tx_size = com_ans_form(vcp.rx_buff[1], DEV_ID, &vcp.tx_seq_num, vcp.rx_buff[4], tx_data_len, tx_data, vcp.tx_buff);
 				vcp_uart_write(&vcp, vcp.tx_buff, vcp.tx_size);
@@ -164,6 +184,7 @@ void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
   /** Configure the main internal regulator output voltage 
   */
@@ -196,6 +217,12 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+  PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_HSE_DIV10;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
 }
 
 /* USER CODE BEGIN 4 */
@@ -216,30 +243,30 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
 		if(hi2c == &hi2c3){
-			ina226_body_read_queue(&lm.pwr.ch[lm.pwr.ch_read_queue].ina226);
+			pwr_cb_it_process(&lm.pwr, 0);
 		}
 		if(hi2c == &hi2c2){
-			tmp1075_body_read_queue(&lm.tmp.tmp1075[lm.tmp.ch_read_queue]);
+			tmp_cb_it_process(&lm.tmp, 0);
 		}
 }
 
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
 		if(hi2c == &hi2c3){
-			ina226_body_read_queue(&lm.pwr.ch[lm.pwr.ch_read_queue].ina226);
+			pwr_cb_it_process(&lm.pwr, 0);
 		}
 		if(hi2c == &hi2c2){
-			tmp1075_body_read_queue(&lm.tmp.tmp1075[lm.tmp.ch_read_queue]);
+			tmp_cb_it_process(&lm.tmp, 0);
 		}
 }
 
 void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
 {
 		if(hi2c == &hi2c3){
-		   ina226_error_process(&lm.pwr.ch[lm.pwr.ch_read_queue].ina226);
+			pwr_cb_it_process(&lm.pwr, 1);
 		}
 		if(hi2c == &hi2c2){
-			tmp1075_error_process(&lm.tmp.tmp1075[lm.tmp.ch_read_queue]);
+			tmp_cb_it_process(&lm.tmp, 1);
 		}
 }
 
