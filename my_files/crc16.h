@@ -11,5 +11,8 @@ typedef unsigned char uint8_t;
 typedef signed char int8_t;
 
 uint16_t crc16_ccitt(uint8_t *buf, uint8_t len);
+unsigned char reverse_byte(unsigned char x);
+uint8_t crc8_rmap_data(uint8_t* data, uint8_t len);
+uint8_t crc8_rmap_header(uint8_t* data, uint8_t len);
 
 #endif

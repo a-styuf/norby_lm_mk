@@ -4,6 +4,7 @@
 #include "my_gpio.h"
 #include "pwr_ch.h"
 #include "tmp1075.h"
+#include "pn_11_interface_app_lvl.h"
 
 #define PN11_OUTPUT_DEFAULT 0x0F
 #define PN11_OUTPUT_FPGA_ON 0x02
@@ -30,10 +31,11 @@ typedef struct
 	type_PWR_CHANNEL* pwr_ch;
 	type_TMP1075_DEVICE* tmp_ch;
 	uint16_t interrupt_timeout;
+	type_PN11_INTERFACE_APP_LVL interface;
 	type_PN11_report report;
 } type_PN11_model;
 
-void pn11_init(type_PN11_model* pn11_ptr, uint8_t num, type_PWR_CHANNEL* pwr_ch_ptr, type_TMP1075_DEVICE* tmp_ch_ptr);
+void pn_11_init(type_PN11_model* pn11_ptr, uint8_t num, type_PWR_CHANNEL* pwr_ch_ptr, type_TMP1075_DEVICE* tmp_ch_ptr, UART_HandleTypeDef* huart);
 void pn_11_output_set(type_PN11_model* pn11_ptr, uint8_t output_state);
 void pn_11_report_create(type_PN11_model* pn11_ptr);
 uint8_t pn_11_get_inputs_state(type_PN11_model* pn11_ptr);

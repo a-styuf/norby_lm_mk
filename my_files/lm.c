@@ -10,7 +10,7 @@ void lm_init(type_LM_DEVICE* lm_ptr)
 	//инициализируем измерение температуры
 	tmp_init(&lm_ptr->tmp, &hi2c2);
 	//PL
-	pl_init(&lm_ptr->pl, lm_ptr->pwr.ch, lm_ptr->tmp.tmp1075);
+	pl_init(&lm_ptr->pl, lm_ptr->pwr.ch, lm_ptr->tmp.tmp1075, &huart2, &huart4);
 	//Cyclogram
 	cyclogram_init(&lm_ptr->cyclogram, &lm_ptr->pl);
 }

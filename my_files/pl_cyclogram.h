@@ -49,7 +49,7 @@ typedef struct
 	uint8_t mode;
 } type_CYCLOGRAM;
 
-void pl_init(type_PL* pl_ptr, type_PWR_CHANNEL* pwr_arr, type_TMP1075_DEVICE* tmp_arr);
+void pl_init(type_PL* pl_ptr, type_PWR_CHANNEL* pwr_arr, type_TMP1075_DEVICE* tmp_arr, UART_HandleTypeDef* huartA, UART_HandleTypeDef* huartB);
 void pl_report_get(type_PL* pl_ptr, uint8_t pl_num, uint8_t* report, uint8_t* len);
 
 void cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr);

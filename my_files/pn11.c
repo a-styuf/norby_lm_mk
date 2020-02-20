@@ -14,7 +14,7 @@
   * @param  pn11_ptr: указатель на структуру управления ПН1.1
   * @param  num: номер ПН1.1: 0-А, 1-B
   */
-void pn11_init(type_PN11_model* pn11_ptr, uint8_t num, type_PWR_CHANNEL* pwr_ch_ptr, type_TMP1075_DEVICE* tmp_ch_ptr)
+void pn_11_init(type_PN11_model* pn11_ptr, uint8_t num, type_PWR_CHANNEL* pwr_ch_ptr, type_TMP1075_DEVICE* tmp_ch_ptr, UART_HandleTypeDef* huart)
 {
 	if (num == 1){ //Инициализациия ПН1.1_А
 		//инициализация дискретных сигналов на вход (ТМИ)
@@ -46,6 +46,8 @@ void pn11_init(type_PN11_model* pn11_ptr, uint8_t num, type_PWR_CHANNEL* pwr_ch_
 	pn11_ptr->pwr_ch = pwr_ch_ptr;
 	// установка канала управления температурой
 	pn11_ptr->tmp_ch = tmp_ch_ptr;
+	// инициализация интерфейса общения
+	app_lvl_init(&pn11_ptr->interface, huart);
 }
 
 /**
@@ -60,7 +62,6 @@ void pn_11_output_set(type_PN11_model* pn11_ptr, uint8_t output_state)
 	gpio_set(&pn11_ptr->output[2], (output_state >> 2) & 0x01);
 	gpio_set(&pn11_ptr->output[3], (output_state >> 3) & 0x01);
 }
-
 
 /**
   * @brief  установка выходов управления ПН в значение по умолчанию

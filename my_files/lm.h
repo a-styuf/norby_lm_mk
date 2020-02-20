@@ -9,6 +9,7 @@
 #include "pn11.h"
 #include "pwr_ch.h"
 #include "pl_cyclogram.h"
+#include "usart.h"
 #include <stdlib.h>
 
 #define max(A, B) ((A) > (B) ? (A) : (B))

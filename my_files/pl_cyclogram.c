@@ -15,12 +15,12 @@
   * @param  pwr_arr: указатель на массив каналов управления питанием, в котором есть каналы для ПН
   * @param  tmp_arr: указатель на массив каналов мониторинга температуры, в котором есть каналы для ПН
   */
-void pl_init(type_PL* pl_ptr, type_PWR_CHANNEL* pwr_arr, type_TMP1075_DEVICE* tmp_arr)
+void pl_init(type_PL* pl_ptr, type_PWR_CHANNEL* pwr_arr, type_TMP1075_DEVICE* tmp_arr, UART_HandleTypeDef* huartA, UART_HandleTypeDef* huartB)
 {
 	//инициализация ПН1.1А
-	pn11_init(&pl_ptr->_11A, PL11A, &pwr_arr[1], &tmp_arr[1]);
+	pn_11_init(&pl_ptr->_11A, PL11A, &pwr_arr[1], &tmp_arr[1], huartA);
 	//инициализация ПН1.1Б
-	pn11_init(&pl_ptr->_11B, PL11B, &pwr_arr[2], &tmp_arr[2]);
+	pn_11_init(&pl_ptr->_11B, PL11B, &pwr_arr[2], &tmp_arr[2], huartB);
 }
 
 /**
@@ -215,7 +215,7 @@ int8_t pl_pn11A_fpga_mcu_on(type_PL* pl_ptr)
 
 int8_t pl_pn11A_get_and_check_hw_telemetry(type_PL* pl_ptr)
 {
-	pn_11_get_outputs_state(type_PN11_model* pn11_ptr);
+	pn_11_get_outputs_state(&pl_ptr->_11A);
 	return 1;
 }
 

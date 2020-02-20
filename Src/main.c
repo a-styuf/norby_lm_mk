@@ -23,6 +23,7 @@
 #include "i2c.h"
 #include "rtc.h"
 #include "tim.h"
+#include "usart.h"
 #include "usb_device.h"
 #include "gpio.h"
 
@@ -55,7 +56,8 @@ type_LM_DEVICE lm;
 type_LED_INDICATOR mcu_state_led, con_state_led;
 
 uint8_t tx_data[256], tx_data_len=0; //массив для формирования данных для отправки через VCP
-uint8_t time_slot_flag = 0;
+uint8_t rx_data[256], rx_data_len=0;
+uint8_t time_slot_flag_100ms = 0, time_slot_flag_10ms = 0;
 int8_t int8_val = 0;
 /* USER CODE END PV */
 
@@ -107,23 +109,29 @@ int main(void)
   MX_TIM3_Init();
   MX_I2C2_Init();
   MX_RTC_Init();
+  MX_UART4_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+  //led_init
   lm_init(&lm);
   led_init(&mcu_state_led, GPIOD, 6);
   led_init(&con_state_led, GPIOD, 7);
   led_setup(&con_state_led, LED_OFF, 0, 0);
-	led_setup(&mcu_state_led, LED_HEART_BEAT, 1000, 0);	
+  led_setup(&mcu_state_led, LED_HEART_BEAT, 1000, 0);
   //
-  HAL_TIM_Base_Start_IT(&htim6); //LED timer
+  HAL_TIM_Base_Start_IT(&htim6); //LED and 10ms_slot timer
   HAL_TIM_Base_Start_IT(&htim2); //global clock timer
   HAL_TIM_Base_Start_IT(&htim3); //100ms time slot timer
+	HAL_UART_Receive_IT(lm.pl._11A.interface.tr_lvl.huart, lm.pl._11A.interface.tr_lvl.rx_data, 1);
+	HAL_UART_Receive_IT(lm.pl._11B.interface.tr_lvl.huart, lm.pl._11B.interface.tr_lvl.rx_data, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  
   while (1)
   {
-		if (time_slot_flag){ // 100ms
+		if (time_slot_flag_100ms){ // 100ms
 			//опрос мониторов питания и температур
 			pwr_process_100ms(&lm.pwr);
 			//опрос тремодатчиков
@@ -139,7 +147,14 @@ int main(void)
 			else{
 			}
 			//reset flag
-			time_slot_flag = 0;
+			time_slot_flag_100ms = 0;
+		}
+		if (time_slot_flag_10ms){ // 10ms
+			//поддрежка транспортного уровня протокола �?СС
+			tr_lvl_process_10ms(&lm.pl._11A.interface.tr_lvl);
+			tr_lvl_process_10ms(&lm.pl._11B.interface.tr_lvl);
+			//reset flag
+			time_slot_flag_10ms = 0;
 		}
     /* USER CODE END WHILE */
 
@@ -167,6 +182,20 @@ int main(void)
 				}
 				else if (vcp.rx_buff[4] == 0x04){ //состояние полезной нагрузки по выбору
 					pl_report_get(&lm.pl, vcp.rx_buff[6], tx_data, &tx_data_len);
+				}
+				else if (vcp.rx_buff[4] == 0x05){ //состояние полезной нагрузки по выбору
+					/* Начало: тестирование модулей общения ПН1.1*/
+					led_setup(&mcu_state_led, LED_BLINK, 500, 127);	
+					HAL_Delay(100);
+					//отправка данных протоколом транспортного уровня из ПН1.1А в ПН1.1Б
+					sprintf((char*)tx_data, "Test: A->B, tr_lvl, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 30 Test: A->B, tr_lvl, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 30");
+					tr_lvl_send_data(&lm.pl._11A.interface.tr_lvl, tx_data, strlen((char*)tx_data)+1);
+					//
+					sprintf((char*)rx_data, "Test end.");
+					vcp_uart_write(&vcp, rx_data, strlen((char*)rx_data)+1);
+					led_setup(&mcu_state_led, LED_HEART_BEAT, 1000, 0);
+					/* Конец: тестирование модулей общения ПН1.1*/
+					tx_data_len = 0;
 				}
 				vcp.tx_size = com_ans_form(vcp.rx_buff[1], DEV_ID, &vcp.tx_seq_num, vcp.rx_buff[4], tx_data_len, tx_data, vcp.tx_buff);
 				vcp_uart_write(&vcp, vcp.tx_buff, vcp.tx_size);
@@ -231,12 +260,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	if (htim == &htim6) {
 		led_processor(&mcu_state_led, 10);
 		led_processor(&con_state_led, 10);
+		time_slot_flag_10ms = 1;
 	}
 	if (htim == &htim2) {
 		lm.global_time_s += 1;
 	}
 	if (htim == &htim3) {
-		time_slot_flag = 1;
+		time_slot_flag_100ms = 1;
 	}
 }
 
@@ -275,6 +305,16 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	pwr_alert_gd_it_process(&lm.pwr, GPIO_Pin);
 	tmp_alert_it_process(&lm.tmp, GPIO_Pin);
 	led_alt_setup(&mcu_state_led, 2, 600, 127, 10000);	
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{ 
+		if(huart == &huart2){ // PL1.1A
+			rx_uart_data(&lm.pl._11A.interface.tr_lvl);
+		}
+		if(huart == &huart4){ // PL1.1B
+			rx_uart_data(&lm.pl._11B.interface.tr_lvl);
+		}
 }
 
 /* USER CODE END 4 */

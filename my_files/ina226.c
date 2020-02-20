@@ -86,7 +86,7 @@ uint8_t ina226_init(type_INA226_DEVICE* ina226_ptr, I2C_HandleTypeDef* i2c_ptr, 
 /**
   * @brief  проверка связи с INA226
   * @param  ina226_ptr: структура CubeMX для управления INA226
-  * @retval статус ошибки: 1 - все хорошо, 0 - есть ошибка
+   
   */
 uint8_t ina226_check(type_INA226_DEVICE* ina226_ptr)
 {
