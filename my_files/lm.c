@@ -161,7 +161,6 @@ void tmp_init(type_TMP_CONTROL* tmp_ptr, I2C_HandleTypeDef* hi2c_ptr)
 	tmp1075_init(&tmp_ptr->tmp1075[3], hi2c_ptr, 0x4A); 
 	// 4 - ПН2.0
 	tmp1075_init(&tmp_ptr->tmp1075[4], hi2c_ptr, 0x40); 
-	
 }
 
 /**

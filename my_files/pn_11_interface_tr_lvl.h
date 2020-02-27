@@ -70,6 +70,9 @@ typedef struct
 	uint8_t tx_last_sended_type;
 	uint8_t tx_state;
 	
+	uint8_t timeout;
+	uint8_t timeout_flag;
+	
 	uint8_t row_tx_data[256];
 	uint8_t row_tx_len;
 	uint8_t row_rx_data[256];
@@ -79,6 +82,8 @@ typedef struct
 void tr_lvl_init(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, UART_HandleTypeDef* huart);
 uint8_t tr_lvl_send_data(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t* data, uint8_t len);
 void tr_lvl_process_10ms(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr);
+void tr_lvl_set_timeout(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t timeout);
+
 void tx_create_frame(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t fr_type, uint8_t* data, uint8_t len);
 void tx_create_data_frame(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t* data, uint8_t len);
 uint8_t tx_get_error_type(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr);

@@ -62,6 +62,9 @@ typedef struct
 } type_TMP_CONTROL;
 
 // lm //
+/** 
+  * @brief  структура хранения всех настроек платы
+  */
 typedef struct
 {
 	uint32_t global_time_s;

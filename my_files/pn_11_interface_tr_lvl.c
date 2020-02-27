@@ -46,12 +46,15 @@ uint8_t tr_lvl_send_data(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t* data, 
 void tr_lvl_process_10ms(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 {
 	int8_t rx_status = 0;
+
 	if (tr_lvl_ptr->rx_len) {
 		rx_status = rx_check_frame(tr_lvl_ptr);
 		if (rx_status == NO_RECOGNISED_FRAME){ //недостаточно данных для распознавания
-			return;
+			NULL;
 		}
-		else if (rx_status >= 0){ //удачный прием данных
+		else if ((rx_status >= 0) && (rx_status != NO_RECOGNISED_FRAME)){ //удачный прием данных
+			tr_lvl_ptr->timeout_flag = 0;
+			tr_lvl_ptr->timeout = 0;
 			switch(rx_status){
 				case FR_SPACE_REQ:
 					tx_create_frame(tr_lvl_ptr, FR_SPACE_ANS, NULL, NULL);
@@ -106,14 +109,24 @@ void tr_lvl_process_10ms(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 		}
 		else if (rx_status < 0){ //неудачный прием данных
 			switch(rx_status){
-				case -3:
-					tx_create_frame(tr_lvl_ptr, FR_LAST_STATUS_ANS, NULL, NULL);
-					break;
+				case -1:
+					NULL;
+				break;
 			}
 		}
 	}
-	else{
-		return;
+	else {
+		
+	}
+	// обработка таймаутов
+	if (tr_lvl_ptr->timeout > 0 && tr_lvl_ptr->timeout_flag == 2) {
+		tr_lvl_ptr->timeout -= 1;
+	}
+	else if (tr_lvl_ptr->timeout == 0 && tr_lvl_ptr->timeout_flag == 2){
+		tx_create_frame(tr_lvl_ptr, FR_LAST_STATUS_ANS, NULL, NULL);
+		if (tr_lvl_ptr->tx_len){ 
+				tx_uart_data(tr_lvl_ptr);
+		}
 	}
 }
 
@@ -184,6 +197,17 @@ uint8_t tx_get_error_type(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 		tr_lvl_ptr->rx_error_type = ERR_TYPE_OK;
 	}
 	return 0;
+}
+
+/**
+  * @brief  установка таймаута - вызывается по окончанию передачи (предположительно в CB)
+  * @param  tr_lvl_ptr: указатель на структуру управления транспортным уровнем
+  * @param  timeout: таймаут в шагах tr_lvl_process_10ms
+  */
+void tr_lvl_set_timeout(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t timeout)
+{
+	tr_lvl_ptr->timeout_flag = 2;
+	tr_lvl_ptr->timeout = timeout;
 }
 
 /**
@@ -347,6 +371,7 @@ uint8_t rx_data_check(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 void tx_uart_data(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 {
 	HAL_UART_Transmit_IT(tr_lvl_ptr->huart, tr_lvl_ptr->tx_data, tr_lvl_ptr->tx_len);
+	tr_lvl_ptr->timeout_flag = 1;
 	//tr_lvl_ptr->tx_len = 0;
 }
 

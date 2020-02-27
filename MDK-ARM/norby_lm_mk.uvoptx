@@ -218,7 +218,7 @@
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>tx_data</ItemText>
+          <ItemText>lm.pl._11A.interface.tr_lvl</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -230,12 +230,7 @@
         <Ww>
           <count>1</count>
           <WinNumber>2</WinNumber>
-          <ItemText>tx_data</ItemText>
-        </Ww>
-        <Ww>
-          <count>2</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>rx_data</ItemText>
+          <ItemText>lm.pl._11B.interface.tr_lvl</ItemText>
         </Ww>
       </WatchWindow2>
       <MemoryWindow1>
@@ -436,7 +431,7 @@
       <GroupNumber>2</GroupNumber>
       <FileNumber>12</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\my_files\pn_11_interface_tr_lvl.c</PathWithFileName>
