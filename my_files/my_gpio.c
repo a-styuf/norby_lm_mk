@@ -14,6 +14,7 @@ type_GPIO_setting gpio_parameters_set(GPIO_TypeDef* bank, uint16_t position)
 	type_GPIO_setting gpio;
 	gpio.bank = bank;
 	gpio.position = position;
+	gpio.state = 0x00;
 	return gpio;
 }
 

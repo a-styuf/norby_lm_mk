@@ -30,18 +30,14 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "lm.h"
+#include "lm_int_cb.h"
 #include "vcp_time_segmentation.h"
 #include "led.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-	//#include <stdio.h>
-	#define ITM_Port8(n)    (*((volatile unsigned char *)(0xE0000000+4*n)))
-	#define ITM_Port16(n)   (*((volatile unsigned short*)(0xE0000000+4*n)))
-	#define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n)))
-	#define DEMCR           (*((volatile unsigned long *)(0xE000EDFC)))
-	#define TRCENA          0x01000000
+#include <stdio.h>
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -52,7 +48,8 @@
 /* USER CODE BEGIN PM */
 /* USER CODE END PM */
 
- /* Private variables ---------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+
 /* USER CODE BEGIN PV */
 type_LM_DEVICE lm;
 type_VCP_UART vcp;
@@ -72,7 +69,7 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+	
 /* USER CODE END 0 */
 
 /**
@@ -84,7 +81,7 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
-
+  
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -115,8 +112,9 @@ int main(void)
   MX_UART4_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  //led_init
-  lm_init(&lm);
+	lm_init(&lm);
+  //ProcCallbackCmds_Init();
+  //led init
   led_init(&mcu_state_led, GPIOD, 6);
   led_init(&con_state_led, GPIOD, 7);
   led_setup(&con_state_led, LED_OFF, 0, 0);
@@ -134,7 +132,6 @@ int main(void)
 
   while (1)
   {
-		printf("Hi!");
 		if (time_slot_flag_100ms){ // 100ms
 			//опрос мониторов питания и температур
 			pwr_process_100ms(&lm.pwr);
@@ -187,7 +184,7 @@ int main(void)
 				else if (vcp.rx_buff[4] == 0x04){ //состояние полезной нагрузки по выбору
 					pl_report_get(&lm.pl, vcp.rx_buff[6], tx_data, &tx_data_len);
 				}
-				else if (vcp.rx_buff[4] == 0x05){ //состояние полезной нагрузки по выбору
+				else if (vcp.rx_buff[4] == 0x05){ //тестирование интерфейса
 					/* Начало: тестирование модулей общения ПН1.1*/
 					led_setup(&mcu_state_led, LED_BLINK, 500, 127);
 					HAL_Delay(100);
@@ -199,6 +196,11 @@ int main(void)
 					vcp_uart_write(&vcp, rx_data, strlen((char*)rx_data)+1);
 					led_setup(&mcu_state_led, LED_HEART_BEAT, 1000, 0);
 					/* Конец: тестирование модулей общения ПН1.1*/
+					tx_data_len = 0;
+				}
+				else if (vcp.rx_buff[4] == 0x06){ //включение/отклюение каналов питания используя отдельные сигналы ena
+					int8_val = vcp.rx_buff[6] <= 7 ? vcp.rx_buff[6] : 0;
+					pwr_ch_on_off_separatly(&lm.pwr.ch[int8_val], vcp.rx_buff[7]);
 					tx_data_len = 0;
 				}
 				vcp.tx_size = com_ans_form(vcp.rx_buff[1], DEV_ID, &vcp.tx_seq_num, vcp.rx_buff[4], tx_data_len, tx_data, vcp.tx_buff);
@@ -219,11 +221,11 @@ void SystemClock_Config(void)
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
-  /** Configure the main internal regulator output voltage
+  /** Configure the main internal regulator output voltage 
   */
   __HAL_RCC_PWR_CLK_ENABLE();
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-  /** Initializes the CPU, AHB and APB busses clocks
+  /** Initializes the CPU, AHB and APB busses clocks 
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
@@ -237,7 +239,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Initializes the CPU, AHB and APB busses clocks
+  /** Initializes the CPU, AHB and APB busses clocks 
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
@@ -331,18 +333,6 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 	}
 }
 
-	struct __FILE { int handle; /* Add whatever you need here */ };
-	FILE __stdout;
-	FILE __stdin;
-
-	int fputc(int ch, FILE *f)
-		{
-		if (DEMCR & TRCENA) {
-			while (ITM_Port32(0) == 0);
-			ITM_Port8(0) = ch;
-		}
-		return(ch);
-	}
 /* USER CODE END 4 */
 
 /**
@@ -366,7 +356,7 @@ void Error_Handler(void)
   * @retval None
   */
 void assert_failed(uint8_t *file, uint32_t line)
-{
+{ 
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */

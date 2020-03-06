@@ -8,6 +8,7 @@
   */
 
 #include "pn11.h"
+#include <stdio.h>
 
 /**
   * @brief  инийиализация полезной нагрузки 1.1
@@ -16,6 +17,7 @@
   */
 void pn_11_init(type_PN11_model* pn11_ptr, uint8_t num, type_PWR_CHANNEL* pwr_ch_ptr, type_TMP1075_DEVICE* tmp_ch_ptr, UART_HandleTypeDef* huart)
 {
+	printf("\tpl_init %d\n", num);
 	if (num == 1){ //Инициализациия ПН1.1_А
 		//инициализация дискретных сигналов на вход (ТМИ)
 		pn11_ptr->input[0] = gpio_parameters_set(GPIOE, 0);
@@ -27,7 +29,6 @@ void pn_11_init(type_PN11_model* pn11_ptr, uint8_t num, type_PWR_CHANNEL* pwr_ch
 		pn11_ptr->output[1] = gpio_parameters_set(GPIOG, 1);
 		pn11_ptr->output[2] = gpio_parameters_set(GPIOG, 2);
 		pn11_ptr->output[3] = gpio_parameters_set(GPIOG, 3);
-		//инициализация UART
 	}
 	else if(num == 2){
 		//инициализация дискретных сигналов на вход (ТМИ)

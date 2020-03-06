@@ -3,6 +3,7 @@
 //*** LM ***//
 void lm_init(type_LM_DEVICE* lm_ptr)
 {
+	uint16_t report = 0;
 	// перезапускаем премя модуля
 	lm_ptr->global_time_s = 0;
 	//инициализируем питание
@@ -13,11 +14,14 @@ void lm_init(type_LM_DEVICE* lm_ptr)
 	pl_init(&lm_ptr->pl, lm_ptr->pwr.ch, lm_ptr->tmp.tmp1075, &huart2, &huart4);
 	//Cyclogram
 	cyclogram_init(&lm_ptr->cyclogram, &lm_ptr->pl);
+	//interfaces init
+	report = interfaces_init(&lm_ptr->interface, DEV_ID);
+	printf("CAN init: %d", report);
 }
 
 //*** управление питанием ***//
 /**
-  * @brief  инийиализация состояния питания
+  * @brief  инициализация состояния питания
   * @param  pwr_ptr: структура управления питанием
   * @param  hi2c_ptr: устройство I2C для общения с монитором питания
   */
@@ -221,7 +225,6 @@ void tmp_cb_it_process(type_TMP_CONTROL* tmp_ptr, uint8_t error)
 	}
 	tmp1075_body_read_queue(&tmp_ptr->tmp1075[tmp_ptr->ch_read_queue]);
 }
-
 
 //*** протокол для передачи через VCP ***//
 uint16_t com_ans_form(uint8_t req_id, uint8_t self_id, uint8_t* seq_num, uint8_t type, uint8_t leng, uint8_t* com_data, uint8_t* ans_com)

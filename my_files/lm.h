@@ -1,6 +1,8 @@
 #ifndef __LM_H
 #define __LM_H
 
+#include <stdlib.h>
+#include <stdio.h>
 #include "my_gpio.h"
 #include "i2c.h"
 #include "crc16.h"
@@ -10,7 +12,8 @@
 #include "pwr_ch.h"
 #include "pl_cyclogram.h"
 #include "usart.h"
-#include <stdlib.h>
+#include "lm_interfaces.h"
+
 
 #define max(A, B) ((A) > (B) ? (A) : (B))
 #define min(A, B) ((A) < (B) ? (A) : (B))
@@ -18,8 +21,7 @@
 typedef unsigned short uint16_t;
 
 // настройки прибора
-#define DEV_ID (0x01)
-
+#define DEV_ID (0x06)
 // свойства микроконтроллера
 
 // раскрашивание переменных
@@ -72,6 +74,7 @@ typedef struct
 	type_TMP_CONTROL tmp;
 	type_CYCLOGRAM cyclogram;
 	type_PL pl;
+	type_LM_INTERFACES interface;
 } type_LM_DEVICE;
 
 // прототипы функций
