@@ -22,7 +22,7 @@
   * @param  time_s: время в секундах по часам устройства, формирующего кадр
   * @retval длина получившегося заголовка (для разных типов данных длина разная), 0 - ошибка
   */
-uint8_t frame_create_header(uint8_t* header_ptr, uint8_t dev_id, uint8_t type, uint8_t d_code, uint16_t* fr_num, uint16_t num, uint32_t time_s)
+uint8_t frame_create_header(uint8_t* header_ptr, uint8_t dev_id, uint8_t type, uint8_t d_code, uint16_t fr_num, uint16_t num, uint32_t time_s)
 {
 	type_SingleFrame_Header* s_header;
 	type_ArchHeadFrame_Header* ah_header;
@@ -34,9 +34,8 @@ uint8_t frame_create_header(uint8_t* header_ptr, uint8_t dev_id, uint8_t type, u
       s_header->id_loc.fields.dev_id = dev_id & 0xF;
       s_header->id_loc.fields.flags = 0x0 & 0xF;
       s_header->id_loc.fields.data_code = d_code & 0xFF;
-      s_header->num = *fr_num;
+      s_header->num = fr_num;
       s_header->time = time_s;
-			*fr_num += 1;
       return sizeof(type_SingleFrame_Header);
     case ARCH_HEADER_FRAME_TYPE:
       ah_header = (type_ArchHeadFrame_Header*)header_ptr;
@@ -44,10 +43,9 @@ uint8_t frame_create_header(uint8_t* header_ptr, uint8_t dev_id, uint8_t type, u
       ah_header->id_loc.fields.dev_id = dev_id & 0xF;
       ah_header->id_loc.fields.flags = 0x0 & 0xF;
       ah_header->id_loc.fields.data_code = d_code & 0xFF;
-      ah_header->num = *fr_num;
+      ah_header->num = fr_num;
       ah_header->time = time_s;
       ah_header->arch_len = num;
-			*fr_num += 1;
       return sizeof(type_ArchHeadFrame_Header);
     case ARCH_BODY_FRAME_TYPE:
       ab_header = (type_ArchHeadFrame_Header*)header_ptr;
@@ -55,10 +53,9 @@ uint8_t frame_create_header(uint8_t* header_ptr, uint8_t dev_id, uint8_t type, u
       ab_header->id_loc.fields.dev_id = dev_id & 0xF;
       ab_header->id_loc.fields.flags = (0x1 << 0) & 0xF;
       ab_header->id_loc.fields.data_code = d_code & 0xFF;
-      ab_header->num = *fr_num;
+      ab_header->num = fr_num;
       ab_header->time = time_s;
       ab_header->arch_len = num;
-			*fr_num += 1;
       return sizeof(type_ArchHeadFrame_Header);
   }
   return 0;

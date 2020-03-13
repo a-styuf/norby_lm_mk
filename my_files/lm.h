@@ -13,6 +13,7 @@
 #include "pl_cyclogram.h"
 #include "usart.h"
 #include "lm_interfaces.h"
+#include "ext_mem.h"
 
 
 #define max(A, B) ((A) > (B) ? (A) : (B))
@@ -70,6 +71,10 @@ typedef struct
 typedef struct
 {
 	uint32_t global_time_s;
+	uint16_t status;
+	uint16_t pl_status;
+	uint8_t rst_counter;
+	type_MEM_CONTROL mem;
 	type_PWR_CONTROL pwr;
 	type_TMP_CONTROL tmp;
 	type_CYCLOGRAM cyclogram;
@@ -93,6 +98,8 @@ void tmp_init(type_TMP_CONTROL* tmp_ptr, I2C_HandleTypeDef* hi2c_ptr);
 void tmp_process_100ms(type_TMP_CONTROL* tmp_ptr);
 void tmp_alert_it_process(type_TMP_CONTROL* tmp_ptr, uint16_t it_position);
 void tmp_cb_it_process(type_TMP_CONTROL* tmp_ptr, uint8_t error);
+
+void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr);
 
 uint16_t com_ans_form(uint8_t req_id, uint8_t self_id, uint8_t* seq_num, uint8_t type, uint8_t leng, uint8_t* com_data, uint8_t* ans_com);
 #endif

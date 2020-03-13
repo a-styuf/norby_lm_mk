@@ -22,6 +22,7 @@ uint16_t interfaces_init(type_LM_INTERFACES* lm_in_ptr, uint8_t id_dev)
   uint16_t ret_val = 0;
   lm_in_ptr->can1_ptr = CAN1;
   lm_in_ptr->can2_ptr = CAN2;
+  lm_in_ptr->frame_num = 0x00;
   lm_in_ptr->reg_rec_ptr = RegistrationRec;
 	report = CAN_Init(lm_in_ptr->can1_ptr);
   if (report) return report;

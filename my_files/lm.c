@@ -6,6 +6,9 @@ void lm_init(type_LM_DEVICE* lm_ptr)
 	uint16_t report = 0;
 	// перезапускаем премя модуля
 	lm_ptr->global_time_s = 0;
+	lm_ptr->rst_counter = 0;
+	lm_ptr->pl_status = 0;
+	lm_ptr->status = 0;
 	//инициализируем питание
 	pwr_init(&lm_ptr->pwr, &hi2c3);
 	//инициализируем измерение температуры
@@ -16,7 +19,7 @@ void lm_init(type_LM_DEVICE* lm_ptr)
 	cyclogram_init(&lm_ptr->cyclogram, &lm_ptr->pl);
 	//interfaces init
 	report = interfaces_init(&lm_ptr->interface, DEV_ID);
-	printf("CAN init: %d", report);
+	printf("CAN init: %d\n", report);
 }
 
 //*** управление питанием ***//
@@ -125,6 +128,24 @@ void pwr_create_report(type_PWR_CONTROL* pwr_ptr)
 	pwr_ptr->report.pl_dcr2_current = __REV16(pwr_ptr->ch[6].ina226.current);
 }
 
+/**
+  * @brief  создание отчета по ключам питания
+  * @param  pwr_ptr: структура управления питанием
+  */
+uint8_t pwr_get_pwr_switch_key(type_PWR_CONTROL* pwr_ptr)
+{
+	uint8_t i=0, ena;
+	volatile uint8_t gpio_state = 0;
+	//отчет по GPIO
+	for (i=0; i<7; i++){
+		ena = gpio_get(&pwr_ptr->ch[i].ena[0]);
+		ena &= gpio_get(&pwr_ptr->ch[i].ena[1]);
+		ena &= gpio_get(&pwr_ptr->ch[i].ena[2]);
+		gpio_state |= (ena << i);
+	}
+	return gpio_state;
+}
+
 void pwr_alert_gd_it_process(type_PWR_CONTROL* pwr_ptr, uint16_t it_position)
 {
 	if (it_position & (1 << pwr_ptr->gd.position)){
@@ -224,6 +245,40 @@ void tmp_cb_it_process(type_TMP_CONTROL* tmp_ptr, uint8_t error)
 		return;
 	}
 	tmp1075_body_read_queue(&tmp_ptr->tmp1075[tmp_ptr->ch_read_queue]);
+}
+
+//*** заполенние тми и маяка ***//
+void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr)
+{
+	// beacon
+	type_LM_Beacon_Frame beacon_fr;
+	frame_create_header((uint8_t*)&beacon_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_BEACON ,lm_ptr->interface.frame_num, 0x00, lm_ptr->global_time_s);
+	beacon_fr.lm_status = lm_ptr->status;
+	beacon_fr.pl_status = lm_ptr->pl_status;
+  beacon_fr.lm_temp = (lm_ptr->tmp.tmp1075[0].temp >> 8) & 0xFF;
+  beacon_fr.pl_power_switches = pwr_get_pwr_switch_key(&lm_ptr->pwr);
+	memset(beacon_fr.filler, 0x00, sizeof(beacon_fr.filler));
+	memcpy((uint8_t*)&lm_ptr->interface.tmi_data.beacon, (uint8_t*)&beacon_fr, sizeof(beacon_fr));
+	// tmi
+	type_LM_TMI_Data_Frame tmi_fr;
+	frame_create_header((uint8_t*)&tmi_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_TMI ,lm_ptr->interface.frame_num, 0x00, lm_ptr->global_time_s);
+    // 0-МС, 1-ПН1.1A, 2-ПН1.1В, 3-ПН1.2, 4-ПН2.0, 5-ПН_ДКР1, 6-ПН_ДКР2
+  for(int i; i<8; i++){
+		tmi_fr.pl_status[i] = lm_ptr->pl_status;
+		tmi_fr.pwr_inf[i].voltage = (lm_ptr->pwr.ch[i].ina226.voltage >> 8) & 0xFF;
+		tmi_fr.pwr_inf[i].current = (lm_ptr->pwr.ch[i].ina226.current >> 8) & 0xFF;
+	}
+	for(int i; i<5; i++){
+		tmi_fr.temp[i] = (lm_ptr->tmp.tmp1075[i].temp >> 8) & 0xFF;
+	}
+  //
+  tmi_fr.pl_power_switches = pwr_get_pwr_switch_key(&lm_ptr->pwr);
+  tmi_fr.iss_mem_status = lm_ptr->mem.fill_volume_iss;
+  tmi_fr.dcr_mem_status = lm_ptr->mem.fill_volume_dcr;
+  tmi_fr.pl_rst_count = lm_ptr->rst_counter;
+  tmi_fr.gap =0xFE;
+	memset(tmi_fr.filler, 0x00, sizeof(tmi_fr.filler));
+	memcpy((uint8_t*)&lm_ptr->interface.tmi_data.tmi, (uint8_t*)&tmi_fr, sizeof(tmi_fr));
 }
 
 //*** протокол для передачи через VCP ***//

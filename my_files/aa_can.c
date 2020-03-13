@@ -3,7 +3,7 @@
 
 //extern const typeRegistrationRec RegistrationRec[];
 //__weak const typeRegistrationRec RegistrationRec[] = {{(void*)0, 0, (void*)0, 0, 1}};
-typeRegistrationRec RegistrationRec[16] = {0};
+typeRegistrationRec RegistrationRec[14] = {0};
 
 int CAN_FilterAssign(uint8_t filter_num, typeIdxMask id, typeIdxMask mask);
 int CAN_FilterDeassign(uint8_t filter_num);
@@ -35,7 +35,7 @@ int CAN_Init(CAN_TypeDef *can_ref) {
   */
   can_ref->MCR |= CAN_MCR_RFLM | CAN_MCR_TXFP;
   /***   bit time   ***/
-  can_ref->BTR = 0x01220000 | (SYSCLKFREQ/4/7/1000000 - 1);  //baudrate = 1 Mb/s
+  can_ref->BTR = 0x01210000 | (APB_PEREPHERIAL_CLOCK/CAN_BAUDRATE/6 - 1);  //6=1+3+2, 1-SYNC_SEQ, 3-BS, 2-BS2
   /* filters: 32-bit, Identifer-Mask */
   if(can_ref == CAN1) {
     can_ref->FMR |= 1;  //init mode
@@ -98,7 +98,7 @@ int CAN_Tx(CAN_TypeDef *can_ref, typeIdxMask id, void *p_data, uint16_t leng) {
   uint64_t buff = 0;
   if(((can_ref != CAN1)&&(can_ref != CAN2))||(leng > 8))
     return ERR_INVALID_PARAMS;
-  /*поиск свободного txmailbox-a*/
+  /*пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ txmailbox-a*/
   tme = can_ref->TSR >> 26;
   for(n=0; n<3; n++) {
     if(tme & 1) break;
@@ -162,29 +162,29 @@ void CAN_RX_Handler(CAN_TypeDef *can_ref) {
       pvar = pvar + id.uf.Offset;
       bound = bound + id.uf.Offset;
       }
-    /* 1-ый Callback */
+    /* 1-пїЅпїЅ Callback */
     if(RegistrationRec[filtr_num].CallBackProc) {
       RegistrationRec[filtr_num].CallBackProc(can_ref, id, pkt_leng, state);
       }
-    if(id.std.RTR == 0) {  // обращение по записи
+    if(id.std.RTR == 0) {  // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
       if(bound <= RegistrationRec[filtr_num].VarLeng) {
-        /*допустимая область*/
+        /*пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ*/
         for(i=0; i<pkt_leng; i++)
           pvar[i] = ((uint8_t*)&can_ref->sFIFOMailBox[0].RDLR)[i];
         }
       else {
-        /*недопустимая область*/
+        /*пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ*/
         state = ERR_CAN_ACCESS_RANGE;
         }
       }
-    else {  //RTR == 1 - обращение по чтению
+    else {  //RTR == 1 - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
       id.std.RTR = 0;
       state = CAN_Tx(can_ref, id, pvar, pkt_leng);
       id.std.RTR = 1;  //restore RTR
       }
     }
   can_ref->RF0R = 0x20;  //release FIFO
-  /* 2-ой Callback */
+  /* 2-пїЅпїЅ Callback */
   if(RegistrationRec[filtr_num].CallBackProc) {
     if(state == 0) state = 1;
     RegistrationRec[filtr_num].CallBackProc(can_ref, id, pkt_leng, state);

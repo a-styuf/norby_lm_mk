@@ -3,7 +3,8 @@
 
 #include <stm32f4xx.h>
 
-#define SYSCLKFREQ  72000000
+#define APB_PEREPHERIAL_CLOCK  36000000
+#define CAN_BAUDRATE  1000000
 
 typedef union {
   struct {

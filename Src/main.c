@@ -54,6 +54,8 @@
 type_LM_DEVICE lm;
 type_VCP_UART vcp;
 type_LED_INDICATOR mcu_state_led, con_state_led;
+typeIdxMask test_id;
+
 
 uint8_t tx_data[256], tx_data_len=0; //массив для формирования данных для отправки через VCP
 uint8_t rx_data[256], rx_data_len=0;
@@ -113,7 +115,7 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 	lm_init(&lm);
-  //ProcCallbackCmds_Init();
+  ProcCallbackCmds_Init();
   //led init
   led_init(&mcu_state_led, GPIOD, 6);
   led_init(&con_state_led, GPIOD, 7);
@@ -125,6 +127,13 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim3); //100ms time slot timer
   HAL_UART_Receive_IT(lm.pl._11A.interface.tr_lvl.huart, lm.pl._11A.interface.tr_lvl.rx_data, 1);
   HAL_UART_Receive_IT(lm.pl._11B.interface.tr_lvl.huart, lm.pl._11B.interface.tr_lvl.rx_data, 1);
+
+  test_id.uf.res1 = 0;
+  test_id.uf.RTR = 1;
+  test_id.uf.res2 = 0;
+  test_id.uf.Offset = 0;
+  test_id.uf.VarId = 0;
+  test_id.uf.DevId = 6;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -133,6 +142,7 @@ int main(void)
   while (1)
   {
 		if (time_slot_flag_100ms){ // 100ms
+      fill_tmi_and_beacon(&lm);
 			//опрос мониторов питания и температур
 			pwr_process_100ms(&lm.pwr);
 			//опрос тремодатчиков

@@ -464,6 +464,11 @@
               <FileType>1</FileType>
               <FilePath>..\my_files\lm_int_cb.c</FilePath>
             </File>
+            <File>
+              <FileName>lm_interfaces_data.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\my_files\lm_interfaces_data.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

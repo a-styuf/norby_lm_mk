@@ -9,7 +9,6 @@
 //*** defines ***//
 // LM setup
 //general setup
-#define CAN_DEV_ID 0x06
 #define CAN_BROADCAST_ID 0x0F
 //VarId setup
 #define ID_IVAR_PRG_MEM   00
@@ -20,12 +19,13 @@
 #define ID_IVAR_TMI       05
 #define ID_IVAR_PARAM     06
 #define ID_IVAR_EXTMEM    07
-#define ID_IVAR_DBG       14
-#define ID_IVAR_BRD       15
+#define ID_IVAR_DBG       12
+#define ID_IVAR_BRD       13
 //
-#define ID_IVAR_POOL_LEN  16
+#define ID_IVAR_POOL_LEN  14
 //
-#define CMD_CNT           16
+#define CMD_CNT           3
+
 //*** structures ***//
 
 
@@ -51,8 +51,11 @@ typedef struct {
   * @brief  All command registers
   */
 typedef struct {
-  uint8_t CmdShort1;  //+0
-} type_IVar_Cmds_Registers;//1
+  uint16_t pl_inh;          //+0
+  uint8_t lm_mode;          //+2
+  uint8_t pl_pwr_switches;  //+3
+  uint8_t reserved[16];     //+4
+} type_IVar_Cmds_Registers;//20
 
 /**
   * @brief  TMI data fieldes: contain data in 128-bytes form
@@ -100,6 +103,7 @@ typedef struct
   //
   typeRegistrationRec* reg_rec_ptr;
   CAN_TypeDef *can1_ptr, *can2_ptr;
+  uint16_t frame_num;
 } type_LM_INTERFACES;
 
 //*** functions prototypes ***//
