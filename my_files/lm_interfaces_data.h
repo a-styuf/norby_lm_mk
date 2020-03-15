@@ -90,15 +90,15 @@ typedef struct {
 typedef struct {
   type_SingleFrame_Header header; //+0
   // 0-МС, 1-ПН1.1A, 2-ПН1.1В, 3-ПН1.2, 4-ПН2.0, 5-ПН_ДКР1, 6-ПН_ДКР2
-  uint16_t pl_status[6];  //+10
-  type_POWER pwr_inf[7];  //+22
-  uint8_t temp[5];        //+36
+  uint16_t pl_status[6];    //+10
+  type_POWER pwr_inf[7];    //+22
+  uint8_t temp[5];          //+36
   //
-  uint8_t pl_power_switches; //+41
-  uint8_t iss_mem_status; //+42
-  uint8_t dcr_mem_status; //+43
-  uint8_t pl_rst_count; //+44
-  uint8_t gap; //+45
+  uint8_t pl_power_switches;  //+41
+  uint8_t iss_mem_status;   //+42
+  uint8_t dcr_mem_status;   //+43
+  uint8_t pl_rst_count;   //+44
+  uint8_t gap;  //+45
   //
   uint8_t filler[80]; //+46
   //

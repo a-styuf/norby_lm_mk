@@ -17,7 +17,7 @@
   */
 uint8_t tmp1075_init(type_TMP1075_DEVICE* tmp1075_ptr, I2C_HandleTypeDef* i2c_ptr, uint8_t addr)
 {
-	uint8_t i2c_rx_data[16] = {0}, validate_data[8] = {0};
+	uint8_t i2c_rx_data[16] = {0}, validate_data[16] = {0};
 	uint8_t i2c_tr_data[8] = {0};
 	uint16_t i2c_reg_val = 0;
 	//создаем структуру
@@ -27,7 +27,7 @@ uint8_t tmp1075_init(type_TMP1075_DEVICE* tmp1075_ptr, I2C_HandleTypeDef* i2c_pt
 	tmp1075_ptr->temp_high = HLIM_DEFAULT;
 	tmp1075_ptr->temp_low = LLIM_DEFAULT;
 	tmp1075_ptr->error_cnt = 0;
-	memset(tmp1075_ptr->validate_data, 0x00, 8);
+	memset(tmp1075_ptr->validate_data, 0x00, 16);
 	// устанавливаем режим работы
 	i2c_reg_val = CONFIG_DEFAULT;
 	i2c_tr_data[0] = CFGR_ADDR;
@@ -59,9 +59,9 @@ uint8_t tmp1075_init(type_TMP1075_DEVICE* tmp1075_ptr, I2C_HandleTypeDef* i2c_pt
 	HAL_I2C_Master_Transmit(i2c_ptr, addr << 1, i2c_tr_data, 1, 1000);
 	HAL_I2C_Master_Receive(i2c_ptr, addr << 1, i2c_rx_data+6, 2, 1000);
 	//
-	memcpy(tmp1075_ptr->validate_data, i2c_rx_data, 8);
+	memcpy(tmp1075_ptr->validate_data, i2c_rx_data, 16);
 	// проверка на привильность записи
-	if (memcmp((uint8_t*)i2c_rx_data, (uint8_t*)validate_data, 8) == 0){
+	if (memcmp((uint8_t*)i2c_rx_data, (uint8_t*)validate_data, 16) == 0){
 		return 1;
 	}
 	return 0;

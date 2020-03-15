@@ -60,6 +60,9 @@ typeIdxMask test_id;
 uint8_t tx_data[256], tx_data_len=0; //массив для формирования данных для отправки через VCP
 uint8_t rx_data[256], rx_data_len=0;
 uint8_t time_slot_flag_100ms = 0, time_slot_flag_10ms = 0;
+uint8_t uint8_val = 0;
+uint16_t uint16_val = 0;
+int16_t int16_val = 0;
 int8_t int8_val = 0;
 /* USER CODE END PV */
 
@@ -170,6 +173,54 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+  //*** USB-CAN
+  // обработка команд
+  int16_val = cmd_check_to_process(&lm.interface);
+  switch(int16_val){
+    case CMD_INIT_LM:
+      printf("cmd:init LM\n");
+      break;
+    case CMD_INIT_ISS_MEM:
+      printf("cmd:init iss memory\n");
+      break;
+    case CMD_INIT_DCR_MEM:
+      printf("cmd:init decor memory\n");
+      break;
+    case CMD_DBG_LED_TEST:
+      cmd_set_status(&lm.interface, int16_val, 0x01);
+      led_alt_setup(&mcu_state_led, LED_HEART_BEAT, 1500, 0, 3000);
+      printf("cmd: (dbg) led test\n");
+      cmd_set_status(&lm.interface, int16_val, 0x7F);
+      break;
+    case CMD_NO_ONE:
+      NULL;
+      break;
+    default: //если команда в резерве, то реагируем немедленным выполнением
+      cmd_set_status(&lm.interface, int16_val, 0x7F);
+      break;
+  }
+  // обработка командных регистров
+  int16_val = cmdreg_check_to_process(&lm.interface);
+  switch(int16_val){
+    case CMDREG_LM_MODE:
+      printf("cmdreg:LM mode 0x%2X\n", lm.interface.cmdreg_to_check[CMDREG_LM_MODE]);
+      break;
+    case CMDREG_PL_PWR_SW:
+      printf("cmdreg:PL pwr sw 0x%2X\n", lm.interface.cmdreg_to_check[CMDREG_PL_PWR_SW]);
+      break;
+    case CMDREG_PL_INH_0:
+    case CMDREG_PL_INH_1:
+      printf("cmdreg:PL inhibit 0x%4X\n", *((uint16_t*)&lm.interface.cmdreg_to_check[CMDREG_PL_INH_0]));
+      break;
+    case CMDREG_DBG_LED:
+      led_alt_setup(&mcu_state_led, LED_BLINK, 1000, lm.interface.cmdreg.array[CMDREG_DBG_LED], 3000);
+      printf("cmdreg: (dbg) led test 0x%2X\n", lm.interface.cmdreg.array[CMDREG_DBG_LED]);
+      break;
+    case CMD_NO_ONE:
+    default: //если команда в резерве, то реагируем немедленным выполнением
+      NULL;
+      break;
+  }
 	// обработка команд USB-VCP
 		if (vcp_uart_read(&vcp)){
 			led_alt_setup(&con_state_led, LED_BLINK, 300, 127, 1000);

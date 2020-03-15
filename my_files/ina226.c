@@ -30,7 +30,7 @@ uint8_t ina226_init(type_INA226_DEVICE* ina226_ptr, I2C_HandleTypeDef* i2c_ptr, 
 	ina226_ptr->error_cnt = 0;
 	memset(ina226_ptr->validate_data, 0x00, 8);
 	// устанавливаем режим работы
-	i2c_reg_val = (AVEREGES_DEF<<9) | (CONV_TIME_DEF<<6) | (CONV_TIME_DEF<<3) | (MODE_DEF<<0);
+	i2c_reg_val = (1 << 14)| (AVEREGES_DEF<<9) | (CONV_TIME_DEF<<6) | (CONV_TIME_DEF<<3) | (MODE_DEF<<0);
 	i2c_tr_data[0] = CONFIG_REGISTER_ADDR;
 	i2c_tr_data[1] = (i2c_reg_val>>8) & 0xFF;
 	i2c_tr_data[2] = (i2c_reg_val>>0) & 0xFF;
@@ -50,7 +50,7 @@ uint8_t ina226_init(type_INA226_DEVICE* ina226_ptr, I2C_HandleTypeDef* i2c_ptr, 
 	i2c_tr_data[0] = ALERT_REGISTER_ADDR;
 	i2c_tr_data[1] = (i2c_reg_val>>8) & 0xFF;
 	i2c_tr_data[2] = (i2c_reg_val>>0) & 0xFF;
-	memcpy(validate_data+2, i2c_tr_data+1, 2);
+	memcpy(validate_data+4, i2c_tr_data+1, 2);
 	HAL_I2C_Master_Transmit(i2c_ptr, addr << 1, i2c_tr_data, 3, 100);
 	HAL_I2C_Master_Receive(i2c_ptr, addr << 1, i2c_rx_data+4, 2, 100);
 	// устанавливаем тип alert
@@ -58,24 +58,23 @@ uint8_t ina226_init(type_INA226_DEVICE* ina226_ptr, I2C_HandleTypeDef* i2c_ptr, 
 	i2c_tr_data[0] = MODE_REGISTER_ADDR;
 	i2c_tr_data[1] = (i2c_reg_val>>8) & 0xFF;
 	i2c_tr_data[2] = (i2c_reg_val>>0) & 0xFF;
-	memcpy(validate_data+2, i2c_tr_data+1, 2);
+	memcpy(validate_data+6, i2c_tr_data+1, 2);
 	HAL_I2C_Master_Transmit(i2c_ptr, addr << 1, i2c_tr_data, 3, 100);
 	HAL_I2C_Master_Receive(i2c_ptr, addr << 1, i2c_rx_data+6, 2, 100);
 	//
 	i2c_tr_data[0] = MANUFACTURED_ID_REG_ADDR;
-	i2c_reg_val = 0x5449;
-	memcpy(validate_data+4, (uint8_t*)&i2c_reg_val, 2);
+	i2c_reg_val = 0x4954;
+	memcpy(validate_data+8, (uint8_t*)&i2c_reg_val, 2);
 	HAL_I2C_Master_Transmit(i2c_ptr, addr << 1, i2c_tr_data, 1, 100);
 	HAL_I2C_Master_Receive(i2c_ptr, addr << 1, i2c_rx_data+8, 2, 100);
 	//
 	i2c_tr_data[0] = DIE_ID_REG_ADDR;
-	i2c_reg_val = 0x2260;
-	memcpy(validate_data+6, (uint8_t*)&i2c_reg_val, 2);
+	i2c_reg_val = 0x6022;
+	memcpy(validate_data+10, (uint8_t*)&i2c_reg_val, 2);
 	HAL_I2C_Master_Transmit(i2c_ptr, addr << 1, i2c_tr_data, 1, 100);
 	HAL_I2C_Master_Receive(i2c_ptr, addr << 1, i2c_rx_data+10, 2, 100);
 	//
-	memcpy(ina226_ptr->validate_data, i2c_rx_data, 8);
-	
+	memcpy(ina226_ptr->validate_data, i2c_rx_data, 16);
 	// проверка на привильность записи
 	if (memcmp((uint8_t*)i2c_rx_data, (uint8_t*)validate_data, 16) == 0){
 		return 1;
@@ -86,7 +85,6 @@ uint8_t ina226_init(type_INA226_DEVICE* ina226_ptr, I2C_HandleTypeDef* i2c_ptr, 
 /**
   * @brief  проверка связи с INA226
   * @param  ina226_ptr: структура CubeMX для управления INA226
-   
   */
 uint8_t ina226_check(type_INA226_DEVICE* ina226_ptr)
 {

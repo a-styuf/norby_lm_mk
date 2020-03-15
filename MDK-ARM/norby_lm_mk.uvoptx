@@ -227,6 +227,11 @@
           <WinNumber>2</WinNumber>
           <ItemText>\\norby_lm_mk\../Src/main.c\lm.interface.cmd_reg</ItemText>
         </Ww>
+        <Ww>
+          <count>2</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>\\norby_lm_mk\../Src/main.c\lm.interface.tmi_data.tmi</ItemText>
+        </Ww>
       </WatchWindow2>
       <MemoryWindow1>
         <Mm>

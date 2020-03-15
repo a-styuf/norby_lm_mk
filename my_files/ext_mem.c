@@ -8,3 +8,8 @@
   */
 
 #include "ext_mem.h"
+
+
+uint8_t format_mem(type_MEM_CONTROL *mem_ptr){
+  return 0;
+}

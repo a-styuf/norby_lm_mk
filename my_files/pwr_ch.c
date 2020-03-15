@@ -10,12 +10,12 @@
 #include "pwr_ch.h"
 
 
-void pwr_ch_init(type_PWR_CHANNEL* pwr_ch_ptr, I2C_HandleTypeDef* i2c_ptr, uint8_t i2c_addr, uint16_t power_lim_Wt, GPIO_TypeDef* ena1_bank, uint16_t ena1_pos, GPIO_TypeDef* ena2_bank, uint16_t ena2_pos, GPIO_TypeDef* ena3_bank, uint16_t ena3_pos)
+int8_t pwr_ch_init(type_PWR_CHANNEL* pwr_ch_ptr, I2C_HandleTypeDef* i2c_ptr, uint8_t i2c_addr, uint16_t power_lim_Wt, GPIO_TypeDef* ena1_bank, uint16_t ena1_pos, GPIO_TypeDef* ena2_bank, uint16_t ena2_pos, GPIO_TypeDef* ena3_bank, uint16_t ena3_pos)
 {
 	pwr_ch_ptr->ena[0] = gpio_parameters_set(ena1_bank, ena1_pos);
 	pwr_ch_ptr->ena[1] = gpio_parameters_set(ena2_bank, ena2_pos);
 	pwr_ch_ptr->ena[2] = gpio_parameters_set(ena3_bank, ena3_pos);
-	ina226_init(&pwr_ch_ptr->ina226, i2c_ptr, i2c_addr, power_lim_Wt);
+	return ina226_init(&pwr_ch_ptr->ina226, i2c_ptr, i2c_addr, power_lim_Wt);
 }
 
 /**

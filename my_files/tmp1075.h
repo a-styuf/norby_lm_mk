@@ -17,10 +17,10 @@
 #define CONV_TIME_DEF CONV_TIME_1100us
 #define MODE_DEF SHUNT_VOLTAGE_CONT
 //Default condiguration
-#define CONFIG_DEFAULT (0x01<<15)|(0x01<<13)|(0x02<<11)|(0x00<<10)|(0x00<<9)|(0x00<<8)|(0x00<<0) // continuos mode, pweiod - 110ms, alert-active low
+#define CONFIG_DEFAULT (0x00<<15)|(0x01<<13)|(0x02<<11)|(0x00<<10)|(0x00<<9)|(0x00<<8)|(0xFF<<0) // continuos mode, pweiod - 110ms, alert-active low
 #define LLIM_DEFAULT (55<<8)  //55°C
 #define HLIM_DEFAULT (60<<8)  //60°C
-#define TMP_DEV_ID 0x7500
+#define TMP_DEV_ID 0x0075
 
 typedef struct
 {
@@ -29,7 +29,7 @@ typedef struct
 	uint8_t tx_data[4];
 	uint16_t rx_data;
 	uint8_t rx_reg_addr;
-	uint8_t validate_data[8];
+	uint8_t validate_data[16];
 	uint16_t temp;
 	uint16_t temp_high, temp_low;
 	uint8_t queue_state;

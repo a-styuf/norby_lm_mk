@@ -64,6 +64,14 @@ typedef struct
 	type_TMP_REPORT report;
 } type_TMP_CONTROL;
 
+/**
+  * @brief  структура для хранения переменных управления командами (продолжительными со статусами, IdVar = 0х02)
+  */
+typedef struct
+{ 
+	uint32_t start_time_s, time_ms;
+} type_CMD_CONTROL;
+
 // lm //
 /** 
   * @brief  структура хранения всех настроек платы
@@ -77,6 +85,7 @@ typedef struct
 	type_MEM_CONTROL mem;
 	type_PWR_CONTROL pwr;
 	type_TMP_CONTROL tmp;
+	type_CMD_CONTROL cmd_ctrl[CMD_POOL_LEN];
 	type_CYCLOGRAM cyclogram;
 	type_PL pl;
 	type_LM_INTERFACES interface;
@@ -87,14 +96,14 @@ typedef struct
 //*** ITB ***//
 void lm_init(type_LM_DEVICE* lm_ptr);
 
-void pwr_init(type_PWR_CONTROL* pwr_ptr, I2C_HandleTypeDef* hi2c_ptr);
+int8_t pwr_init(type_PWR_CONTROL* pwr_ptr, I2C_HandleTypeDef* hi2c_ptr);
 void pwr_on_off(type_PWR_CONTROL* pwr_ptr, uint8_t pwr_switches);
 void pwr_process_100ms(type_PWR_CONTROL* pwr_ptr);
 void pwr_create_report(type_PWR_CONTROL* pwr_ptr);
 void pwr_alert_gd_it_process(type_PWR_CONTROL* pwr_ptr, uint16_t it_position);
 void pwr_cb_it_process(type_PWR_CONTROL* pwr_ptr, uint8_t error);
 
-void tmp_init(type_TMP_CONTROL* tmp_ptr, I2C_HandleTypeDef* hi2c_ptr);
+int8_t tmp_init(type_TMP_CONTROL* tmp_ptr, I2C_HandleTypeDef* hi2c_ptr);
 void tmp_process_100ms(type_TMP_CONTROL* tmp_ptr);
 void tmp_alert_it_process(type_TMP_CONTROL* tmp_ptr, uint16_t it_position);
 void tmp_cb_it_process(type_TMP_CONTROL* tmp_ptr, uint8_t error);

@@ -3,23 +3,31 @@
 //*** LM ***//
 void lm_init(type_LM_DEVICE* lm_ptr)
 {
-	uint16_t report = 0;
-	// перезапускаем премя модуля
+	int8_t report = 0;
+	printf("Start init: %d\n", report);
+	// инициализируем параметры управляющей структуры
 	lm_ptr->global_time_s = 0;
 	lm_ptr->rst_counter = 0;
 	lm_ptr->pl_status = 0;
 	lm_ptr->status = 0;
+	printf("\tLM-struct init init: %d\n", report);
 	//инициализируем питание
-	pwr_init(&lm_ptr->pwr, &hi2c3);
+	report = pwr_init(&lm_ptr->pwr, &hi2c3);
+	printf("\tPwr monitors init: %d\n", report);
 	//инициализируем измерение температуры
-	tmp_init(&lm_ptr->tmp, &hi2c2);
+	report = tmp_init(&lm_ptr->tmp, &hi2c2);
+	printf("\tTemperature monitors init: %d\n", report);
 	//PL
 	pl_init(&lm_ptr->pl, lm_ptr->pwr.ch, lm_ptr->tmp.tmp1075, &huart2, &huart4);
+	printf("\tPL init %d\n", report);
 	//Cyclogram
 	cyclogram_init(&lm_ptr->cyclogram, &lm_ptr->pl);
+	printf("\tCyclogramms init: %d\n", report);
 	//interfaces init
 	report = interfaces_init(&lm_ptr->interface, DEV_ID);
-	printf("CAN init: %d\n", report);
+	printf("\tCAN init: %d\n", report);
+	//
+	printf("Finish init at %d\n", lm_ptr->global_time_s);
 }
 
 //*** управление питанием ***//
@@ -27,9 +35,11 @@ void lm_init(type_LM_DEVICE* lm_ptr)
   * @brief  инициализация состояния питания
   * @param  pwr_ptr: структура управления питанием
   * @param  hi2c_ptr: устройство I2C для общения с монитором питания
+	* @retval статус успешности инициализации: кол-во успешно инициализированных блоков
   */
-void pwr_init(type_PWR_CONTROL* pwr_ptr, I2C_HandleTypeDef* hi2c_ptr)
+int8_t pwr_init(type_PWR_CONTROL* pwr_ptr, I2C_HandleTypeDef* hi2c_ptr)
 {
+	int8_t report = 0;
 	// установка общих шин
 	pwr_ptr->gd = gpio_parameters_set(GPIOC, 11);
 	pwr_ptr->alert = gpio_parameters_set(GPIOC, 10);
@@ -38,19 +48,21 @@ void pwr_init(type_PWR_CONTROL* pwr_ptr, I2C_HandleTypeDef* hi2c_ptr)
 	memset(&pwr_ptr->report, 0x00, 32);
 	// установка парамеров отдельных каналов
 	// 0 - МС
-	pwr_ch_init(&pwr_ptr->ch[0], hi2c_ptr, 0x40, 3, GPIOC, 0, GPIOC, 0, GPIOC, 0); // ena0-1 - всегда включено: установил такое-же как для ena[2] 
+	report += pwr_ch_init(&pwr_ptr->ch[0], hi2c_ptr, 0x40, 3, GPIOC, 0, GPIOC, 0, GPIOC, 0); // ena0-1 - всегда включено: установил такое-же как для ena[2] 
 	// 1 - ПН1.1A
-	pwr_ch_init(&pwr_ptr->ch[1], hi2c_ptr, 0x41, 8, GPIOF, 0, GPIOF, 1, GPIOF, 2);
+	report += pwr_ch_init(&pwr_ptr->ch[1], hi2c_ptr, 0x41, 8, GPIOF, 0, GPIOF, 1, GPIOF, 2);
 	// 2 - ПН1.1Б
-	pwr_ch_init(&pwr_ptr->ch[2], hi2c_ptr, 0x42, 8, GPIOF, 3, GPIOF, 4, GPIOF, 5);
+	report += pwr_ch_init(&pwr_ptr->ch[2], hi2c_ptr, 0x42, 8, GPIOF, 3, GPIOF, 4, GPIOF, 5);
 	// 3 - ПН1.2
-	pwr_ch_init(&pwr_ptr->ch[3], hi2c_ptr, 0x43, 8, GPIOF, 6, GPIOF, 7, GPIOF, 8);
+	report += pwr_ch_init(&pwr_ptr->ch[3], hi2c_ptr, 0x43, 8, GPIOF, 6, GPIOF, 7, GPIOF, 8);
 	// 4 - ПН2.0
-	pwr_ch_init(&pwr_ptr->ch[4], hi2c_ptr, 0x44, 15, GPIOF, 9, GPIOF, 10, GPIOF, 11);
+	report += pwr_ch_init(&pwr_ptr->ch[4], hi2c_ptr, 0x44, 15, GPIOF, 9, GPIOF, 10, GPIOF, 11);
 	// 5 - ПН_ДКР1
-	pwr_ch_init(&pwr_ptr->ch[5], hi2c_ptr, 0x45, 3, GPIOF, 12, GPIOF, 13, GPIOF, 13); // ena3: установил такое-же как для ena[1]
+	report += pwr_ch_init(&pwr_ptr->ch[5], hi2c_ptr, 0x45, 3, GPIOF, 12, GPIOF, 13, GPIOF, 13); // ena3: установил такое-же как для ena[1]
 	// 6 - ПН_ДКР2
-	pwr_ch_init(&pwr_ptr->ch[6], hi2c_ptr, 0x46, 3, GPIOF, 14, GPIOF, 15, GPIOF, 15); // ena3: установил такое-же как для ena[1]
+	report += pwr_ch_init(&pwr_ptr->ch[6], hi2c_ptr, 0x46, 3, GPIOF, 14, GPIOF, 15, GPIOF, 15); // ena3: установил такое-же как для ena[1]
+	//
+	return report;
 }
 
 /**
@@ -171,21 +183,23 @@ void pwr_cb_it_process(type_PWR_CONTROL* pwr_ptr, uint8_t error)
 }
 
 //*** управление измерением температуры ***//
-void tmp_init(type_TMP_CONTROL* tmp_ptr, I2C_HandleTypeDef* hi2c_ptr)
+int8_t tmp_init(type_TMP_CONTROL* tmp_ptr, I2C_HandleTypeDef* hi2c_ptr)
 {
+	int8_t report = 0;
 	// установка общих шин
 	tmp_ptr->alert = gpio_parameters_set(GPIOB, 9);
 	// установка параметров отдельных каналов
 	// 0 - МС
-	tmp1075_init(&tmp_ptr->tmp1075[0], hi2c_ptr, 0x4F); 
+	report += tmp1075_init(&tmp_ptr->tmp1075[0], hi2c_ptr, 0x4F); 
 	// 1 - ПН1.1А
-	tmp1075_init(&tmp_ptr->tmp1075[1], hi2c_ptr, 0x4C); 
+	report += tmp1075_init(&tmp_ptr->tmp1075[1], hi2c_ptr, 0x4C); 
 	// 2 - ПН1.1B
-	tmp1075_init(&tmp_ptr->tmp1075[2], hi2c_ptr, 0x4D); 
+	report += tmp1075_init(&tmp_ptr->tmp1075[2], hi2c_ptr, 0x4D); 
 	// 3 - ПН1.2
-	tmp1075_init(&tmp_ptr->tmp1075[3], hi2c_ptr, 0x4A); 
+	report += tmp1075_init(&tmp_ptr->tmp1075[3], hi2c_ptr, 0x4A); 
 	// 4 - ПН2.0
-	tmp1075_init(&tmp_ptr->tmp1075[4], hi2c_ptr, 0x40); 
+	report += tmp1075_init(&tmp_ptr->tmp1075[4], hi2c_ptr, 0x40); 
+	return report;
 }
 
 /**
@@ -250,6 +264,7 @@ void tmp_cb_it_process(type_TMP_CONTROL* tmp_ptr, uint8_t error)
 //*** заполенние тми и маяка ***//
 void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr)
 {
+	uint8_t i=0;
 	// beacon
 	type_LM_Beacon_Frame beacon_fr;
 	frame_create_header((uint8_t*)&beacon_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_BEACON ,lm_ptr->interface.frame_num, 0x00, lm_ptr->global_time_s);
@@ -262,13 +277,15 @@ void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr)
 	// tmi
 	type_LM_TMI_Data_Frame tmi_fr;
 	frame_create_header((uint8_t*)&tmi_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_TMI ,lm_ptr->interface.frame_num, 0x00, lm_ptr->global_time_s);
-    // 0-МС, 1-ПН1.1A, 2-ПН1.1В, 3-ПН1.2, 4-ПН2.0, 5-ПН_ДКР1, 6-ПН_ДКР2
-  for(int i; i<8; i++){
+ // 0-МС, 1-ПН1.1A, 2-ПН1.1В, 3-ПН1.2, 4-ПН2.0, 5-ПН_ДКР1, 6-ПН_ДКР2
+	for(i=0; i<6; i++){
 		tmi_fr.pl_status[i] = lm_ptr->pl_status;
-		tmi_fr.pwr_inf[i].voltage = (lm_ptr->pwr.ch[i].ina226.voltage >> 8) & 0xFF;
-		tmi_fr.pwr_inf[i].current = (lm_ptr->pwr.ch[i].ina226.current >> 8) & 0xFF;
 	}
-	for(int i; i<5; i++){
+  for(i=0; i<7; i++){
+		tmi_fr.pwr_inf[i].voltage = (lm_ptr->pwr.ch[i].ina226.voltage >> 4) & 0xFF;
+		tmi_fr.pwr_inf[i].current = (lm_ptr->pwr.ch[i].ina226.current >> 4) & 0xFF;
+	}
+	for(i=0; i<5; i++){
 		tmi_fr.temp[i] = (lm_ptr->tmp.tmp1075[i].temp >> 8) & 0xFF;
 	}
   //

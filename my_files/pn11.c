@@ -17,7 +17,6 @@
   */
 void pn_11_init(type_PN11_model* pn11_ptr, uint8_t num, type_PWR_CHANNEL* pwr_ch_ptr, type_TMP1075_DEVICE* tmp_ch_ptr, UART_HandleTypeDef* huart)
 {
-	printf("PL_init %d\n", num);
 	if (num == 1){ //Инициализациия ПН1.1_А
 		//инициализация дискретных сигналов на вход (ТМИ)
 		pn11_ptr->input[0] = gpio_parameters_set(GPIOE, 0);
