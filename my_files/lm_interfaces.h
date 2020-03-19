@@ -37,6 +37,10 @@
 #define CMD_STATUS_START  0x01
 #define CMD_STATUS_FINISH 0x7F
 #define CMD_STATUS_CANCEL 0xFF
+// default cmd
+#define CMD_CLEAR  0x00
+#define CMD_START  0x01
+#define CMD_CANCEL 0xFF
 //***CmdsReg setup
 #define CMDREG_LM_MODE    0x00
 #define CMDREG_PL_PWR_SW  0x01

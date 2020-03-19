@@ -54,6 +54,8 @@ void pl_report_get(type_PL* pl_ptr, uint8_t pl_num, uint8_t* report, uint8_t* le
 	}
 }
 
+//*** Циклограммы ***//
+
 /**
   * @brief  инициализация циклограмм
   * @param  ccl_ptr: структура управления циклограммой
@@ -76,6 +78,15 @@ void cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr)
 	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 7, pl_pn11A_set_iku_default, 1000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 8, pl_pn11A_pwr_off, 1000);
 	// Циклограмма 1: 0x01 - ПН1.1А
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 0, pl_pn11A_set_iku_default, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 1, pl_pn11A_check_temp, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 2, pl_pn11A_pwr_on, 2000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 3, pl_pn11A_fpga_on, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 4, pl_pn11A_fpga_mcu_on, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 5, pl_pn11A_get_and_check_hw_telemetry, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 6, pl_pn11A_check_INT, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 7, pl_pn11A_set_iku_default, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 8, pl_pn11A_pwr_off, 1000);
 }
 
 /**

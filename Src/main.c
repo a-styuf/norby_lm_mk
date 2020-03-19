@@ -22,6 +22,7 @@
 #include "main.h"
 #include "i2c.h"
 #include "rtc.h"
+#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "usb_device.h"
@@ -33,6 +34,8 @@
 #include "lm_int_cb.h"
 #include "vcp_time_segmentation.h"
 #include "led.h"
+
+#include "cy15b104qn_spi.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -60,7 +63,7 @@ typeIdxMask test_id;
 uint8_t tx_data[256], tx_data_len=0; //массив для формирования данных для отправки через VCP
 uint8_t rx_data[256], rx_data_len=0;
 uint8_t time_slot_flag_100ms = 0, time_slot_flag_10ms = 0;
-uint8_t uint8_val = 0;
+uint8_t uint8_val = 0, uint8_buff[128] = {0};
 uint16_t uint16_val = 0;
 int16_t int16_val = 0;
 int8_t int8_val = 0;
@@ -116,9 +119,11 @@ int main(void)
   MX_RTC_Init();
   MX_UART4_Init();
   MX_USART2_UART_Init();
+  MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
 	lm_init(&lm);
   ProcCallbackCmds_Init();
+
   //led init
   led_init(&mcu_state_led, GPIOD, 6);
   led_init(&con_state_led, GPIOD, 7);
@@ -151,15 +156,9 @@ int main(void)
 			//опрос тремодатчиков
 			tmp_process_100ms(&lm.tmp);
 			//работа с циклограммой
-			int8_val = cyclogram_process_100ms(&lm.cyclogram, &lm.pl);
-			if (int8_val > 0){
-				led_alt_setup(&mcu_state_led, LED_BLINK, 300, 64, 1000);
-			}
-			else if (int8_val < 0){
-				led_alt_setup(&mcu_state_led, LED_BLINK, 300, 191, 1000);
-			}
-			else{
-			}
+			cyclogram_process_100ms(&lm.cyclogram, &lm.pl);
+      // работа с продолжительными функциями
+      cmd_process_test_led(MODE_WORK, 100);
 			//reset flag
 			time_slot_flag_100ms = 0;
 		}
@@ -187,10 +186,8 @@ int main(void)
       printf("cmd:init decor memory\n");
       break;
     case CMD_DBG_LED_TEST:
-      cmd_set_status(&lm.interface, int16_val, 0x01);
-      led_alt_setup(&mcu_state_led, LED_HEART_BEAT, 1500, 0, 3000);
-      printf("cmd: (dbg) led test\n");
-      cmd_set_status(&lm.interface, int16_val, 0x7F);
+      printf("cmd: (dbg) led test 0x%02X\n", lm.interface.cmd.array[CMD_DBG_LED_TEST]);
+      cmd_process_test_led(lm.interface.cmd.array[CMD_DBG_LED_TEST], 0);
       break;
     case CMD_NO_ONE:
       NULL;

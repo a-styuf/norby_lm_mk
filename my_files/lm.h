@@ -69,7 +69,9 @@ typedef struct
   */
 typedef struct
 { 
-	uint32_t start_time_s, time_ms;
+	uint32_t start_time_s, time_ms, point_time_ms;
+	uint32_t main_counter;
+	uint8_t ena;
 } type_CMD_CONTROL;
 
 // lm //
@@ -89,6 +91,7 @@ typedef struct
 	type_CYCLOGRAM cyclogram;
 	type_PL pl;
 	type_LM_INTERFACES interface;
+	type_MEM_CONTROL ext_mem;
 } type_LM_DEVICE;
 
 // прототипы функций

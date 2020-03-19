@@ -11,6 +11,7 @@
 #include <stdio.h>
 
 extern type_LM_DEVICE lm;
+extern type_LED_INDICATOR mcu_state_led, con_state_led;
 //*** CallBack ***//
 /**
   * @brief  регистрация колбэков для обработки команд CAN
@@ -63,20 +64,55 @@ void ProcCallbackCmdRegs(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, in
 }
 
 //*** Cmds process function ***//
-void cmd_process_test_led(uint8_t mode)
+/**
+  * @brief  функция для создания псевдопотока для выполнения продолжительной команды: test_led
+  *         - раз в 2 секунды увеличивает скважность на 2 бит (100% - 255 бит)
+  *         - полный цикл 200 секунд: от отсутствия мигания до постоянного горения
+  * @param  cmd: команда, записанная в командный регистр
+  * @param  period_ms: период вызова обработчика в псевдопотоке
+  */
+void cmd_process_test_led(uint8_t mode, uint32_t period_ms)
 {
-  switch(mode){
-    case MODE_START:
-      cmd_set_status(&lm.interface, CMD_DBG_LED_TEST, CMD_STATUS_START);
-    break;
-    case MODE_PROCESS:
-      cmd_set_status(&lm.interface, CMD_DBG_LED_TEST, CMD_STATUS_START); //:todo 
-    break;
-    case MODE_CANCEL:
+  //*** Прерывание работы ***//
+  if (mode == MODE_CANCEL){
       cmd_set_status(&lm.interface, CMD_DBG_LED_TEST, CMD_STATUS_CANCEL);
-    break;
-    case MODE_IDLE:
-      NULL;
-    break;
+      lm.cmd_ctrl[CMD_TEST_LED].main_counter = 0;
+      lm.cmd_ctrl[CMD_TEST_LED].time_ms = 0;
+      lm.cmd_ctrl[CMD_TEST_LED].point_time_ms = 0;
+      lm.cmd_ctrl[CMD_TEST_LED].ena = 0;
+      return;
+    }
+  else{
+    //*** Запуск работы ***//
+    if ((mode == MODE_START) && (lm.cmd_ctrl[CMD_TEST_LED].ena == 0)){
+        lm.cmd_ctrl[CMD_TEST_LED].main_counter = 0;
+        lm.cmd_ctrl[CMD_TEST_LED].time_ms = 0;
+        lm.cmd_ctrl[CMD_TEST_LED].point_time_ms = 0;
+        lm.cmd_ctrl[CMD_TEST_LED].ena = 1;
+        cmd_set_status(&lm.interface, CMD_DBG_LED_TEST, CMD_STATUS_START);
+        return;
+    }
+    //*** Запуск работы ***//
+    else if (lm.cmd_ctrl[CMD_TEST_LED].ena == 1){
+      lm.cmd_ctrl[CMD_TEST_LED].time_ms += period_ms;
+      lm.cmd_ctrl[CMD_TEST_LED].point_time_ms += period_ms;
+      if (lm.cmd_ctrl[CMD_TEST_LED].point_time_ms >= 2000){
+        lm.cmd_ctrl[CMD_TEST_LED].point_time_ms = 0;
+        lm.cmd_ctrl[CMD_TEST_LED].main_counter += 2;
+        led_alt_setup(&mcu_state_led, LED_BLINK, 500, (255 - lm.cmd_ctrl[CMD_TEST_LED].main_counter & 0xFF), 2000);
+      }
+      if (lm.cmd_ctrl[CMD_TEST_LED].main_counter >= 254){
+        lm.cmd_ctrl[CMD_TEST_LED].ena = 2; // отправляем на окончание работы
+      }
+      cmd_set_status(&lm.interface, CMD_DBG_LED_TEST, (lm.cmd_ctrl[CMD_TEST_LED].main_counter >> 2) & 0x7F);
+    }
+    //*** Окончание работы ***//
+    else if (lm.cmd_ctrl[CMD_TEST_LED].ena == 2){
+      lm.cmd_ctrl[CMD_TEST_LED].main_counter = 0;
+      lm.cmd_ctrl[CMD_TEST_LED].time_ms = 0;
+      lm.cmd_ctrl[CMD_TEST_LED].point_time_ms = 0;
+      lm.cmd_ctrl[CMD_TEST_LED].ena = 0;
+      cmd_set_status(&lm.interface, CMD_DBG_LED_TEST, CMD_STATUS_FINISH);
+    }
   }
 }

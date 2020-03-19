@@ -290,8 +290,8 @@ void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr)
 	}
   //
   tmi_fr.pl_power_switches = pwr_get_pwr_switch_key(&lm_ptr->pwr);
-  tmi_fr.iss_mem_status = lm_ptr->mem.fill_volume_iss;
-  tmi_fr.dcr_mem_status = lm_ptr->mem.fill_volume_dcr;
+  tmi_fr.iss_mem_status = lm_ptr->mem.fill_part_volume_prc[PART_ISS];
+  tmi_fr.dcr_mem_status = lm_ptr->mem.fill_part_volume_prc[PART_DCR];
   tmi_fr.pl_rst_count = lm_ptr->rst_counter;
   tmi_fr.gap =0xFE;
 	memset(tmi_fr.filler, 0x00, sizeof(tmi_fr.filler));
