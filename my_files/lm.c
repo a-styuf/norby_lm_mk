@@ -26,6 +26,9 @@ void lm_init(type_LM_DEVICE* lm_ptr)
 	//interfaces init
 	report = interfaces_init(&lm_ptr->interface, DEV_ID);
 	printf("\tCAN init: %d\n", report);
+	//ext_mem
+	report = ext_mem_init(&lm_ptr->mem, &hspi2);
+	printf("\tExt-mem init: %d\n", report);
 	//
 	printf("Finish init at %d\n", lm_ptr->global_time_s);
 }
@@ -290,8 +293,8 @@ void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr)
 	}
   //
   tmi_fr.pl_power_switches = pwr_get_pwr_switch_key(&lm_ptr->pwr);
-  tmi_fr.iss_mem_status = lm_ptr->mem.fill_part_volume_prc[PART_ISS];
-  tmi_fr.dcr_mem_status = lm_ptr->mem.fill_part_volume_prc[PART_DCR];
+  tmi_fr.iss_mem_status = lm_ptr->mem.part[PART_ISS].part_fill_volume_prc;
+  tmi_fr.dcr_mem_status = lm_ptr->mem.part[PART_DCR].part_fill_volume_prc;
   tmi_fr.pl_rst_count = lm_ptr->rst_counter;
   tmi_fr.gap =0xFE;
 	memset(tmi_fr.filler, 0x00, sizeof(tmi_fr.filler));
@@ -325,5 +328,12 @@ uint32_t get_uint32_val_from_bound(uint32_t val, uint32_t min, uint32_t max) //Ð
 	if (val > max) return max;
 	else if (val < min) return min;
 	return val;
+}
+
+void printf_time(void)
+{
+	RTC_TimeTypeDef time;
+	HAL_RTC_GetTime(&hrtc, &time, RTC_FORMAT_BIN);
+	printf("%d:%d:%2.3f ", time.Hours, time.Minutes, time.Seconds + time.SubSeconds*(1./(1+time.SecondFraction)));
 }
 

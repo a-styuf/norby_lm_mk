@@ -5,14 +5,16 @@
 #include "crc16.h"
 
 //*** Defines ***//
+// определитель кадров (метка для визуального или автоматического поиска кадров)
 #define FRAME_MARK 0x0FF1
-
+// типы кадров 
 #define SINGLE_FRAME_TYPE       0x00
 #define ARCH_HEADER_FRAME_TYPE  0x01
 #define ARCH_BODY_FRAME_TYPE    0x02
-
+// типы данных в кадрах
 #define DATA_TYPE_BEACON        0x80
 #define DATA_TYPE_TMI           0x81
+#define DATA_TYPE_FORMAT_MEM    0x82
 
 //*** General parts of frames ***//
 #pragma pack(2)

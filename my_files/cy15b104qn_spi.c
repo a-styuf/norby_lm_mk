@@ -8,6 +8,7 @@
   */
 
 #include "cy15b104qn_spi.h"
+#include <stdio.h>
 
 /**
   * @brief  инициализация работы с CY15X104QN: специально использую блокирующий режим (одна 128-битная транзакция ~10 мкс)
@@ -37,10 +38,14 @@ int8_t cy15_init(type_CY15B104QN_CONTROL* cy15_ptr, SPI_HandleTypeDef* spi_ptr, 
   gpio_set(&cy15_ptr->cs, 1);
   // запись/чтение серийного номера для проверки (WRSN/RDSN)
   cy15_ptr->out_buff[0] = CY15_WREN_OPCODE;
-  cy15_ptr->out_buff[1] = CY15_WRSN_OPCODE;
-  memcpy(&cy15_ptr->out_buff[2], serial_number, sizeof(serial_number));
   gpio_set(&cy15_ptr->cs, 0);
-  HAL_SPI_Transmit(spi_ptr, cy15_ptr->out_buff, 2+sizeof(serial_number), 1);
+  HAL_SPI_Transmit(spi_ptr, cy15_ptr->out_buff, 1, 1);
+  gpio_set(&cy15_ptr->cs, 1);
+  //
+  cy15_ptr->out_buff[0] = CY15_WRSN_OPCODE;
+  memcpy(&cy15_ptr->out_buff[1], serial_number, sizeof(serial_number));
+  gpio_set(&cy15_ptr->cs, 0);
+  HAL_SPI_Transmit(spi_ptr, cy15_ptr->out_buff, 1+sizeof(serial_number), 1);
   gpio_set(&cy15_ptr->cs, 1);
   //
   memset(cy15_ptr->out_buff, 0x00, 256);
@@ -49,7 +54,7 @@ int8_t cy15_init(type_CY15B104QN_CONTROL* cy15_ptr, SPI_HandleTypeDef* spi_ptr, 
   HAL_SPI_TransmitReceive(spi_ptr, cy15_ptr->out_buff, cy15_ptr->in_buff, 1+sizeof(serial_number), 1);
   gpio_set(&cy15_ptr->cs, 1);
   //
-  if (memcmp(serial_number, cy15_ptr->in_buff, 8) == 0){
+  if (memcmp(serial_number, cy15_ptr->in_buff+1, sizeof(serial_number)) == 0){
     report += 1;
   }
   //
@@ -61,11 +66,12 @@ int8_t cy15_init(type_CY15B104QN_CONTROL* cy15_ptr, SPI_HandleTypeDef* spi_ptr, 
   * @param  cy15_ptr: структура для управления памятью
   * @param  buff: указатель на блок памяти
   * @param  len: длина данных (максимум 128 байт)
+  * @retval 1 - запись прошла успешно, 0 - ошибка
   */
 int8_t cy15_write(type_CY15B104QN_CONTROL* cy15_ptr, uint32_t addr, uint8_t *buff, uint8_t len)
 {
   int8_t report = 1;
-  if ((addr + len) >= CY15_VOLUME_BYTES) {
+  if ((addr + len) > CY15_VOLUME_BYTES) {
     report = 0;
     cy15_ptr->error |= ERROR_ADDR;
     return report;
@@ -80,9 +86,9 @@ int8_t cy15_write(type_CY15B104QN_CONTROL* cy15_ptr, uint32_t addr, uint8_t *buf
   cy15_ptr->out_buff[1] = (addr >> 16) & 0xFF;
   cy15_ptr->out_buff[2] = (addr >> 8) & 0xFF;
   cy15_ptr->out_buff[3] = (addr >> 0) & 0xFF;
-  memcpy(&cy15_ptr->out_buff[5], buff, len);
+  memcpy(&cy15_ptr->out_buff[4], buff, len);
   gpio_set(&cy15_ptr->cs, 0);
-  if (HAL_SPI_Transmit(cy15_ptr->spi, cy15_ptr->out_buff, 5+len, 2) != HAL_OK) report = 0;
+  if (HAL_SPI_Transmit(cy15_ptr->spi, cy15_ptr->out_buff, 4+len, 2) != HAL_OK) report = 0;
   else cy15_ptr->error |=ERROR_SPI;
   gpio_set(&cy15_ptr->cs, 1);
   return report;
@@ -93,11 +99,12 @@ int8_t cy15_write(type_CY15B104QN_CONTROL* cy15_ptr, uint32_t addr, uint8_t *buf
   * @param  cy15_ptr: структура для управления памятью
   * @param  buff: указатель на блок памяти
   * @param  len: длина данных (максимум 128 байт)
+  * @retval 1 - запись прошла успешно, 0 - ошибка
   */
 int8_t cy15_read(type_CY15B104QN_CONTROL* cy15_ptr, uint32_t addr,uint8_t *buff, uint8_t len)
 {
   int8_t report = 1;
-  if ((addr + len) >= CY15_VOLUME_BYTES) {
+  if ((addr + len) > CY15_VOLUME_BYTES) {
     report = 0;
     cy15_ptr->error |= ERROR_ADDR;
     return report;

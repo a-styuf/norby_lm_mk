@@ -58,7 +58,7 @@ type_LM_DEVICE lm;
 type_VCP_UART vcp;
 type_LED_INDICATOR mcu_state_led, con_state_led;
 typeIdxMask test_id;
-
+RTC_TimeTypeDef time;
 
 uint8_t tx_data[256], tx_data_len=0; //массив для формирования данных для отправки через VCP
 uint8_t rx_data[256], rx_data_len=0;
@@ -72,7 +72,7 @@ int8_t int8_val = 0;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+void blocking_test(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -119,11 +119,11 @@ int main(void)
   MX_RTC_Init();
   MX_UART4_Init();
   MX_USART2_UART_Init();
-  MX_SPI2_Init();
+  MX_SPI2_Init(); 
   /* USER CODE BEGIN 2 */
 	lm_init(&lm);
   ProcCallbackCmds_Init();
-
+  blocking_test();
   //led init
   led_init(&mcu_state_led, GPIOD, 6);
   led_init(&con_state_led, GPIOD, 7);
@@ -200,14 +200,21 @@ int main(void)
   int16_val = cmdreg_check_to_process(&lm.interface);
   switch(int16_val){
     case CMDREG_LM_MODE:
-      printf("cmdreg:LM mode 0x%2X\n", lm.interface.cmdreg_to_check[CMDREG_LM_MODE]);
+      printf("cmdreg:LM mode 0x%2X\n", lm.interface.cmdreg.array[CMDREG_LM_MODE]);
       break;
     case CMDREG_PL_PWR_SW:
-      printf("cmdreg:PL pwr sw 0x%2X\n", lm.interface.cmdreg_to_check[CMDREG_PL_PWR_SW]);
+      printf("cmdreg:PL pwr sw 0x%2X\n", lm.interface.cmdreg.array[CMDREG_PL_PWR_SW]);
       break;
     case CMDREG_PL_INH_0:
     case CMDREG_PL_INH_1:
-      printf("cmdreg:PL inhibit 0x%4X\n", *((uint16_t*)&lm.interface.cmdreg_to_check[CMDREG_PL_INH_0]));
+      printf("cmdreg:PL inhibit 0x%4X\n", *((uint16_t*)&lm.interface.cmdreg.array[CMDREG_PL_INH_0]));
+      break;
+    case CMDREG_ALL_MEM_RD_PTR_0:
+    case CMDREG_ALL_MEM_RD_PTR_1:
+    case CMDREG_ALL_MEM_RD_PTR_2:
+    case CMDREG_ALL_MEM_RD_PTR_3:
+      lm.mem.read_ptr = *((uint32_t*)&lm.interface.cmdreg.array[CMDREG_ALL_MEM_RD_PTR_0]);
+      printf("cmdreg:LM set full mem read_ptr 0x%4X\n", *((uint32_t*)&lm.interface.cmdreg.array[CMDREG_ALL_MEM_RD_PTR_0]));
       break;
     case CMDREG_DBG_LED:
       led_alt_setup(&mcu_state_led, LED_BLINK, 1000, lm.interface.cmdreg.array[CMDREG_DBG_LED], 3000);
@@ -319,6 +326,36 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void blocking_test(void)
+{
+  // test
+  printf_time();
+  printf("Start test\n");
+  // ext_mem_full_erase(&lm.mem, 0xAA);
+  // printf("Full data frames: %d\n", FRAME_MEM_VOL_FRAMES);
+  //
+  // ext_mem_format_part(&lm.mem, PART_ISS);
+  // printf_time();
+  // printf("start_addr: %d, stop_addr: %d, volume: %d\n", lm.mem.part[PART_ISS].start_frame_num, lm.mem.part[PART_ISS].finish_frame_num, lm.mem.part[PART_ISS].full_frame_num);
+  // //
+  // ext_mem_format_part(&lm.mem, PART_DCR);
+  // printf_time();
+  // printf("start_addr: %d, stop_addr: %d, volume: %d\n", lm.mem.part[PART_DCR].start_frame_num, lm.mem.part[PART_DCR].finish_frame_num, lm.mem.part[PART_DCR].full_frame_num);
+  // //
+  // for (uint8_t i=0; i<64; i++){
+  //   ext_mem_any_line_read(&lm.mem, uint8_buff);
+  //   printf("%03d: ", i);
+  //   _printf_buff(uint8_buff, 16, '\n');
+  //   HAL_Delay(200);
+  // }
+	// // Полная проверка памяти 
+	// printf("%d\n", ext_mem_check(&lm.mem, 0xBB));
+  // //
+  printf_time();
+  printf("Finish test\n");
+}
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if (htim == &htim6) {

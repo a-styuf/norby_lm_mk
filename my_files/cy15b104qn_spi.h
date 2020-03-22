@@ -8,7 +8,7 @@
 #include "my_gpio.h"
 
 // Раскрашивание переменных
-#define CY15_VOLUME_BYTES (pow(2, 19))
+#define CY15_VOLUME_BYTES (1 << 10)//(1 << 19)
 //
 #define CY15_WREN_OPCODE 0x06
 #define CY15_WRITE_OPCODE 0x02

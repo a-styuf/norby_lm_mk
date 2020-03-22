@@ -20,6 +20,7 @@ void ProcCallbackCmds_Init(void)
 {
   interface_cb_registration(&lm.interface, ID_IVAR_CMD, ProcCallbackCmds);
   interface_cb_registration(&lm.interface, ID_IVAR_CMDREG, ProcCallbackCmdRegs);
+  interface_cb_registration(&lm.interface, ID_IVAR_EXTMEM, ProcCallbackExtMems);
 }
 
 //*** набор callback-функция для бработки команд интерфейса общения с внешним миром (*CallBackProc)(CAN_TypeDef *can_ref, typeIdxMask id, uint16_t leng, int state); ***//
@@ -28,7 +29,7 @@ void ProcCallbackCmds_Init(void)
   * @param  can_ptr: указатель на структуру управления CAN
   * @param  id: номер переменной для обработки CB
   * @param  leng: длина данных для обработки
-  * @param  tated: тип CB - 0 до записи данных, 1 - после
+  * @param  state: тип CB - 0 до записи данных, 1 - после
   */
 void ProcCallbackCmds(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, int state) 
 {
@@ -36,11 +37,12 @@ void ProcCallbackCmds(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, int s
 	uint8_t i;
   if(state == 0)
     return;  //первый вызов тут не нужен
+  if (id.std.RTR == 1) return;  //обработка чтения нам не нужна
   if(can_ptr == CAN1) n = 1; else if(can_ptr == CAN2) n = 2; else n = 0;
 	for (i=id.uf.Offset; i<(id.uf.Offset + leng); i++){
       cmd_process_cb(&lm.interface, i);
   }
-  //printf("CAN%d DevId=%d VarId=%d Offset=%d RTR=%d Leng=%d State=%d\n\r", n, id.uf.DevId, id.uf.VarId, id.uf.Offset, id.uf.RTR, leng, state);
+  printf("CAN%d DevId=%d VarId=%d Offset=%d RTR=%d Leng=%d State=%d\n\r", n, id.uf.DevId, id.uf.VarId, id.uf.Offset, id.uf.RTR, leng, state);
 }
 
 /**
@@ -48,7 +50,7 @@ void ProcCallbackCmds(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, int s
   * @param  can_ptr: указатель на структуру управления CAN
   * @param  id: номер переменной для обработки CB
   * @param  leng: длина данных для обработки
-  * @param  tated: тип CB - 0 до записи данных, 1 - после
+  * @param  state: тип CB - 0 до записи данных, 1 - после
   */
 void ProcCallbackCmdRegs(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, int state) 
 {
@@ -60,7 +62,33 @@ void ProcCallbackCmdRegs(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, in
 	for (i=id.uf.Offset; i<(id.uf.Offset + leng); i++){
       cmdreg_process_cb(&lm.interface, i);
   }
-  //printf("CAN%d DevId=%d VarId=%d Offset=%d RTR=%d Leng=%d State=%d\n\r", n, id.uf.DevId, id.uf.VarId, id.uf.Offset, id.uf.RTR, leng, state);
+  printf("CAN%d DevId=%d VarId=%d Offset=%d RTR=%d Leng=%d State=%d\n\r", n, id.uf.DevId, id.uf.VarId, id.uf.Offset, id.uf.RTR, leng, state);
+}
+
+/**
+  * @brief  регистрация колбэк функции для чтения данных из памяти 3-х типов
+  * @param  can_ptr: указатель на структуру управления CAN
+  * @param  id: номер переменной для обработки CB
+  * @param  leng: длина данных для обработки
+  * @param  state: тип CB - 0 до записи данных, 1 - после
+  */
+void ProcCallbackExtMems(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, int state) 
+{
+  volatile int n, vcmd;
+  if(state == 1) return;  //обработка второго вызова не нужна
+  if(can_ptr == CAN1) n = 1; else if(can_ptr == CAN2) n = 2; else n = 0;
+	if (id.uf.Offset%128 == 0){
+      if(id.uf.Offset == 0){
+        ext_mem_any_line_read(&lm.mem, lm.interface.ext_mem.External_Mem_Full_Frame);
+      }
+      else if(id.uf.Offset == 128){
+        ext_mem_rd_frame_from_part(&lm.mem, lm.interface.ext_mem.External_Mem_ISS_Frame, PART_ISS);
+      }
+      else if(id.uf.Offset == 256){
+        ext_mem_rd_frame_from_part(&lm.mem, lm.interface.ext_mem.External_Mem_DCR_Frame, PART_DCR);
+      }
+      printf("CAN%d DevId=%d VarId=%d Offset=%d RTR=%d Leng=%d State=%d\n\r", n, id.uf.DevId, id.uf.VarId, id.uf.Offset, id.uf.RTR, leng, state);
+  }
 }
 
 //*** Cmds process function ***//
@@ -92,7 +120,7 @@ void cmd_process_test_led(uint8_t mode, uint32_t period_ms)
         cmd_set_status(&lm.interface, CMD_DBG_LED_TEST, CMD_STATUS_START);
         return;
     }
-    //*** Запуск работы ***//
+    //*** Собственно тело процесса ***//
     else if (lm.cmd_ctrl[CMD_TEST_LED].ena == 1){
       lm.cmd_ctrl[CMD_TEST_LED].time_ms += period_ms;
       lm.cmd_ctrl[CMD_TEST_LED].point_time_ms += period_ms;

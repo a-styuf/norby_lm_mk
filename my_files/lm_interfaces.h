@@ -38,14 +38,20 @@
 #define CMD_STATUS_FINISH 0x7F
 #define CMD_STATUS_CANCEL 0xFF
 // default cmd
-#define CMD_CLEAR  0x00
-#define CMD_START  0x01
-#define CMD_CANCEL 0xFF
+#define CMD_CLEAR               0x00
+#define CMD_START               0x01
+#define CMD_CANCEL              0xFF
 //***CmdsReg setup
-#define CMDREG_LM_MODE    0x00
-#define CMDREG_PL_PWR_SW  0x01
-#define CMDREG_PL_INH_0   0x02
-#define CMDREG_PL_INH_1   0x03
+#define CMDREG_LM_MODE          0x00
+#define CMDREG_PL_PWR_SW        0x01
+#define CMDREG_PL_INH_0         0x02
+#define CMDREG_PL_INH_1         0x03
+//
+#define CMDREG_ALL_MEM_RD_PTR_0 0x04
+#define CMDREG_ALL_MEM_RD_PTR_1 0x05
+#define CMDREG_ALL_MEM_RD_PTR_2 0x06
+#define CMDREG_ALL_MEM_RD_PTR_3 0x07
+//
 #define CMDREG_DBG_LED    0x10
 //
 #define CMDREG_POOL_LEN   32
@@ -96,7 +102,9 @@ typedef struct {
   * @brief  External memory data in 128-bytes form
   */
 typedef struct {
-  uint8_t External_Mem_Frame[128];  //+0
+  uint8_t External_Mem_Full_Frame[128];  //+0
+  uint8_t External_Mem_ISS_Frame[128];  //+0
+  uint8_t External_Mem_DCR_Frame[128];  //+0
 } type_IVar_ExtMem; //128
 
 /**

@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "my_gpio.h"
 #include "i2c.h"
+#include "rtc.h"
 #include "crc16.h"
 #include "math.h"
 #include "tmp1075.h"
@@ -91,7 +92,6 @@ typedef struct
 	type_CYCLOGRAM cyclogram;
 	type_PL pl;
 	type_LM_INTERFACES interface;
-	type_MEM_CONTROL ext_mem;
 } type_LM_DEVICE;
 
 // прототипы функций
@@ -114,4 +114,6 @@ void tmp_cb_it_process(type_TMP_CONTROL* tmp_ptr, uint8_t error);
 void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr);
 
 uint16_t com_ans_form(uint8_t req_id, uint8_t self_id, uint8_t* seq_num, uint8_t type, uint8_t leng, uint8_t* com_data, uint8_t* ans_com);
+void printf_time(void);
+
 #endif

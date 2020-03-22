@@ -203,3 +203,4 @@ int16_t cmdreg_check_to_process(type_LM_INTERFACES* lm_in_ptr)
   }
 	return -1;
 }
+

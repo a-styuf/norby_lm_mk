@@ -16,6 +16,7 @@
 void ProcCallbackCmds_Init(void);
 void ProcCallbackCmds(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, int state);
 void ProcCallbackCmdRegs(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, int state);
+void ProcCallbackExtMems(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, int state);
 
 void cmd_process_test_led(uint8_t mode, uint32_t period_ms);
 
