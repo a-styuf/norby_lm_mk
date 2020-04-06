@@ -30,17 +30,18 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdio.h>
+
 #include "lm.h"
 #include "lm_int_cb.h"
 #include "vcp_time_segmentation.h"
 #include "led.h"
-
 #include "cy15b104qn_spi.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-#include <stdio.h>
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -60,7 +61,7 @@ type_LED_INDICATOR mcu_state_led, con_state_led;
 typeIdxMask test_id;
 RTC_TimeTypeDef time;
 
-uint8_t tx_data[256], tx_data_len=0; //массив для формирования данных для отправки через VCP
+uint8_t tx_data[256], tx_data_len=0; //масив для формирования данных для отправки через VCP
 uint8_t rx_data[256], rx_data_len=0;
 uint8_t time_slot_flag_100ms = 0, time_slot_flag_10ms = 0;
 uint8_t uint8_val = 0, uint8_buff[128] = {0};
@@ -119,7 +120,7 @@ int main(void)
   MX_RTC_Init();
   MX_UART4_Init();
   MX_USART2_UART_Init();
-  MX_SPI2_Init(); 
+  MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
 	lm_init(&lm);
   ProcCallbackCmds_Init();
@@ -173,7 +174,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
   //*** USB-CAN
-  // обработка команд
+  //* обработка команд *//
   int16_val = cmd_check_to_process(&lm.interface);
   switch(int16_val){
     case CMD_INIT_LM:
@@ -196,7 +197,7 @@ int main(void)
       cmd_set_status(&lm.interface, int16_val, 0x7F);
       break;
   }
-  // обработка командных регистров
+  //* обработка командных регистров *//
   int16_val = cmdreg_check_to_process(&lm.interface);
   switch(int16_val){
     case CMDREG_LM_MODE:
@@ -225,7 +226,8 @@ int main(void)
       NULL;
       break;
   }
-	// обработка команд USB-VCP
+  //*** VCP ***//
+	//* обработка команд USB-VCP *//
 		if (vcp_uart_read(&vcp)){
 			led_alt_setup(&con_state_led, LED_BLINK, 300, 127, 1000);
 			if (vcp.rx_buff[0] == DEV_ID){

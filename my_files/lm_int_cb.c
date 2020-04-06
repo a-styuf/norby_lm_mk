@@ -113,12 +113,12 @@ void cmd_process_test_led(uint8_t mode, uint32_t period_ms)
   else{
     //*** Запуск работы ***//
     if ((mode == MODE_START) && (lm.cmd_ctrl[CMD_TEST_LED].ena == 0)){
-        lm.cmd_ctrl[CMD_TEST_LED].main_counter = 0;
-        lm.cmd_ctrl[CMD_TEST_LED].time_ms = 0;
-        lm.cmd_ctrl[CMD_TEST_LED].point_time_ms = 0;
-        lm.cmd_ctrl[CMD_TEST_LED].ena = 1;
-        cmd_set_status(&lm.interface, CMD_DBG_LED_TEST, CMD_STATUS_START);
-        return;
+      lm.cmd_ctrl[CMD_TEST_LED].main_counter = 0;
+      lm.cmd_ctrl[CMD_TEST_LED].time_ms = 0;
+      lm.cmd_ctrl[CMD_TEST_LED].point_time_ms = 0;
+      lm.cmd_ctrl[CMD_TEST_LED].ena = 1;
+      cmd_set_status(&lm.interface, CMD_DBG_LED_TEST, CMD_STATUS_START);
+      return;
     }
     //*** Собственно тело процесса ***//
     else if (lm.cmd_ctrl[CMD_TEST_LED].ena == 1){

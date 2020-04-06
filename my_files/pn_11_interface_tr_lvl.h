@@ -4,6 +4,7 @@
 #include "usart.h"
 #include "crc16.h"
 
+//типы кадров для общения на транспортном уровне
 #define FR_SPACE_REQ 0x00
 #define FR_SPACE_ANS 0x02
 #define FR_LAST_STATUS_REQ 0x01
@@ -14,10 +15,10 @@
 //типы статусов функций
 #define NO_RECOGNISED_FRAME 127 // введен, так как 0 занят на FR_SPACE_REQ (ноль бы был уместней)
 #define INCORRECT_DATA_CRC8 126
-#define INCORRECT_DATA_NUM 125
-#define CORRECT_DATA 1
+#define INCORRECT_DATA_NUM 	125
+#define CORRECT_DATA 				1
 
-#define DT_MAX_LEN (256-5)
+#define DT_MAX_LEN (252-5)
 
 #define ERR_TYPE_OK 0x00
 #define ERR_TYPE_HEADER_CRC 0x02
@@ -81,6 +82,7 @@ typedef struct
 
 void tr_lvl_init(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, UART_HandleTypeDef* huart);
 uint8_t tr_lvl_send_data(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t* data, uint8_t len);
+uint8_t tr_lvl_send(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr);
 void tr_lvl_process_10ms(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr);
 void tr_lvl_set_timeout(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t timeout);
 
@@ -92,6 +94,7 @@ int8_t rx_check_frame(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr);
 void rx_error_set(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t type);
 void rx_error_check(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t err_type);
 uint8_t rx_data_check(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr);
+uint8_t rx_data_get(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t *data);
 
 void tx_uart_data(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr);
 void rx_uart_data(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr);

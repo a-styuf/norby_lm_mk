@@ -52,7 +52,7 @@
 #define CMDREG_ALL_MEM_RD_PTR_2 0x06
 #define CMDREG_ALL_MEM_RD_PTR_3 0x07
 //
-#define CMDREG_DBG_LED    0x10
+#define CMDREG_DBG_LED          0x10
 //
 #define CMDREG_POOL_LEN   32
 //*** structures ***//

@@ -30,8 +30,8 @@ typedef struct
 	uint16_t rx_data;
 	uint8_t rx_reg_addr;
 	uint8_t validate_data[16];
-	uint16_t temp;
-	uint16_t temp_high, temp_low;
+	int16_t temp;
+	int16_t temp_high, temp_low;
 	uint8_t queue_state;
 	uint8_t error_cnt;
 } type_TMP1075_DEVICE;

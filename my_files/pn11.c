@@ -51,12 +51,20 @@ void pn_11_init(type_PN11_model* pn11_ptr, uint8_t num, type_PWR_CHANNEL* pwr_ch
 }
 
 /**
+  * @brief  установка различных статусов и счетчиков в значение по умолчанию для старта работы с ПН
+  * @param  pn11_ptr: указатель на структуру управления ПН1.1
+  */
+void pn_11_reset_state(type_PN11_model* pn11_ptr)
+{
+	pn11_ptr->state = 0;
+}
+
+/**
   * @brief  установка выходов управления ПН по битовой маске
   * @param  pn11_ptr: указатель на структуру управления ПН1.1
   */
 void pn_11_output_set(type_PN11_model* pn11_ptr, uint8_t output_state)
 {
-	
 	gpio_set(&pn11_ptr->output[0], (output_state >> 0) & 0x01);
 	gpio_set(&pn11_ptr->output[1], (output_state >> 1) & 0x01);
 	gpio_set(&pn11_ptr->output[2], (output_state >> 2) & 0x01);
@@ -69,11 +77,16 @@ void pn_11_output_set(type_PN11_model* pn11_ptr, uint8_t output_state)
   */
 void pn_11_report_create(type_PN11_model* pn11_ptr)
 {
-	pn11_ptr->report.temp = __REV16(pn11_ptr->tmp_ch->temp);
-	pn11_ptr->report.voltage = __REV16(pn11_ptr->pwr_ch->ina226.voltage);
-	pn11_ptr->report.current = __REV16(pn11_ptr->pwr_ch->ina226.current);
-	pn11_ptr->report.outputs = pn_11_get_outputs_state(pn11_ptr);
-	pn11_ptr->report.inputs = pn_11_get_inputs_state(pn11_ptr);
+	pn11_ptr->report.state 				= pn11_ptr->state;
+	pn11_ptr->report.error_flags 	= pn11_ptr->tmp_ch->temp;
+	pn11_ptr->report.err_cnt 			= pn11_ptr->state;
+	pn11_ptr->report.gap 					= 0xFE;
+	pn11_ptr->report.voltage 			= pn11_ptr->pwr_ch->ina226.voltage;
+	pn11_ptr->report.current 			= pn11_ptr->pwr_ch->ina226.current;
+	pn11_ptr->report.temp 				= pn11_ptr->tmp_ch->temp;
+	pn11_ptr->report.outputs 			= pn_11_get_outputs_state(pn11_ptr);
+	pn11_ptr->report.inputs 			= pn_11_get_inputs_state(pn11_ptr);
+	pn11_ptr->report.rsrv 				= 0xFEFE;
 }
 
 /**

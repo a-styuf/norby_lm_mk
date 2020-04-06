@@ -1,4 +1,4 @@
-/**
+  /**
   ******************************************************************************
   * @file           : pn_11_interface_tr_lvl.c
   * @version        : v1.0
@@ -21,10 +21,10 @@ void tr_lvl_init(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, UART_HandleTypeDef* hua
 }
 
 /**
-  * @brief  запуск
+  * @brief  запуск передачи данных
   * @param  tr_lvl_ptr: указатель на структуру управления транспортным уровнем
   * @param  data: указатель на массив данных для передачи
-  * @param  len: длинна данных для передачи
+  * @param  len: длинна данных для передачи в байтах
   */
 uint8_t tr_lvl_send_data(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t* data, uint8_t len)
 {
@@ -38,15 +38,25 @@ uint8_t tr_lvl_send_data(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t* data, 
 }
 
 /**
-  * @brief  запуск
+  * @brief  запуск передачи данных уже записанных в буфер структуры управления транспортным уровнем вместе с длиной
   * @param  tr_lvl_ptr: указатель на структуру управления транспортным уровнем
-  * @param  data: указатель на массив данных для передачи
-  * @param  len: длинна данных для передачи
+  */
+uint8_t tr_lvl_send(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
+{
+	//формируем и запрашиваем место в буфере
+	tx_create_frame(tr_lvl_ptr, FR_SPACE_REQ, NULL, NULL);
+	tx_uart_data(tr_lvl_ptr);
+	return 1;
+}
+
+
+/**
+  * @brief  обработчик протокола
+  * @param  tr_lvl_ptr: указатель на структуру управления транспортным уровнем
   */
 void tr_lvl_process_10ms(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 {
 	int8_t rx_status = 0;
-
 	if (tr_lvl_ptr->rx_len) {
 		rx_status = rx_check_frame(tr_lvl_ptr);
 		if (rx_status == NO_RECOGNISED_FRAME){ //недостаточно данных для распознавания
@@ -259,15 +269,16 @@ int8_t rx_check_frame(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 							break;
 							case INCORRECT_DATA_CRC8:
 								rx_error_set(tr_lvl_ptr, ERR_TYPE_DATA_CRC);
-								status = FR_DATA;							
+								status = FR_DATA;
 							break;
 							case INCORRECT_DATA_NUM:
 								rx_error_set(tr_lvl_ptr, ERR_TYPE_NUM);
-								status = FR_DATA;							
+								status = FR_DATA;
 							break;
 							case CORRECT_DATA:
 								tr_lvl_ptr->rx_data_frame_num += 1;
-								status = FR_DATA;							
+								tr_lvl_ptr->rx_state = 1;
+								status = FR_DATA;
 							break;
 						}
 						break;
@@ -278,7 +289,7 @@ int8_t rx_check_frame(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 			}
 			else{
 				rx_error_set(tr_lvl_ptr, ERR_TYPE_HEADER_CRC);
-				status = -4; // некорректный crc
+				status = -3; // некорректный crc
 			}
 			
 		}
@@ -348,20 +359,36 @@ uint8_t rx_data_check(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 	data_len = tr_lvl_ptr->rx_data[2];
 	frame_len = 4+data_len+1;
 	//
-	if (frame_len > tr_lvl_ptr->rx_len){
+	if (frame_len > tr_lvl_ptr->rx_len) {
 		return NO_RECOGNISED_FRAME;
 	}
 	else if(tr_lvl_ptr->rx_data_frame_num != ((tr_lvl_ptr->rx_data[1] >> 0) & 0x1F)) {
 		return INCORRECT_DATA_NUM;
 	}
-	else if(tr_lvl_ptr->rx_data[4+data_len] != crc8_rmap_data(&tr_lvl_ptr->rx_data[4], data_len)){
+	else if(tr_lvl_ptr->rx_data[4+data_len] != crc8_rmap_data(&tr_lvl_ptr->rx_data[4], data_len)) {
 		return INCORRECT_DATA_CRC8;
 	}
-	else{
+	else {
 		tr_lvl_ptr->row_rx_len = data_len;
 		memcpy(tr_lvl_ptr->row_rx_data, &tr_lvl_ptr->rx_data[4], data_len);
 		return CORRECT_DATA;
-	}	
+	}
+}
+
+/**
+  * @brief  функция для получения пришедших данных в случае удачной транзакции
+  * @param  tr_lvl_ptr: указатель на структуру управления транспортным уровнем
+  * @param  data: указатель на массив для полученных данных
+  * @param  len: длина полученных данных
+  * @retval не 0 - длина полученных данных, 0 - нет данных или ошибка
+  */
+uint8_t rx_data_get(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t *data)
+{
+	if((tr_lvl_ptr->rx_state) && (tr_lvl_ptr->row_rx_len)){
+		memcpy(data, tr_lvl_ptr->row_rx_data, tr_lvl_ptr->row_rx_len);
+		return tr_lvl_ptr->row_rx_len;
+	}
+	return 0;
 }
 
 /**

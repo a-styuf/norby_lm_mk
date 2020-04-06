@@ -132,6 +132,10 @@ uint16_t ina226_read_request(type_INA226_DEVICE* ina226_ptr)
   */
 uint16_t ina226_read_data_process(type_INA226_DEVICE* ina226_ptr)
 {
+	if (ina226_ptr->rx_data == 0xFFFF){
+		ina226_ptr->error_cnt += 1;
+		return 0;
+	}
 	switch(ina226_ptr->rx_reg_addr){
 		case VBUS_REGISTER_ADDR:
 			ina226_ptr->voltage = (__REV16(ina226_ptr->rx_data))*1.25*256./1000.; //значение, где старший байт - вольты, младший - дробная часть в 1/256 В

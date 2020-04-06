@@ -296,7 +296,9 @@ void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr)
   tmi_fr.iss_mem_status = lm_ptr->mem.part[PART_ISS].part_fill_volume_prc;
   tmi_fr.dcr_mem_status = lm_ptr->mem.part[PART_DCR].part_fill_volume_prc;
   tmi_fr.pl_rst_count = lm_ptr->rst_counter;
-  tmi_fr.gap =0xFE;
+  tmi_fr.com_reg_lm_mode = lm_ptr->interface.cmdreg.array[1];
+  tmi_fr.com_reg_pwr_on_off = *(uint16_t*)&lm_ptr->interface.cmdreg.array[2];
+
 	memset(tmi_fr.filler, 0x00, sizeof(tmi_fr.filler));
 	memcpy((uint8_t*)&lm_ptr->interface.tmi_data.tmi, (uint8_t*)&tmi_fr, sizeof(tmi_fr));
 }

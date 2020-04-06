@@ -2,6 +2,7 @@
 #define _PL_CYCLOGRAM_H
 
 #include "pn11.h"
+#include "debug.h"
 
 #define max(A, B) ((A) > (B) ? (A) : (B))
 #define min(A, B) ((A) < (B) ? (A) : (B))
@@ -62,10 +63,13 @@ int8_t cyclogram_process_100ms(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr);
 int8_t pl_pn11A_set_iku_default(type_PL* pl_ptr);
 int8_t pl_pn11A_check_temp(type_PL* pl_ptr);
 int8_t pl_pn11A_pwr_on(type_PL* pl_ptr);
+int8_t pl_pn11A_pwr_check(type_PL* pl_ptr);
 int8_t pl_pn11A_fpga_on(type_PL* pl_ptr);
 int8_t pl_pn11A_pwr_off(type_PL* pl_ptr);
 int8_t pl_pn11A_fpga_mcu_on(type_PL* pl_ptr);
 int8_t pl_pn11A_get_and_check_hw_telemetry(type_PL* pl_ptr);
 int8_t pl_pn11A_check_INT(type_PL* pl_ptr);
-
+int8_t pl_pn11A_write_mode(type_PL* pl_ptr);
+int8_t pl_pn11A_read_req_mode(type_PL* pl_ptr);
+int8_t pl_pn11A_read_mode(type_PL* pl_ptr);
 #endif

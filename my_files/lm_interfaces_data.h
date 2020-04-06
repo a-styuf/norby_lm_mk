@@ -14,7 +14,13 @@
 // типы данных в кадрах
 #define DATA_TYPE_BEACON        0x80
 #define DATA_TYPE_TMI           0x81
-#define DATA_TYPE_FORMAT_MEM    0x82
+#define DATA_TYPE_PL11A         0x82
+#define DATA_TYPE_PL11B         0x83
+#define DATA_TYPE_PL12          0x84
+#define DATA_TYPE_PL20          0x85
+#define DATA_TYPE_DCR           0x86
+
+
 
 //*** General parts of frames ***//
 #pragma pack(2)
@@ -70,6 +76,7 @@ typedef struct{
 } type_POWER; //2
 
 //***  Frame teamplates  ***//
+
 /**
   * @brief  Beacon data in 128-bytes single_data form
   */
@@ -78,8 +85,8 @@ typedef struct {
   //
   uint16_t lm_status; //+10
   uint16_t pl_status; //+12
-  uint8_t lm_temp; //+11
-  uint8_t pl_power_switches; //+14
+  uint8_t lm_temp; //+14
+  uint8_t pl_power_switches; //+15
   //
   uint8_t filler[110]; //+16
   //
@@ -100,9 +107,10 @@ typedef struct {
   uint8_t iss_mem_status;   //+42
   uint8_t dcr_mem_status;   //+43
   uint8_t pl_rst_count;   //+44
-  uint8_t gap;  //+45
+  uint8_t com_reg_lm_mode;   //+45
+  uint16_t com_reg_pwr_on_off;  //+46
   //
-  uint8_t filler[80]; //+46
+  uint8_t filler[78]; //+48
   //
   uint16_t crc16; //+126
 } type_LM_TMI_Data_Frame; //128
