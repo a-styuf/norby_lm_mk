@@ -56,7 +56,7 @@ void pn_11_init(type_PN11_model* pn11_ptr, uint8_t num, type_PWR_CHANNEL* pwr_ch
   */
 void pn_11_reset_state(type_PN11_model* pn11_ptr)
 {
-	pn11_ptr->state = 0;
+	pn11_ptr->status = 0;
 }
 
 /**
@@ -77,16 +77,20 @@ void pn_11_output_set(type_PN11_model* pn11_ptr, uint8_t output_state)
   */
 void pn_11_report_create(type_PN11_model* pn11_ptr)
 {
-	pn11_ptr->report.state 				= pn11_ptr->state;
-	pn11_ptr->report.error_flags 	= pn11_ptr->tmp_ch->temp;
-	pn11_ptr->report.err_cnt 			= pn11_ptr->state;
+	//
+	memset((uint8_t*)&pn11_ptr->report, 0xFE, sizeof(type_PN11_report));
+	//
+	pn11_ptr->report.status 			= pn11_ptr->status;
+	pn11_ptr->report.error_flags 	= pn11_ptr->error_flags;
+	pn11_ptr->report.err_cnt 			= pn11_ptr->error_cnt;
 	pn11_ptr->report.gap 					= 0xFE;
 	pn11_ptr->report.voltage 			= pn11_ptr->pwr_ch->ina226.voltage;
 	pn11_ptr->report.current 			= pn11_ptr->pwr_ch->ina226.current;
 	pn11_ptr->report.temp 				= pn11_ptr->tmp_ch->temp;
 	pn11_ptr->report.outputs 			= pn_11_get_outputs_state(pn11_ptr);
 	pn11_ptr->report.inputs 			= pn_11_get_inputs_state(pn11_ptr);
-	pn11_ptr->report.rsrv 				= 0xFEFE;
+	pn11_ptr->report.rsrv[0] 			= 0xFEFE;
+	pn11_ptr->report.rsrv[1] 			= 0xFEFE;
 }
 
 /**

@@ -5,11 +5,7 @@ void lm_init(type_LM_DEVICE* lm_ptr)
 {
 	int8_t report = 0;
 	printf("Start init: %d\n", report);
-	// инициализируем параметры управляющей структуры
-	lm_ptr->global_time_s = 0;
-	lm_ptr->rst_counter = 0;
-	lm_ptr->pl_status = 0;
-	lm_ptr->status = 0;
+	lm_ctrl_init(lm_ptr);
 	printf("\tLM-struct init init: %d\n", report);
 	//инициализируем питание
 	report = pwr_init(&lm_ptr->pwr, &hi2c3);
@@ -18,7 +14,7 @@ void lm_init(type_LM_DEVICE* lm_ptr)
 	report = tmp_init(&lm_ptr->tmp, &hi2c2);
 	printf("\tTemperature monitors init: %d\n", report);
 	//PL
-	pl_init(&lm_ptr->pl, lm_ptr->pwr.ch, lm_ptr->tmp.tmp1075, &huart2, &huart4);
+	pl_init(&lm_ptr->pl, lm_ptr->pwr.ch, lm_ptr->tmp.tmp1075, &huart2, &huart4, &huart6);
 	printf("\tPL init %d\n", report);
 	//Cyclogram
 	cyclogram_init(&lm_ptr->cyclogram, &lm_ptr->pl);
@@ -30,7 +26,40 @@ void lm_init(type_LM_DEVICE* lm_ptr)
 	report = ext_mem_init(&lm_ptr->mem, &hspi2);
 	printf("\tExt-mem init: %d\n", report);
 	//
-	printf("Finish init at %d\n", lm_ptr->global_time_s);
+	printf("Finish init at %d\n", lm_ptr->ctrl.global_time_s);
+}
+
+/**
+  * @brief  инициализация состояния управляющих параметров МС
+	* @retval статус успешности инициализации: кол-во успешно инициализированных блоков
+  */
+int8_t lm_ctrl_init(type_LM_DEVICE* lm_ptr)
+{
+	int8_t ret_val = 0;
+		// инициализируем параметры управляющей структуры
+	lm_ptr->ctrl.global_time_s = 0;
+	lm_ptr->ctrl.status = 0;
+	lm_ptr->ctrl.error_flags = 0;
+	lm_ptr->ctrl.err_cnt = 0;
+	lm_ptr->ctrl.rst_cnt = 0;
+	lm_ptr->ctrl.pl_status = 0;
+	return ret_val;
+}
+
+/**
+  * @brief  создание отчета по работе МС
+  */
+void lm_report_create(type_LM_DEVICE* lm_ptr)
+{
+	memset((uint8_t*)&lm_ptr->report, 0xFE, sizeof(type_LM_REPORT));
+	// инициализируем параметры управляющей структуры
+	lm_ptr->report.status 				= lm_ptr->ctrl.status;
+	lm_ptr->report.error_flags 		= lm_ptr->ctrl.error_flags;
+	lm_ptr->report.err_cnt 				= lm_ptr->ctrl.err_cnt;
+	lm_ptr->report.rst_cnt 				= lm_ptr->ctrl.rst_cnt;
+	lm_ptr->report.voltage 				= lm_ptr->pwr.ch[0].ina226.voltage;
+	lm_ptr->report.current 				= lm_ptr->pwr.ch[0].ina226.current;
+	lm_ptr->report.temperature 		= lm_ptr->tmp.tmp1075[0].temp;
 }
 
 //*** управление питанием ***//
@@ -270,19 +299,19 @@ void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr)
 	uint8_t i=0;
 	// beacon
 	type_LM_Beacon_Frame beacon_fr;
-	frame_create_header((uint8_t*)&beacon_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_BEACON ,lm_ptr->interface.frame_num, 0x00, lm_ptr->global_time_s);
-	beacon_fr.lm_status = lm_ptr->status;
-	beacon_fr.pl_status = lm_ptr->pl_status;
+	frame_create_header((uint8_t*)&beacon_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_BEACON ,lm_ptr->interface.frame_num, 0x00, lm_ptr->ctrl.global_time_s);
+	beacon_fr.lm_status = lm_ptr->ctrl.status;
+	beacon_fr.pl_status = lm_ptr->ctrl.pl_status;
   beacon_fr.lm_temp = (lm_ptr->tmp.tmp1075[0].temp >> 8) & 0xFF;
   beacon_fr.pl_power_switches = pwr_get_pwr_switch_key(&lm_ptr->pwr);
 	memset(beacon_fr.filler, 0x00, sizeof(beacon_fr.filler));
 	memcpy((uint8_t*)&lm_ptr->interface.tmi_data.beacon, (uint8_t*)&beacon_fr, sizeof(beacon_fr));
 	// tmi
 	type_LM_TMI_Data_Frame tmi_fr;
-	frame_create_header((uint8_t*)&tmi_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_TMI ,lm_ptr->interface.frame_num, 0x00, lm_ptr->global_time_s);
+	frame_create_header((uint8_t*)&tmi_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_TMI ,lm_ptr->interface.frame_num, 0x00, lm_ptr->ctrl.global_time_s);
  // 0-МС, 1-ПН1.1A, 2-ПН1.1В, 3-ПН1.2, 4-ПН2.0, 5-ПН_ДКР1, 6-ПН_ДКР2
 	for(i=0; i<6; i++){
-		tmi_fr.pl_status[i] = lm_ptr->pl_status;
+		tmi_fr.pl_status[i] = lm_ptr->ctrl.pl_status;
 	}
   for(i=0; i<7; i++){
 		tmi_fr.pwr_inf[i].voltage = (lm_ptr->pwr.ch[i].ina226.voltage >> 4) & 0xFF;
@@ -295,13 +324,72 @@ void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr)
   tmi_fr.pl_power_switches = pwr_get_pwr_switch_key(&lm_ptr->pwr);
   tmi_fr.iss_mem_status = lm_ptr->mem.part[PART_ISS].part_fill_volume_prc;
   tmi_fr.dcr_mem_status = lm_ptr->mem.part[PART_DCR].part_fill_volume_prc;
-  tmi_fr.pl_rst_count = lm_ptr->rst_counter;
+  tmi_fr.pl_rst_count = lm_ptr->ctrl.rst_cnt;
   tmi_fr.com_reg_lm_mode = lm_ptr->interface.cmdreg.array[1];
   tmi_fr.com_reg_pwr_on_off = *(uint16_t*)&lm_ptr->interface.cmdreg.array[2];
 
 	memset(tmi_fr.filler, 0x00, sizeof(tmi_fr.filler));
 	memcpy((uint8_t*)&lm_ptr->interface.tmi_data.tmi, (uint8_t*)&tmi_fr, sizeof(tmi_fr));
 }
+
+/**
+  * @brief  заполнение общей тми для МC
+  * @param  lm_ptr: структура управления для МС
+  */
+void fill_gen_tmi(type_LM_DEVICE* lm_ptr)
+{
+	type_LM_GEN_TMI_Frame gen_fr;
+	lm_report_create(lm_ptr);
+	pn_11_report_create(&lm_ptr->pl._11A);
+	pn_11_report_create(&lm_ptr->pl._11B);
+	pn_dcr_report_create(&lm_ptr->pl._dcr);
+	// 
+	memset((uint8_t*)&gen_fr, 0xFEFE, sizeof(type_LM_GEN_TMI_Frame));
+	frame_create_header((uint8_t*)&gen_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_GEN_TMI ,lm_ptr->interface.frame_num, 0x00, lm_ptr->ctrl.global_time_s);
+	memcpy(gen_fr.lm_report, (uint8_t*)&lm_ptr->report, sizeof(type_LM_REPORT));
+	memcpy(gen_fr.pl11a_report, (uint8_t*)&lm_ptr->pl._11A.report, sizeof(type_PN11_report));
+	memcpy(gen_fr.pl11b_report, (uint8_t*)&lm_ptr->pl._11B.report, sizeof(type_PN11_report));
+	memcpy(gen_fr.pldcr_report, (uint8_t*)&lm_ptr->pl._dcr.report, sizeof(type_PNDCR_report));
+	//
+	memcpy((uint8_t*)&lm_ptr->interface.tmi_data.gen_tmi, (uint8_t*)&gen_fr, sizeof(gen_fr));
+}
+
+/**
+  * @brief  заполнение последенго принятого пакета, статуса и запись в память для Декор
+  * @param  lm_ptr: структура управления для МС
+	* @note   Важно! здесь же происходит сохранение данных декор в энергонезавичимую память
+  */
+void fill_dcr_rx_frame(type_LM_DEVICE* lm_ptr)
+{
+	type_DCR_STATUS_Frame status_dcr_fr;
+	type_DCR_LONG_Frame long_dcr_fr;
+	uint8_t data[128] = {0}, leng;
+	//
+	memset((uint8_t*)&status_dcr_fr, 0xFE, sizeof(type_DCR_STATUS_Frame));
+	leng = pn_dcr_get_last_status(&lm_ptr->pl._dcr, data);
+	if (leng) {
+		// формируем заголовок для кадра
+		frame_create_header((uint8_t*)&status_dcr_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_DCR_LAST_RX_STATUS, lm_ptr->pl._dcr.rx_status_cnt, 0x00, lm_ptr->ctrl.global_time_s);
+		// сохраняем в сформированный кадр данные, полученные из модели DCR
+		memcpy((uint8_t*)status_dcr_fr.status_dcr_data, data, sizeof(leng));
+		// сохраняем сформированный кадр в расшаренную can-память
+		memcpy((uint8_t*)&lm_ptr->interface.tmi_data.dcr_status, (uint8_t*)&status_dcr_fr, sizeof(status_dcr_fr));
+	}
+	//
+	memset((uint8_t*)&long_dcr_fr, 0xFE, sizeof(type_DCR_LONG_Frame));
+	leng = pn_dcr_get_last_frame(&lm_ptr->pl._dcr, data);
+	if (leng) {
+		// формируем заголовок для кадра
+		frame_create_header((uint8_t*)&long_dcr_fr.header, DEV_ID, DCR_FRAME_TYPE, DATA_TYPE_DCR_LAST_RX_FRAME, lm_ptr->pl._dcr.rx_frames_cnt, 0x00, lm_ptr->ctrl.global_time_s);
+		// сохраняем в сформированный кадр данные, полученные из модели DCR
+		memcpy((uint8_t*)long_dcr_fr.long_dcr_frame, data, 124);
+		// сохраняем сформированный кадр в расшаренную can-память
+		memcpy((uint8_t*)&lm_ptr->interface.tmi_data.dcr_frame, (uint8_t*)&long_dcr_fr, sizeof(long_dcr_fr));
+		// дополнительно заполняем память Декор кадрами
+		ext_mem_wr_frame_to_part(&lm_ptr->mem, (uint8_t*)&long_dcr_fr, PART_DCR);
+	}
+}
+
 
 //*** протокол для передачи через VCP ***//
 uint16_t com_ans_form(uint8_t req_id, uint8_t self_id, uint8_t* seq_num, uint8_t type, uint8_t leng, uint8_t* com_data, uint8_t* ans_com)

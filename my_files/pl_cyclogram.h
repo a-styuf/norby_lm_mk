@@ -2,27 +2,29 @@
 #define _PL_CYCLOGRAM_H
 
 #include "pn11.h"
+#include "pn_dcr.h"
 #include "debug.h"
 
 #define max(A, B) ((A) > (B) ? (A) : (B))
 #define min(A, B) ((A) < (B) ? (A) : (B))
 
 // настройка циклограмм
-#define PL11A (1)
-#define PL11B (2)
-#define PL12 (3)
-#define PL20 (4)
+#define PL11A	 	(1)
+#define PL11B	 	(2)
+#define PL12		(3)
+#define PL20 		(4)
 #define PL_DCR1 (5)
 #define PL_DCR2 (6)
 
 // раскрашивание переменных
-#define CYCLEGRAMM_NUM (16)
-#define STEP_NUM (32)
+#define CYCLEGRAMM_NUM 	(16)
+#define STEP_NUM 				(32)
 
 typedef struct
 { 
 	type_PN11_model _11A;
 	type_PN11_model _11B;
+	type_PN_DCR_model _dcr;
 } type_PL;
 
 // CYCLOGRAM //
@@ -50,7 +52,7 @@ typedef struct
 	uint8_t mode;
 } type_CYCLOGRAM;
 
-void pl_init(type_PL* pl_ptr, type_PWR_CHANNEL* pwr_arr, type_TMP1075_DEVICE* tmp_arr, UART_HandleTypeDef* huartA, UART_HandleTypeDef* huartB);
+void pl_init(type_PL* pl_ptr, type_PWR_CHANNEL* pwr_arr, type_TMP1075_DEVICE* tmp_arr, UART_HandleTypeDef* huartA, UART_HandleTypeDef* huartB, UART_HandleTypeDef* huartDCR);
 void pl_report_get(type_PL* pl_ptr, uint8_t pl_num, uint8_t* report, uint8_t* len);
 
 void cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr);

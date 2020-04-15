@@ -18,6 +18,8 @@
 "norby_lm_mk\lm_interfaces_data.o"
 "norby_lm_mk\cy15b104qn_spi.o"
 "norby_lm_mk\ext_mem.o"
+"norby_lm_mk\can_vcp.o"
+"norby_lm_mk\pn_dcr.o"
 "norby_lm_mk\main.o"
 "norby_lm_mk\gpio.o"
 "norby_lm_mk\i2c.o"

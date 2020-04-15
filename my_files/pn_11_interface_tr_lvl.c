@@ -403,7 +403,7 @@ void tx_uart_data(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 }
 
 /**
-  * @brief  надстройка над  по UART
+  * @brief  надстройка над приемом данных по UART
   * @param  tr_lvl_ptr: указатель на структуру управления транспортным уровнем
   */
 void rx_uart_data(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)

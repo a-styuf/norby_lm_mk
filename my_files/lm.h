@@ -75,29 +75,56 @@ typedef struct
 	uint8_t ena;
 } type_CMD_CONTROL;
 
+/**
+  * @brief  отчет по работе LM (18-байт, для помещение в кадр общей телеметрии)
+  */
+typedef struct
+{ 
+	uint16_t status; // +0
+	uint16_t error_flags; // +0
+	uint8_t err_cnt; // +8
+	uint8_t rst_cnt; // +7
+	uint16_t voltage; // +2
+	uint16_t current; // +4
+	uint16_t temperature; // +6
+} type_LM_REPORT;
+
+/**
+  * @brief  управляющие параметры МС
+  */
+typedef struct
+{ 
+	uint32_t global_time_s;
+	uint16_t status;
+	uint16_t error_flags;
+	uint8_t err_cnt;
+	uint8_t rst_cnt;
+	uint16_t pl_status;
+} type_LM_CTRL;
+
 // lm //
 /** 
   * @brief  структура хранения всех настроек платы
   */
 typedef struct
 {
-	uint32_t global_time_s;
-	uint16_t status;
-	uint16_t pl_status;
-	uint8_t rst_counter;
+	type_LM_CTRL ctrl;
 	type_MEM_CONTROL mem;
 	type_PWR_CONTROL pwr;
 	type_TMP_CONTROL tmp;
-	type_CMD_CONTROL cmd_ctrl[CMD_POOL_LEN];
+	type_CMD_CONTROL cmd_ctrl[CMD_POOL_LEN];  // параметры для управления долгими командами
 	type_CYCLOGRAM cyclogram;
 	type_PL pl;
 	type_LM_INTERFACES interface;
+	type_LM_REPORT report;
 } type_LM_DEVICE;
 
 // прототипы функций
 
 //*** ITB ***//
 void lm_init(type_LM_DEVICE* lm_ptr);
+int8_t lm_ctrl_init(type_LM_DEVICE* lm_ptr);
+void lm_report_create(type_LM_DEVICE* lm_ptr);
 
 int8_t pwr_init(type_PWR_CONTROL* pwr_ptr, I2C_HandleTypeDef* hi2c_ptr);
 void pwr_on_off(type_PWR_CONTROL* pwr_ptr, uint8_t pwr_switches);
@@ -112,6 +139,8 @@ void tmp_alert_it_process(type_TMP_CONTROL* tmp_ptr, uint16_t it_position);
 void tmp_cb_it_process(type_TMP_CONTROL* tmp_ptr, uint8_t error);
 
 void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr);
+void fill_gen_tmi(type_LM_DEVICE* lm_ptr);
+void fill_dcr_rx_frame(type_LM_DEVICE* lm_ptr);
 
 uint16_t com_ans_form(uint8_t req_id, uint8_t self_id, uint8_t* seq_num, uint8_t type, uint8_t leng, uint8_t* com_data, uint8_t* ans_com);
 void printf_time(void);

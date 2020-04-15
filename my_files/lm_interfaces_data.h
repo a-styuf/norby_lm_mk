@@ -11,14 +11,13 @@
 #define SINGLE_FRAME_TYPE       0x00
 #define ARCH_HEADER_FRAME_TYPE  0x01
 #define ARCH_BODY_FRAME_TYPE    0x02
+#define DCR_FRAME_TYPE          0x03
 // типы данных в кадрах
-#define DATA_TYPE_BEACON        0x80
-#define DATA_TYPE_TMI           0x81
-#define DATA_TYPE_PL11A         0x82
-#define DATA_TYPE_PL11B         0x83
-#define DATA_TYPE_PL12          0x84
-#define DATA_TYPE_PL20          0x85
-#define DATA_TYPE_DCR           0x86
+#define DATA_TYPE_BEACON              0x80
+#define DATA_TYPE_TMI                 0x81
+#define DATA_TYPE_GEN_TMI             0x82
+#define DATA_TYPE_DCR_LAST_RX_FRAME   0x83
+#define DATA_TYPE_DCR_LAST_RX_STATUS  0x84
 
 
 
@@ -58,7 +57,7 @@ typedef struct {
 } type_ArchHeadFrame_Header; //12
 
 /**
-  * @brief  body of archive header type (8 bytes)
+  * @brief  body of archive data type (8 bytes)
   */
 typedef struct {
   uint16_t mark; //+0
@@ -66,6 +65,14 @@ typedef struct {
   uint16_t num; //+4
   uint16_t arch_num; //+6
 } type_ArchBodyFrame_Header; //8
+
+/**
+  * @brief  body of long DCR-frame (4 bytes)
+  */
+typedef struct {
+  uint16_t mark; //+0
+  type_ID_Loc id_loc; //+2
+} type_DCRFrame_Header; //8
 
 /**
   * @brief  struct to store PL-power information
@@ -114,6 +121,47 @@ typedef struct {
   //
   uint16_t crc16; //+126
 } type_LM_TMI_Data_Frame; //128
+
+/**
+  * @brief  Full LM TMI data in 128-bytes single_data form
+  * @note   aLL system reports are contained in 18-bytes fields
+  */
+typedef struct {
+  type_SingleFrame_Header header; //+0
+  // 0-МС, 1-ПН1.1A, 2-ПН1.1В, 3-ПН1.2, 4-ПН2.0, 5-ПН_ДКР
+  uint8_t lm_report[18]; //+10
+  uint8_t pl11a_report[18]; //+28
+  uint8_t pl11b_report[18]; //+46
+  uint8_t pl12_report[18]; //+64
+  uint8_t pl20_report[18]; //+82
+  uint8_t pldcr_report[18]; //+100
+  uint8_t rsrv[8]; //+118
+  //
+  uint16_t crc16; //+126
+} type_LM_GEN_TMI_Frame; //128
+
+/**
+  * @brief  DCR-data frame
+  * @note   long_frame (128-bytes) for saving to ext_mem and share to can-mem
+  */
+typedef struct {
+  type_DCRFrame_Header header; //+0
+  
+  uint8_t long_dcr_frame[124]; //+4
+  //
+} type_DCR_LONG_Frame; //128
+
+/**
+  * @brief  DCR-data frame
+  * @note   status_frame (up to 116-bytes) for share to can-mem
+  */
+typedef struct {
+  type_SingleFrame_Header header; //+0
+  //
+  uint8_t status_dcr_data[116]; //+10
+  //
+  uint16_t crc16; //+126
+} type_DCR_STATUS_Frame; //128
 
 /**
   * @brief  Parameters data

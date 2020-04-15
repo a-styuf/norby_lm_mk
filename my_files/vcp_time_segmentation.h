@@ -24,7 +24,7 @@ typedef struct
 	uint8_t tx_data[APP_TX_DATA_SIZE];
 	uint8_t rx_buff[256];
 	uint8_t tx_buff[256];
-    uint32_t rx_position;
+  uint32_t rx_position;
 	uint32_t rx_size;
 	uint32_t tx_size;
 	uint32_t rx_num;

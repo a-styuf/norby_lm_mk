@@ -34,11 +34,11 @@
 
 #pragma pack(2)
 /** 
-  * @brief  структура хранения отчета по ПН1.1 (не более 16 байт) для последующей упаковки всех состаяний в один кадр из 116 байт
+  * @brief  структура хранения отчета по ПН1.1 (18 байт) для последующей упаковки всех состаяний в один кадр из 116 байт
   */
 typedef struct
 {
-	uint16_t state; 				//+0
+	uint16_t status; 				//+0
 	uint16_t error_flags; 	//+2
 	uint8_t err_cnt;	 			//+4
 	uint8_t gap;			 			//+5
@@ -47,8 +47,8 @@ typedef struct
 	uint16_t temp;		 			//+10
 	uint8_t outputs; 				//+12
 	uint8_t inputs; 				//+13
-	uint16_t rsrv;		 			//+14
-} type_PN11_report; 			//16
+	uint16_t rsrv[2];		 			//+14
+} type_PN11_report; 			//18
 
 #pragma pack(8)
 
@@ -64,7 +64,7 @@ typedef struct
 	uint16_t interrupt_timeout;
 	type_PN11_INTERFACE_APP_LVL interface;
 	type_PN11_report report;
-	uint16_t state, error_flags;
+	uint16_t status, error_flags;
 	uint8_t error_cnt;
 } type_PN11_model;
 

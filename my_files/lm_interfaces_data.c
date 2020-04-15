@@ -27,6 +27,7 @@ uint8_t frame_create_header(uint8_t* header_ptr, uint8_t dev_id, uint8_t type, u
 	type_SingleFrame_Header* s_header;
 	type_ArchHeadFrame_Header* ah_header;
 	type_ArchHeadFrame_Header* ab_header;
+	type_DCRFrame_Header* dcr_header;
   switch(type){
     case SINGLE_FRAME_TYPE:
       s_header = (type_SingleFrame_Header*)header_ptr;
@@ -57,6 +58,13 @@ uint8_t frame_create_header(uint8_t* header_ptr, uint8_t dev_id, uint8_t type, u
       ab_header->time = time_s;
       ab_header->arch_len = num;
       return sizeof(type_ArchHeadFrame_Header);
+    case DCR_FRAME_TYPE:
+      dcr_header = (type_DCRFrame_Header*)header_ptr;
+      dcr_header->mark = FRAME_MARK;
+      dcr_header->id_loc.fields.dev_id = dev_id & 0xF;
+      dcr_header->id_loc.fields.flags = (0x1 << 0) & 0xF;
+      dcr_header->id_loc.fields.data_code = d_code & 0xFF;
+      return sizeof(type_DCRFrame_Header);
   }
   return 0;
 }

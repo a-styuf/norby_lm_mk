@@ -56,8 +56,11 @@ uint16_t interfaces_init(type_LM_INTERFACES* lm_in_ptr, uint8_t id_dev)
       case ID_IVAR_EXTMEM:
         lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->ext_mem, sizeof(type_IVar_ExtMem), (void*)0, ID_IVAR_EXTMEM, 1);
         break;
+      case ID_IVAR_DCR_INTERFACE:
+        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->dcr_interface, sizeof(type_IVar_DCR_Interface), (void*)0, ID_IVAR_DCR_INTERFACE, 0);
+        break;
       case ID_IVAR_DBG:
-        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->dbg_data, sizeof(ID_IVAR_DBG), (void*)0, ID_IVAR_DBG, 1);
+        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->dbg_data, sizeof(type_IVar_DBG_Data), (void*)0, ID_IVAR_DBG, 1);
         break;
       case ID_IVAR_BRD:
         break;
@@ -88,7 +91,7 @@ typeRegistrationRec _reg_rec_setup(void *VarPtr, uint32_t VarLeng, void (*CallBa
 }
 
 /**
-  * @brief  регистрация переменных для can
+  * @brief  регистрация переменных для can (заимстывованна из примера АА)
   * @param  id_dev: номер устройства на шине
   */
 uint16_t RegisterAllVars(type_LM_INTERFACES* lm_in_ptr, uint8_t id_dev) 
@@ -109,6 +112,8 @@ void interface_cb_registration(type_LM_INTERFACES* lm_in_ptr, uint8_t mode, void
 {
   lm_in_ptr->reg_rec_ptr[mode].CallBackProc = CallBackProc;
 }
+
+///*** Commands ***///
 
 /**
   * @brief  обработка команды при приеме регистра команд в колбэке
@@ -170,6 +175,8 @@ void cmd_set_status(type_LM_INTERFACES* lm_in_ptr, uint16_t cmd_num, uint8_t cmd
   }
 }
 
+///*** Command registers ***///
+
 /**
   * @brief  обработка записи в командные регистры при приеме регистра команд в колбэке
   * @param  lm_in_ptr указатель на сруктуру с интерфейсом
@@ -200,6 +207,48 @@ int16_t cmdreg_check_to_process(type_LM_INTERFACES* lm_in_ptr)
       }
     }
     lm_in_ptr->cmdreg_flg -= 1;
+  }
+	return -1;
+}
+
+///*** DCR Interface ***///
+/**
+  * @brief  обработка записи в регистр интерфейса к ДеКоР
+  * @param  lm_in_ptr указатель на сруктуру с интерфейсом
+  * @param  offset смещение записанного регистра
+  * @note   запуск немедленной отправки осуществляется записью длины в поле длины (смещение 127), остальные  возможные команды 
+  *         планируется выполнять через регистр статусов
+  */
+void dcr_inerface_process_cb(type_LM_INTERFACES* lm_in_ptr, uint16_t offset)
+{
+  switch(offset){
+    case DCR_INTERFACE_INSTASEND_LENG_OFFSET:
+      //для немедленной отправки сообщения проверяем только поле длины (offset = 127)
+      lm_in_ptr->dcr_int_offset_to_check[offset] = 0x01;
+      lm_in_ptr->dcr_int_flg += 1;
+      break;
+  }
+}
+
+/**
+  * @brief  проверка на обработку командного регистра для интерфейса к ДеКоР
+  * @param  lm_in_ptr указатель на сруктуру с интерфейсом
+  * @retval -1: нет команд; другое: номер командного регистра 
+  */
+int16_t dcr_inerface_check_to_process(type_LM_INTERFACES* lm_in_ptr)
+{
+  if (lm_in_ptr->dcr_int_flg == 0){
+    return -1;
+  }
+  else {
+    for (int i=0; i<DCR_INTERFACE_CMD_POOL_LEN; i++){
+      if (lm_in_ptr->dcr_int_offset_to_check[i]){
+        lm_in_ptr->dcr_int_offset_to_check[i] = 0;
+        lm_in_ptr->dcr_int_flg -= 1;
+        return i;
+      }
+    }
+    lm_in_ptr->dcr_int_flg -= 1;
   }
 	return -1;
 }

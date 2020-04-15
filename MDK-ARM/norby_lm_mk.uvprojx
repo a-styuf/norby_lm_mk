@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F405xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;                                             ../Drivers/STM32F4xx_HAL_Driver/Inc;                                             ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;                                             ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;                                             ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;                                             ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;                                             ../Drivers/CMSIS/Include;                                             ..\my_files</IncludePath>
+              <IncludePath>../Inc;                                               ../Drivers/STM32F4xx_HAL_Driver/Inc;                                               ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;                                               ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;                                               ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;                                               ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;                                               ../Drivers/CMSIS/Include;                                               ..\my_files</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -478,6 +478,16 @@
               <FileName>ext_mem.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\my_files\ext_mem.c</FilePath>
+            </File>
+            <File>
+              <FileName>can_vcp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\my_files\can_vcp.c</FilePath>
+            </File>
+            <File>
+              <FileName>pn_dcr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\my_files\pn_dcr.c</FilePath>
             </File>
           </Files>
         </Group>

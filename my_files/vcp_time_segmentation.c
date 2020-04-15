@@ -53,7 +53,7 @@ int vcp_uart_init(type_VCP_UART* vcp_uart_ptr, uint32_t timeout_us, TIM_HandleTy
 /**
   * @brief  отправка пакета
   * @param  vcp_uart_ptr: указатель на структуру управления vcp_uart
-  * @param  buffer: указатель на приемный буфер
+  * @param  buffer: указатель на буфер для отправки
   * @param  len: длина пакета
   
   * @retval количество отправленных данных

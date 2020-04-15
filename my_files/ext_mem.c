@@ -274,12 +274,12 @@ uint8_t part_wr_rd_ptr_calc(type_MEM_PART_CONTROL* part_ptr, uint8_t mode)
   switch(part_ptr->mode){
     case PART_MODE_READ_BLOCK:  // указатель чтения доганяет указатель записи и блокается
       if (mode == MODE_WRITE){
-        if (part_ptr->write_ptr >= part_ptr->finish_frame_num) part_ptr->write_ptr = 0;
+        if ((part_ptr->write_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->write_ptr = 0;
         else part_ptr->write_ptr += 1;
         report = 1;
       }
       else if (mode == MODE_READ){
-        if (part_ptr->read_ptr >= part_ptr->finish_frame_num) part_ptr->read_ptr = 0;
+        if ((part_ptr->read_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->read_ptr = 0;
         else if(part_ptr->read_ptr == part_ptr->write_ptr) NULL;
         else part_ptr->read_ptr += 1;
         report = 1;
@@ -288,12 +288,12 @@ uint8_t part_wr_rd_ptr_calc(type_MEM_PART_CONTROL* part_ptr, uint8_t mode)
     case PART_MODE_WRITE_BLOCK:  // указатель записи доганяет указатель чтения и блокается
       if (mode == MODE_WRITE){
         report = 1;
-        if (part_ptr->write_ptr >= part_ptr->finish_frame_num) part_ptr->write_ptr = 0;
+        if ((part_ptr->write_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->write_ptr = 0;
         else if(part_ptr->write_ptr == part_ptr->read_ptr) report = 0;
         else part_ptr->write_ptr += 1;
       }
       else if (mode == MODE_READ){
-        if (part_ptr->read_ptr >= part_ptr->finish_frame_num) part_ptr->read_ptr = 0;
+        if ((part_ptr->read_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->read_ptr = 0;
         else part_ptr->read_ptr += 1;
         report = 1;
       }
@@ -302,12 +302,12 @@ uint8_t part_wr_rd_ptr_calc(type_MEM_PART_CONTROL* part_ptr, uint8_t mode)
     default: // PART_MODE_REWRITE
       if (mode == MODE_WRITE){
         part_ptr->write_ptr += 1;
-        if (part_ptr->write_ptr >= part_ptr->finish_frame_num) part_ptr->write_ptr = 0;
+        if ((part_ptr->write_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->write_ptr = 0;
         report = 1;
       }
       else if (mode == MODE_READ){
         part_ptr->read_ptr += 1;
-        if (part_ptr->read_ptr >= part_ptr->finish_frame_num) part_ptr->read_ptr = 0;
+        if ((part_ptr->read_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->read_ptr = 0;
         report = 1;
       }
     break;

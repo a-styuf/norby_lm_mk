@@ -15,12 +15,14 @@
   * @param  pwr_arr: указатель на массив каналов управления питанием, в котором есть каналы для ПН
   * @param  tmp_arr: указатель на массив каналов мониторинга температуры, в котором есть каналы для ПН
   */
-void pl_init(type_PL* pl_ptr, type_PWR_CHANNEL* pwr_arr, type_TMP1075_DEVICE* tmp_arr, UART_HandleTypeDef* huartA, UART_HandleTypeDef* huartB)
+void pl_init(type_PL* pl_ptr, type_PWR_CHANNEL* pwr_arr, type_TMP1075_DEVICE* tmp_arr, UART_HandleTypeDef* huartA, UART_HandleTypeDef* huartB, UART_HandleTypeDef* huartDCR)
 {
 	//инициализация ПН1.1А
-	pn_11_init(&pl_ptr->_11A, PL11A, &pwr_arr[1], &tmp_arr[1], huartA);
+	pn_11_init(&pl_ptr->_11A, PL11A, &pwr_arr[PL11A], &tmp_arr[PL11A], huartA);
 	//инициализация ПН1.1Б
-	pn_11_init(&pl_ptr->_11B, PL11B, &pwr_arr[2], &tmp_arr[2], huartB);
+	pn_11_init(&pl_ptr->_11B, PL11B, &pwr_arr[PL11B], &tmp_arr[PL11B], huartB);
+	//инициализация ДеКоР
+	pn_dcr_init(&pl_ptr->_dcr, huartDCR, &pwr_arr[PL_DCR1], &pwr_arr[PL_DCR2]);
 }
 
 /**
@@ -259,7 +261,7 @@ int8_t pl_pn11A_pwr_check(type_PL* pl_ptr)
 	if ((power > PN11_CURR_MAX) || (power < PN11_CURR_MIN)) retval = 0;
 	//debug
 	printf_time();
-	printf("--PL11A pwr_check I=%.3f, V=%.2f, W=%.2f; status:%d\n", current/256., voltage/256., power/256., retval);
+	printf("--PL11A pwr_check I=%.3f, V=%.2f, W=%.2f; status:%d\n", (double)current/256., (double)voltage/256., (double)power/256., retval);
 	//
 	return 1;
 }

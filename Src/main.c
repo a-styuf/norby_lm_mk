@@ -34,6 +34,7 @@
 
 #include "lm.h"
 #include "lm_int_cb.h"
+#include "can_vcp.h"
 #include "vcp_time_segmentation.h"
 #include "led.h"
 #include "cy15b104qn_spi.h"
@@ -55,10 +56,10 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-type_LM_DEVICE lm;
 type_VCP_UART vcp;
+type_CAN_VCP can_vcp;
+type_LM_DEVICE lm;
 type_LED_INDICATOR mcu_state_led, con_state_led;
-typeIdxMask test_id;
 RTC_TimeTypeDef time;
 
 uint8_t tx_data[256], tx_data_len=0; //масив для формирования данных для отправки через VCP
@@ -121,9 +122,11 @@ int main(void)
   MX_UART4_Init();
   MX_USART2_UART_Init();
   MX_SPI2_Init();
+  MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
-	lm_init(&lm);
+  lm_init(&lm);
   ProcCallbackCmds_Init();
+  can_vcp_init(&can_vcp, &vcp);
   blocking_test();
   //led init
   led_init(&mcu_state_led, GPIOD, 6);
@@ -137,12 +140,6 @@ int main(void)
   HAL_UART_Receive_IT(lm.pl._11A.interface.tr_lvl.huart, lm.pl._11A.interface.tr_lvl.rx_data, 1);
   HAL_UART_Receive_IT(lm.pl._11B.interface.tr_lvl.huart, lm.pl._11B.interface.tr_lvl.rx_data, 1);
 
-  test_id.uf.res1 = 0;
-  test_id.uf.RTR = 1;
-  test_id.uf.res2 = 0;
-  test_id.uf.Offset = 0;
-  test_id.uf.VarId = 0;
-  test_id.uf.DevId = 6;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -151,7 +148,9 @@ int main(void)
   while (1)
   {
 		if (time_slot_flag_100ms){ // 100ms
+			//формирование кадров телеметрии
       fill_tmi_and_beacon(&lm);
+      fill_gen_tmi(&lm);
 			//опрос мониторов питания и температур
 			pwr_process_100ms(&lm.pwr);
 			//опрос тремодатчиков
@@ -164,7 +163,11 @@ int main(void)
 			time_slot_flag_100ms = 0;
 		}
 		if (time_slot_flag_10ms){ // 10ms
-			//поддрежка транспортного уровня протокола �?СС
+      //обработка данных принятых от декор
+      pn_dcr_process_rx_frames_10ms(&lm.pl._dcr);
+      // заполнение кадра для ДКР (возможно необхрдимо вызвать реже, необхродимо проверять)
+      fill_dcr_rx_frame(&lm);
+			//поддрежка транспортного уровня протокола ИСС
 			tr_lvl_process_10ms(&lm.pl._11A.interface.tr_lvl);
 			tr_lvl_process_10ms(&lm.pl._11B.interface.tr_lvl);
 			//reset flag
@@ -173,107 +176,129 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  //*** USB-CAN
-  //* обработка команд *//
-  int16_val = cmd_check_to_process(&lm.interface);
-  switch(int16_val){
-    case CMD_INIT_LM:
-      printf("cmd:init LM\n");
-      break;
-    case CMD_INIT_ISS_MEM:
-      printf("cmd:init iss memory\n");
-      break;
-    case CMD_INIT_DCR_MEM:
-      printf("cmd:init decor memory\n");
-      break;
-    case CMD_DBG_LED_TEST:
-      printf("cmd: (dbg) led test 0x%02X\n", lm.interface.cmd.array[CMD_DBG_LED_TEST]);
-      cmd_process_test_led(lm.interface.cmd.array[CMD_DBG_LED_TEST], 0);
-      break;
-    case CMD_NO_ONE:
-      NULL;
-      break;
-    default: //если команда в резерве, то реагируем немедленным выполнением
-      cmd_set_status(&lm.interface, int16_val, 0x7F);
-      break;
-  }
-  //* обработка командных регистров *//
-  int16_val = cmdreg_check_to_process(&lm.interface);
-  switch(int16_val){
-    case CMDREG_LM_MODE:
-      printf("cmdreg:LM mode 0x%2X\n", lm.interface.cmdreg.array[CMDREG_LM_MODE]);
-      break;
-    case CMDREG_PL_PWR_SW:
-      printf("cmdreg:PL pwr sw 0x%2X\n", lm.interface.cmdreg.array[CMDREG_PL_PWR_SW]);
-      break;
-    case CMDREG_PL_INH_0:
-    case CMDREG_PL_INH_1:
-      printf("cmdreg:PL inhibit 0x%4X\n", *((uint16_t*)&lm.interface.cmdreg.array[CMDREG_PL_INH_0]));
-      break;
-    case CMDREG_ALL_MEM_RD_PTR_0:
-    case CMDREG_ALL_MEM_RD_PTR_1:
-    case CMDREG_ALL_MEM_RD_PTR_2:
-    case CMDREG_ALL_MEM_RD_PTR_3:
-      lm.mem.read_ptr = *((uint32_t*)&lm.interface.cmdreg.array[CMDREG_ALL_MEM_RD_PTR_0]);
-      printf("cmdreg:LM set full mem read_ptr 0x%4X\n", *((uint32_t*)&lm.interface.cmdreg.array[CMDREG_ALL_MEM_RD_PTR_0]));
-      break;
-    case CMDREG_DBG_LED:
-      led_alt_setup(&mcu_state_led, LED_BLINK, 1000, lm.interface.cmdreg.array[CMDREG_DBG_LED], 3000);
-      printf("cmdreg: (dbg) led test 0x%2X\n", lm.interface.cmdreg.array[CMDREG_DBG_LED]);
-      break;
-    case CMD_NO_ONE:
-    default: //если команда в резерве, то реагируем немедленным выполнением
-      NULL;
-      break;
-  }
-  //*** VCP ***//
-	//* обработка команд USB-VCP *//
-		if (vcp_uart_read(&vcp)){
-			led_alt_setup(&con_state_led, LED_BLINK, 300, 127, 1000);
-			if (vcp.rx_buff[0] == DEV_ID){
-				if (vcp.rx_buff[4] == 0x00){ //зеркало для ответа
-					memcpy(tx_data, &vcp.rx_buff[6], vcp.rx_buff[5]&0x7F);
-					tx_data_len = vcp.rx_buff[5];
-					memcpy(tx_data, &vcp.rx_buff[6], vcp.tx_size);
-				}
-				else if (vcp.rx_buff[4] == 0x01){ //включение/отклюение каналов питания по выбору
-					pwr_on_off(&lm.pwr, vcp.rx_buff[6]);
-					tx_data_len = 0;
-				}
-				else if (vcp.rx_buff[4] == 0x02){ //ТМ�? системы питания
-					memcpy(tx_data, &lm.pwr.report, sizeof(lm.pwr.report));
-					tx_data_len = sizeof(lm.pwr.report);
-				}
-				else if (vcp.rx_buff[4] == 0x03){ //одиночный запуск циклограммы по выбору c выбранным режимом
-					tx_data[0] = cyclogram_start(&lm.cyclogram, vcp.rx_buff[6], vcp.rx_buff[7]);
-					tx_data_len = 1;
-				}
-				else if (vcp.rx_buff[4] == 0x04){ //состояние полезной нагрузки по выбору
-					pl_report_get(&lm.pl, vcp.rx_buff[6], tx_data, &tx_data_len);
-				}
-				else if (vcp.rx_buff[4] == 0x05){ //тестирование интерфейса
-					/* Начало: тестирование модулей общения ПН1.1*/
-					led_setup(&mcu_state_led, LED_BLINK, 500, 127);
-					HAL_Delay(100);
-					//отправка данных протоколом транспортного уровня из ПН1.1А в ПН1.1Б
-					sprintf((char*)tx_data, "Test: A->B, tr_lvl, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 30 Test: A->B, tr_lvl, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 30");
-					tr_lvl_send_data(&lm.pl._11A.interface.tr_lvl, tx_data, strlen((char*)tx_data)+1);
-					//
-					sprintf((char*)rx_data, "Test end.");
-					vcp_uart_write(&vcp, rx_data, strlen((char*)rx_data)+1);
-					led_setup(&mcu_state_led, LED_HEART_BEAT, 1000, 0);
-					/* Конец: тестирование модулей общения ПН1.1*/
-					tx_data_len = 0;
-				}
-				else if (vcp.rx_buff[4] == 0x06){ //включение/отклюение каналов питания используя отдельные сигналы ena
-					int8_val = vcp.rx_buff[6] <= 7 ? vcp.rx_buff[6] : 0;
-					pwr_ch_on_off_separatly(&lm.pwr.ch[int8_val], vcp.rx_buff[7]);
-					tx_data_len = 0;
-				}
-				vcp.tx_size = com_ans_form(vcp.rx_buff[1], DEV_ID, &vcp.tx_seq_num, vcp.rx_buff[4], tx_data_len, tx_data, vcp.tx_buff);
-				vcp_uart_write(&vcp, vcp.tx_buff, vcp.tx_size);
-			}
+    //*** USB-CAN
+    //* обработка команд *//
+    int16_val = cmd_check_to_process(&lm.interface);
+    switch(int16_val){
+      case CMD_INIT_LM:
+        printf("cmd:init LM\n");
+        break;
+      case CMD_INIT_ISS_MEM:
+        printf("cmd:init iss memory\n");
+        break;
+      case CMD_INIT_DCR_MEM:
+        printf("cmd:init decor memory\n");
+        break;
+      case CMD_DBG_LED_TEST:
+        printf("cmd: (dbg) led test 0x%02X\n", lm.interface.cmd.array[CMD_DBG_LED_TEST]);
+        cmd_process_test_led(lm.interface.cmd.array[CMD_DBG_LED_TEST], 0);
+        break;
+      case CMD_NO_ONE:
+        NULL;
+        break;
+      default: //если команда в резерве, то реагируем немедленным выполнением
+        cmd_set_status(&lm.interface, int16_val, 0x7F);
+        break;
+    }
+    //* обработка командных регистров *//
+    int16_val = cmdreg_check_to_process(&lm.interface);
+    switch(int16_val){
+      case CMDREG_LM_MODE:
+        printf("cmdreg:LM mode 0x%2X\n", lm.interface.cmdreg.array[CMDREG_LM_MODE]);
+        break;
+      case CMDREG_PL_PWR_SW:
+        printf("cmdreg:PL pwr sw 0x%2X\n", lm.interface.cmdreg.array[CMDREG_PL_PWR_SW]);
+        break;
+      case CMDREG_PL_INH_0:
+      case CMDREG_PL_INH_1:
+        printf("cmdreg:PL inhibit 0x%4X\n", *((uint16_t*)&lm.interface.cmdreg.array[CMDREG_PL_INH_0]));
+        break;
+      case CMDREG_ALL_MEM_RD_PTR_0:
+      case CMDREG_ALL_MEM_RD_PTR_1:
+      case CMDREG_ALL_MEM_RD_PTR_2:
+      case CMDREG_ALL_MEM_RD_PTR_3:
+        lm.mem.read_ptr = *((uint32_t*)&lm.interface.cmdreg.array[CMDREG_ALL_MEM_RD_PTR_0]);
+        printf("cmdreg:LM set full mem read_ptr 0x%4X\n", *((uint32_t*)&lm.interface.cmdreg.array[CMDREG_ALL_MEM_RD_PTR_0]));
+        break;
+      case CMDREG_DBG_LED:
+        led_alt_setup(&mcu_state_led, LED_BLINK, 1000, lm.interface.cmdreg.array[CMDREG_DBG_LED], 3000);
+        printf("cmdreg: (dbg) led test 0x%2X\n", lm.interface.cmdreg.array[CMDREG_DBG_LED]);
+        break;
+			case CMDREG_DBG_CYCLOGRAMS_0:
+			// case CMDREG_DBG_CYCLOGRAMS_1:
+        cyclogram_start(&lm.cyclogram, lm.interface.cmdreg.array[CMDREG_DBG_CYCLOGRAMS_0], lm.interface.cmdreg.array[CMDREG_DBG_CYCLOGRAMS_1]);
+        printf("cmdreg: (dbg) cyclograms 0x%04X\n", *(uint16_t*)&lm.interface.cmdreg.array[CMDREG_DBG_CYCLOGRAMS_0]);
+        break;
+      case CMD_NO_ONE:
+      default: //если команда в резерве, то реагируем немедленным выполнением
+        NULL;
+        break;
+    }
+    //* обработка команды для интерфейса к Декор *//
+    int16_val = dcr_inerface_check_to_process(&lm.interface);
+    switch(int16_val){
+      case DCR_INTERFACE_INSTASEND_LENG_OFFSET:
+        pn_dcr_uart_send(&lm.pl._dcr.uart, lm.interface.dcr_interface.DCR_InstaMessage, lm.interface.dcr_interface.DCR_InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET]);
+        printf("dcr_int:Instasend 0x%2X\n", lm.interface.dcr_interface.DCR_InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET]);
+        _printf_buff(lm.interface.dcr_interface.DCR_InstaMessage, lm.interface.dcr_interface.DCR_InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET], '\n');
+				lm.interface.dcr_interface.DCR_InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET] = 0;
+        break;
+      default: //если команда в резерве, то реагируем немедленным выполнением
+        NULL;
+        break;
+    }
+    //*** VCP-CAN. ***//
+    //* обработка команд USB-VCP *//
+    if (can_vcp_read_process(&can_vcp)) {
+			led_alt_setup(&con_state_led, LED_BLINK, 700, 127, 1000);
 		}
+    //* обработка команд USB-VCP *//
+    // if (vcp_uart_read(&vcp)){
+    //   led_alt_setup(&con_state_led, LED_BLINK, 300, 127, 1000);
+    //   if (vcp.rx_buff[0] == DEV_ID){
+    //     if (vcp.rx_buff[4] == 0x00){ //зеркало для ответа
+    //       memcpy(tx_data, &vcp.rx_buff[6], vcp.rx_buff[5]&0x7F);
+    //       tx_data_len = vcp.rx_buff[5];
+    //       memcpy(tx_data, &vcp.rx_buff[6], vcp.tx_size);
+    //     }
+    //     else if (vcp.rx_buff[4] == 0x01){ //включение/отклюение каналов питания по выбору
+    //       pwr_on_off(&lm.pwr, vcp.rx_buff[6]);
+    //       tx_data_len = 0;
+    //     }
+    //     else if (vcp.rx_buff[4] == 0x02){ //ТМ�? системы питания
+    //       memcpy(tx_data, &lm.pwr.report, sizeof(lm.pwr.report));
+    //       tx_data_len = sizeof(lm.pwr.report);
+    //     }
+    //     else if (vcp.rx_buff[4] == 0x03){ //одиночный запуск циклограммы по выбору c выбранным режимом
+    //       tx_data[0] = cyclogram_start(&lm.cyclogram, vcp.rx_buff[6], vcp.rx_buff[7]);
+    //       tx_data_len = 1;
+    //     }
+    //     else if (vcp.rx_buff[4] == 0x04){ //состояние полезной нагрузки по выбору
+    //       pl_report_get(&lm.pl, vcp.rx_buff[6], tx_data, &tx_data_len);
+    //     }
+    //     else if (vcp.rx_buff[4] == 0x05){ //тестирование интерфейса
+    //       /* Начало: тестирование модулей общения ПН1.1*/
+    //       led_setup(&mcu_state_led, LED_BLINK, 500, 127);
+    //       HAL_Delay(100);
+    //       //отправка данных протоколом транспортного уровня из ПН1.1А в ПН1.1Б
+    //       sprintf((char*)tx_data, "Test: A->B, tr_lvl, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 30 Test: A->B, tr_lvl, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 30");
+    //       tr_lvl_send_data(&lm.pl._11A.interface.tr_lvl, tx_data, strlen((char*)tx_data)+1);
+    //       //
+    //       sprintf((char*)rx_data, "Test end.");
+    //       vcp_uart_write(&vcp, rx_data, strlen((char*)rx_data)+1);
+    //       led_setup(&mcu_state_led, LED_HEART_BEAT, 1000, 0);
+    //       /* Конец: тестирование модулей общения ПН1.1*/
+    //       tx_data_len = 0;
+    //     }
+    //     else if (vcp.rx_buff[4] == 0x06){ //включение/отклюение каналов питания используя отдельные сигналы ena
+    //       int8_val = vcp.rx_buff[6] <= 7 ? vcp.rx_buff[6] : 0;
+    //       pwr_ch_on_off_separatly(&lm.pwr.ch[int8_val], vcp.rx_buff[7]);
+    //       tx_data_len = 0;
+    //     }
+    //     vcp.tx_size = com_ans_form(vcp.rx_buff[1], DEV_ID, &vcp.tx_seq_num, vcp.rx_buff[4], tx_data_len, tx_data, vcp.tx_buff);
+    //     vcp_uart_write(&vcp, vcp.tx_buff, vcp.tx_size);
+    //   }
+    // }
   }
   /* USER CODE END 3 */
 }
@@ -354,6 +379,10 @@ void blocking_test(void)
 	// // Полная проверка памяти 
 	// printf("%d\n", ext_mem_check(&lm.mem, 0xBB));
   // //
+  // Проверка обещния с ДеКоР
+  pn_dcr_pwr_on(&lm.pl._dcr, PN_DCR_PWR_ALL);
+	//
+  //
   printf_time();
   printf("Finish test\n");
 }
@@ -366,7 +395,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		time_slot_flag_10ms = 1;
 	}
 	if (htim == &htim2) {
-		lm.global_time_s += 1;
+		lm.ctrl.global_time_s += 1;
 	}
 	if (htim == &htim3) {
 		time_slot_flag_100ms = 1;
@@ -418,6 +447,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	if(huart == &huart4){ // PL1.1B
 		rx_uart_data(&lm.pl._11B.interface.tr_lvl);
 	}
+	if(huart == &huart6){ // PL_DCR
+		pn_dcr_uart_rx_prcs_cb(&lm.pl._dcr.uart);
+	}
 }
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
@@ -427,6 +459,16 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 	}
 	if(huart == &huart4){ // PL1.1B
 		tr_lvl_set_timeout(&lm.pl._11A.interface.tr_lvl, 1);
+	}
+	if(huart == &huart6){ // PL_DCR
+		pn_dcr_uart_tx_prcs_cb(&lm.pl._dcr.uart);
+	}
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+  if(huart == &huart6){ // PL_DCR
+		pn_dcr_uart_err_prcs_cb(&lm.pl._dcr.uart);
 	}
 }
 
