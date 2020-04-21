@@ -2,7 +2,10 @@
 #define _PL_CYCLOGRAM_H
 
 #include "pn11.h"
+#include "pn12.h"
+#include "pn20.h"
 #include "pn_dcr.h"
+#include <stdio.h>
 #include "debug.h"
 
 #define max(A, B) ((A) > (B) ? (A) : (B))
@@ -24,6 +27,8 @@ typedef struct
 { 
 	type_PN11_model _11A;
 	type_PN11_model _11B;
+	type_PN12_model _12;
+	type_PN20_model _20;
 	type_PN_DCR_model _dcr;
 } type_PL;
 
@@ -52,7 +57,7 @@ typedef struct
 	uint8_t mode;
 } type_CYCLOGRAM;
 
-void pl_init(type_PL* pl_ptr, type_PWR_CHANNEL* pwr_arr, type_TMP1075_DEVICE* tmp_arr, UART_HandleTypeDef* huartA, UART_HandleTypeDef* huartB, UART_HandleTypeDef* huartDCR);
+void pl_init(type_PL* pl_ptr, type_PWR_CHANNEL* pwr_arr, type_TMP1075_DEVICE* tmp_arr, UART_HandleTypeDef* huart11A, UART_HandleTypeDef* huart11B, UART_HandleTypeDef* huart12, UART_HandleTypeDef* huart20, UART_HandleTypeDef* huartDCR);
 void pl_report_get(type_PL* pl_ptr, uint8_t pl_num, uint8_t* report, uint8_t* len);
 
 void cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr);

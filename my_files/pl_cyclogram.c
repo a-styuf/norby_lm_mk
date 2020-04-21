@@ -8,19 +8,23 @@
   */
 
 #include "pl_cyclogram.h"
-#include <stdio.h>
+
 /**
   * @brief  инициализация полезных нагрузок, связывание их с физическими сущностями
   * @param  pl_ptr: структура управления всеми полезными нагрузками и циклограммами
   * @param  pwr_arr: указатель на массив каналов управления питанием, в котором есть каналы для ПН
   * @param  tmp_arr: указатель на массив каналов мониторинга температуры, в котором есть каналы для ПН
   */
-void pl_init(type_PL* pl_ptr, type_PWR_CHANNEL* pwr_arr, type_TMP1075_DEVICE* tmp_arr, UART_HandleTypeDef* huartA, UART_HandleTypeDef* huartB, UART_HandleTypeDef* huartDCR)
+void pl_init(type_PL* pl_ptr, type_PWR_CHANNEL* pwr_arr, type_TMP1075_DEVICE* tmp_arr, UART_HandleTypeDef* huart11A, UART_HandleTypeDef* huart11B, UART_HandleTypeDef* huart12, UART_HandleTypeDef* huart20, UART_HandleTypeDef* huartDCR)
 {
 	//инициализация ПН1.1А
-	pn_11_init(&pl_ptr->_11A, PL11A, &pwr_arr[PL11A], &tmp_arr[PL11A], huartA);
+	pn_11_init(&pl_ptr->_11A, PL11A, &pwr_arr[PL11A], &tmp_arr[PL11A], huart11A);
 	//инициализация ПН1.1Б
-	pn_11_init(&pl_ptr->_11B, PL11B, &pwr_arr[PL11B], &tmp_arr[PL11B], huartB);
+	pn_11_init(&pl_ptr->_11B, PL11B, &pwr_arr[PL11B], &tmp_arr[PL11B], huart11B);
+	//инициализация ПН1.2
+	pn_12_init(&pl_ptr->_12, &pwr_arr[PL12], &tmp_arr[PL12], huart12);
+	//инициализация ПН2.0
+	pn_20_init(&pl_ptr->_20, &pwr_arr[PL20], &tmp_arr[PL20], huart20);
 	//инициализация ДеКоР
 	pn_dcr_init(&pl_ptr->_dcr, huartDCR, &pwr_arr[PL_DCR1], &pwr_arr[PL_DCR2]);
 }
@@ -35,20 +39,32 @@ void pl_init(type_PL* pl_ptr, type_PWR_CHANNEL* pwr_arr, type_TMP1075_DEVICE* tm
 void pl_report_get(type_PL* pl_ptr, uint8_t pl_num, uint8_t* report, uint8_t* len)
 {
 	switch(pl_num){
-		case 1: //ПН1.1А
+		case PL11A: //ПН1.1А
 			pn_11_report_create(&pl_ptr->_11A);
 			memcpy(report, &pl_ptr->_11A.report, sizeof(type_PN11_report));
 			*len = sizeof(pl_ptr->_11A.report);
 			break;
-		case 2:
+		case PL11B:
 			pn_11_report_create(&pl_ptr->_11B);
 			memcpy(report, &pl_ptr->_11B.report, sizeof(type_PN11_report));
 			*len = sizeof(pl_ptr->_11B.report);
 			break;
-		case 3:
-		case 4:
-		case 5:
-		case 6:
+		case PL12:
+			pn_12_report_create(&pl_ptr->_12);
+			memcpy(report, &pl_ptr->_12.report, sizeof(type_PN12_report));
+			*len = sizeof(pl_ptr->_12.report);
+			break;
+		case PL20:
+			pn_20_report_create(&pl_ptr->_20);
+			memcpy(report, &pl_ptr->_20.report, sizeof(type_PN20_report));
+			*len = sizeof(pl_ptr->_20.report);
+			break;
+		case PL_DCR1:
+		case PL_DCR2:
+			pn_dcr_report_create(&pl_ptr->_dcr);
+			memcpy(report, &pl_ptr->_dcr.report, sizeof(type_PNDCR_report));
+			*len = sizeof(pl_ptr->_dcr.report);
+			break;
 		default:
 			report[0] = 1;
 			*len = 0;

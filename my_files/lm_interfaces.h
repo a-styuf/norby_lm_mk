@@ -25,10 +25,11 @@
 //
 #define ID_IVAR_POOL_LEN      14
 //***Cmds defines
-#define CMD_INIT_LM           0x00
-#define CMD_INIT_ISS_MEM      0x01
-#define CMD_INIT_DCR_MEM      0x02
-#define CMD_DBG_LED_TEST      0x10
+#define CMD_INIT_LM                     0x00
+#define CMD_INIT_ISS_MEM                0x01
+#define CMD_INIT_DCR_MEM                0x02
+#define CMD_DCR_WRITE_FLIGHT_TASK       0x03
+#define CMD_DBG_LED_TEST                0x10
 //
 #define CMD_POOL_LEN          32
 //
@@ -52,6 +53,8 @@
 #define CMDREG_ALL_MEM_RD_PTR_1   0x05
 #define CMDREG_ALL_MEM_RD_PTR_2   0x06
 #define CMDREG_ALL_MEM_RD_PTR_3   0x07
+//
+#define CMDREG_DCR_MODE_SET       0x08
 //
 #define CMDREG_DBG_LED            0x10
 #define CMDREG_DBG_CYCLOGRAMS_0   0x11
@@ -123,8 +126,8 @@ typedef struct {
   * @brief  IVar for DCR-interface
   */
 typedef struct {
-  uint8_t DCR_InstaMessage[128];  //+0
-  uint8_t External_Mem_ISS_Frame[128][16];  //+128
+  uint8_t InstaMessage[128];  //+0
+  uint8_t FlightTask[128][16];  //+128
 } type_IVar_DCR_Interface; //2176
 
 /**

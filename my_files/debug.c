@@ -18,3 +18,17 @@ void printf_time(void)
 	HAL_RTC_GetTime(&hrtc, &time, RTC_FORMAT_BIN);
 	printf("%02d:%02d:%2.3f ", time.Hours, time.Minutes, time.Seconds + time.SubSeconds*(1./(1+time.SecondFraction)));
 }
+
+/**
+  * @brief  вывод на экран массива hex-значений
+  * @param  buff: указатель на блок памяти
+  * @param  len: длина данных
+  * @param  end_char: символ окончания вывода
+  */
+void printf_buff(uint8_t *buff, uint8_t len, char end_char)
+{
+  for (uint8_t i=0; i<len; i++){
+    printf("%02X ", buff[i]);
+  }
+  printf("%c", end_char);
+}

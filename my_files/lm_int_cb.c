@@ -35,7 +35,7 @@ void ProcCallbackCmds_Init(void)
 void ProcCallbackCmds(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, int state) 
 {
   volatile int n, vcmd;
-	uint8_t i;
+	uint32_t i;
   if(state == 0)
     return;  //первый вызов тут не нужен
   if (id.std.RTR == 1) return;  //обработка чтения нам не нужна
@@ -56,7 +56,7 @@ void ProcCallbackCmds(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, int s
 void ProcCallbackCmdRegs(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, int state) 
 {
   volatile int n, vcmd;
-	uint8_t i;
+	uint32_t i;
   if(state == 0) return;  //первый вызов тут не нужен
   if (id.std.RTR == 1) return;  //обработка чтения нам не нужна
   if(can_ptr == CAN1) n = 1; else if(can_ptr == CAN2) n = 2; else n = 0;
@@ -76,7 +76,7 @@ void ProcCallbackCmdRegs(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, in
 void ProcCallbackDCRInterface(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, int state) 
 {
   volatile int n, vcmd;
-	uint8_t i;
+	uint32_t i;
   if(state == 0) return;  //первый вызов тут не нужен
   if (id.std.RTR == 1) return;  //обработка чтения нам не нужна
   if(can_ptr == CAN1) n = 1; else if(can_ptr == CAN2) n = 2; else n = 0;
@@ -117,51 +117,101 @@ void ProcCallbackExtMems(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, in
   * @brief  функция для создания псевдопотока для выполнения продолжительной команды: test_led
   *         - раз в 2 секунды увеличивает скважность на 2 бит (100% - 255 бит)
   *         - полный цикл 200 секунд: от отсутствия мигания до постоянного горения
-  * @param  cmd: команда, записанная в командный регистр
   * @param  period_ms: период вызова обработчика в псевдопотоке
   */
 void cmd_process_test_led(uint8_t mode, uint32_t period_ms)
 {
+  uint8_t cmd_code = CMD_DBG_LED_TEST;
   //*** Прерывание работы ***//
   if (mode == MODE_CANCEL){
-      cmd_set_status(&lm.interface, CMD_DBG_LED_TEST, CMD_STATUS_CANCEL);
-      lm.cmd_ctrl[CMD_TEST_LED].main_counter = 0;
-      lm.cmd_ctrl[CMD_TEST_LED].time_ms = 0;
-      lm.cmd_ctrl[CMD_TEST_LED].point_time_ms = 0;
-      lm.cmd_ctrl[CMD_TEST_LED].ena = 0;
+      cmd_set_status(&lm.interface, cmd_code, CMD_STATUS_CANCEL);
+      lm.cmd_ctrl[cmd_code].main_counter = 0;
+      lm.cmd_ctrl[cmd_code].time_ms = 0;
+      lm.cmd_ctrl[cmd_code].point_time_ms = 0;
+      lm.cmd_ctrl[cmd_code].ena = 0;
       return;
     }
   else{
     //*** Запуск работы ***//
-    if ((mode == MODE_START) && (lm.cmd_ctrl[CMD_TEST_LED].ena == 0)){
-      lm.cmd_ctrl[CMD_TEST_LED].main_counter = 0;
-      lm.cmd_ctrl[CMD_TEST_LED].time_ms = 0;
-      lm.cmd_ctrl[CMD_TEST_LED].point_time_ms = 0;
-      lm.cmd_ctrl[CMD_TEST_LED].ena = 1;
-      cmd_set_status(&lm.interface, CMD_DBG_LED_TEST, CMD_STATUS_START);
+    if ((mode == MODE_START) && (lm.cmd_ctrl[cmd_code].ena == 0)){
+      lm.cmd_ctrl[cmd_code].main_counter = 0;
+      lm.cmd_ctrl[cmd_code].time_ms = 0;
+      lm.cmd_ctrl[cmd_code].point_time_ms = 0;
+      lm.cmd_ctrl[cmd_code].ena = 1;
+      cmd_set_status(&lm.interface, cmd_code, CMD_STATUS_START);
       return;
     }
     //*** Собственно тело процесса ***//
-    else if (lm.cmd_ctrl[CMD_TEST_LED].ena == 1){
-      lm.cmd_ctrl[CMD_TEST_LED].time_ms += period_ms;
-      lm.cmd_ctrl[CMD_TEST_LED].point_time_ms += period_ms;
-      if (lm.cmd_ctrl[CMD_TEST_LED].point_time_ms >= 2000){
-        lm.cmd_ctrl[CMD_TEST_LED].point_time_ms = 0;
-        lm.cmd_ctrl[CMD_TEST_LED].main_counter += 2;
-        led_alt_setup(&mcu_state_led, LED_BLINK, 500, (255 - lm.cmd_ctrl[CMD_TEST_LED].main_counter & 0xFF), 2000);
+    else if (lm.cmd_ctrl[cmd_code].ena == 1){
+      lm.cmd_ctrl[cmd_code].time_ms += period_ms;
+      lm.cmd_ctrl[cmd_code].point_time_ms += period_ms;
+      if (lm.cmd_ctrl[cmd_code].point_time_ms >= 2000){
+        lm.cmd_ctrl[cmd_code].point_time_ms = 0;
+        lm.cmd_ctrl[cmd_code].main_counter += 2;
+        led_alt_setup(&mcu_state_led, LED_BLINK, 500, (255 - lm.cmd_ctrl[cmd_code].main_counter & 0xFF), 2000);
       }
-      if (lm.cmd_ctrl[CMD_TEST_LED].main_counter >= 254){
-        lm.cmd_ctrl[CMD_TEST_LED].ena = 2; // отправляем на окончание работы
+      if (lm.cmd_ctrl[cmd_code].main_counter >= 254){
+        //
+        lm.cmd_ctrl[cmd_code].ena = 2; // отправляем на окончание работы
       }
-      cmd_set_status(&lm.interface, CMD_DBG_LED_TEST, (lm.cmd_ctrl[CMD_TEST_LED].main_counter >> 2) & 0x7F);
+      cmd_set_status(&lm.interface, cmd_code, (lm.cmd_ctrl[cmd_code].main_counter >> 2) & 0x7F);
     }
     //*** Окончание работы ***//
-    else if (lm.cmd_ctrl[CMD_TEST_LED].ena == 2){
-      lm.cmd_ctrl[CMD_TEST_LED].main_counter = 0;
-      lm.cmd_ctrl[CMD_TEST_LED].time_ms = 0;
-      lm.cmd_ctrl[CMD_TEST_LED].point_time_ms = 0;
-      lm.cmd_ctrl[CMD_TEST_LED].ena = 0;
-      cmd_set_status(&lm.interface, CMD_DBG_LED_TEST, CMD_STATUS_FINISH);
+    else if (lm.cmd_ctrl[cmd_code].ena == 2){
+      lm.cmd_ctrl[cmd_code].main_counter = 0;
+      lm.cmd_ctrl[cmd_code].time_ms = 0;
+      lm.cmd_ctrl[cmd_code].point_time_ms = 0;
+      lm.cmd_ctrl[cmd_code].ena = 0;
+      cmd_set_status(&lm.interface, cmd_code, CMD_STATUS_FINISH);
+    }
+  }
+}
+
+/**
+  * @brief  функция для копирования полетного задания ДеКоР из памяти CAN в програмную модель ДеКоР
+  * @param  cmd: команда, записанная в командный регистр
+  * @param  period_ms: период вызова обработчика в псевдопотоке
+  */
+void cmd_process_dcr_write_flight_task(uint8_t mode, uint32_t period_ms)
+{
+  uint8_t cmd_code = CMD_DCR_WRITE_FLIGHT_TASK;
+  //*** Прерывание работы ***//
+  if (mode == MODE_CANCEL){
+      cmd_set_status(&lm.interface, cmd_code, CMD_STATUS_CANCEL);
+      lm.cmd_ctrl[cmd_code].main_counter = 0;
+      lm.cmd_ctrl[cmd_code].time_ms = 0;
+      lm.cmd_ctrl[cmd_code].point_time_ms = 0;
+      lm.cmd_ctrl[cmd_code].ena = 0;
+      return;
+    }
+  else{
+    //*** Запуск работы ***//
+    if ((mode == MODE_START) && (lm.cmd_ctrl[cmd_code].ena == 0)){
+      lm.cmd_ctrl[cmd_code].main_counter = 0;
+      lm.cmd_ctrl[cmd_code].time_ms = 0;
+      lm.cmd_ctrl[cmd_code].point_time_ms = 0;
+      lm.cmd_ctrl[cmd_code].ena = 1;
+      cmd_set_status(&lm.interface, cmd_code, CMD_STATUS_START);
+      return;
+    }
+    //*** Собственно тело процесса ***//
+    else if (lm.cmd_ctrl[cmd_code].ena == 1){
+      //
+      pn_dcr_load_can_flight_task(&lm.pl._dcr, (uint8_t*)lm.interface.dcr_interface.FlightTask);
+      //
+      lm.cmd_ctrl[cmd_code].main_counter += 1;
+      lm.cmd_ctrl[cmd_code].time_ms += period_ms;
+      lm.cmd_ctrl[cmd_code].point_time_ms += period_ms;
+      lm.cmd_ctrl[cmd_code].ena = 2; // отправляем на окончание работы
+      cmd_set_status(&lm.interface, cmd_code, 2);
+    }
+    //*** Окончание работы ***//
+    else if (lm.cmd_ctrl[cmd_code].ena == 2){
+      lm.cmd_ctrl[cmd_code].main_counter = 0;
+      lm.cmd_ctrl[cmd_code].time_ms = 0;
+      lm.cmd_ctrl[cmd_code].point_time_ms = 0;
+      lm.cmd_ctrl[cmd_code].ena = 0;
+      cmd_set_status(&lm.interface, cmd_code, CMD_STATUS_FINISH);
     }
   }
 }

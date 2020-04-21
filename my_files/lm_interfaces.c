@@ -24,10 +24,6 @@ uint16_t interfaces_init(type_LM_INTERFACES* lm_in_ptr, uint8_t id_dev)
   lm_in_ptr->can2_ptr = CAN2;
   lm_in_ptr->frame_num = 0x00;
   lm_in_ptr->reg_rec_ptr = RegistrationRec;
-	report = CAN_Init(lm_in_ptr->can1_ptr);
-  if (report) return report;
-	report = CAN_Init(lm_in_ptr->can2_ptr);
-  if (report) return report;
   // variable registration teamplate
   for (i=0; i<ID_IVAR_POOL_LEN; i++)
   {
@@ -69,8 +65,14 @@ uint16_t interfaces_init(type_LM_INTERFACES* lm_in_ptr, uint8_t id_dev)
         break;
     }
   }
+  //
   ret_val = RegisterAllVars(lm_in_ptr, id_dev);
   if (ret_val) return ret_val;
+  //
+  report = CAN_Init(lm_in_ptr->can1_ptr);
+  if (report) return report;
+	report = CAN_Init(lm_in_ptr->can2_ptr);
+  if (report) return report;
   return 0;
 }
 

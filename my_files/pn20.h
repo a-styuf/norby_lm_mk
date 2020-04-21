@@ -1,5 +1,5 @@
-#ifndef _PN11_H
-#define _PN11_H
+#ifndef _PN20_H
+#define _PN20_H
 
 #include "my_gpio.h"
 #include "pwr_ch.h"
@@ -9,19 +9,12 @@
 
 #include "rtc.h"
 
-#define PN11_OUTPUT_DEFAULT 0x0F
-#define PN11_OUTPUT_FPGA_ON 0x02
-#define PN11_OUTPUT_FPGA_MCU_ON 0x00
+#define PN20_OUTPUT_DEFAULT 0x0F
+#define PN20_OUTPUT_FPGA_ON 0x02
+#define PN20_OUTPUT_FPGA_MCU_ON 0x00
 //
-#define PN11_TEMP_MAX (85<<8)
-#define PN11_TEMP_MIN (-30<<8)
-
-#define PN11_CURR_MAX (2<<8)
-#define PN11_CURR_MIN (1<<0)
-#define PN11_VOLT_MAX (6<<8)
-#define PN11_VOLT_MIN (4<<8)
-#define PN11_PWR_MAX (10<<8)
-#define PN11_PWR_MIN (1<<0)
+#define PN29_TEMP_MAX (85<<8)
+#define PN20_TEMP_MIN (-30<<8)
 
 //Ошибки работы
 #define STATE_NO_ERROR			 	(0)
@@ -36,14 +29,14 @@
 // пороговые значения для определения ошибки питания: напряжение в В, ток в А, мощность в Вт
 
 // пороги напряжения В	
-#define PN_11_VOLT_MAX 		5.5
-#define PN_11_VOLT_MIN 		4.5
+#define PN_20_VOLT_MAX 		5.5
+#define PN_20_VOLT_MIN 		4.5
 // границы мощности Вт
-#define PN_11_PWR_MAX 		12.0
-#define PN_11_PWR_MIN 		1.0
+#define PN_20_PWR_MAX 		15.0
+#define PN_20_PWR_MIN 		1.0
 
 // задержка для определения ошибки питания - устанавливается каждый ра, когда происходит изменение состояния питания
-#define PN_11_PWR_TIMEOUT_MS 	1000
+#define PN_20_PWR_TIMEOUT_MS 	1000
 
 #pragma pack(2)
 /** 
@@ -61,7 +54,7 @@ typedef struct
 	uint8_t outputs; 				//+12
 	uint8_t inputs; 				//+13
 	uint16_t rsrv[2];		 			//+14
-} type_PN11_report; 			//18
+} type_PN20_report; 			//18
 
 #pragma pack(8)
 
@@ -70,27 +63,27 @@ typedef struct
   */
 typedef struct
 {
-	type_GPIO_setting input[4]; // 0-INT, 1-PWR_ERROR, 2-WATCHDOG, 3-CPU_ERROR
-	type_GPIO_setting output[4]; // 0-RST_FPGA, 1-RST_LEON, 2-KU_2, 3-KU_3
+	type_GPIO_setting input[4]; // 0-C_TM_PWR_ERR, 1-C_TM_CPU_OK, 2-C_TM_INT, 3-C_TM_ERR
+	type_GPIO_setting output[4]; // 0-C_TK_nRESET, 1-C_TK_SPI_SEL, 2-KU_2, 3-KU_3
 	type_PWR_CHANNEL* pwr_ch;
 	type_TMP1075_DEVICE* tmp_ch;
 	uint16_t interrupt_timeout;
 	type_PN11_INTERFACE_APP_LVL interface;
-	type_PN11_report report;
+	type_PN20_report report;
 	uint16_t status, error_flags;
 	uint8_t error_cnt;
-} type_PN11_model;
+} type_PN20_model;
 
-void pn_11_init(type_PN11_model* pn11_ptr, uint8_t num, type_PWR_CHANNEL* pwr_ch_ptr, type_TMP1075_DEVICE* tmp_ch_ptr, UART_HandleTypeDef* huart);
-void pn_11_reset_state(type_PN11_model* pn11_ptr);
-void pn_11_output_set(type_PN11_model* pn11_ptr, uint8_t output_state);
-void pn_11_report_create(type_PN11_model* pn11_ptr);
-uint8_t pn_11_get_inputs_state(type_PN11_model* pn11_ptr);
-uint8_t pn_11_get_outputs_state(type_PN11_model* pn11_ptr);
-void pn_11_pwr_on(type_PN11_model* pn11_ptr);
-void pn_11_pwr_off(type_PN11_model* pn11_ptr);
+void pn_20_init(type_PN20_model* pn20_ptr, type_PWR_CHANNEL* pwr_ch_ptr, type_TMP1075_DEVICE* tmp_ch_ptr, UART_HandleTypeDef* huart);
+void pn_20_reset_state(type_PN20_model* pn20_ptr);
+void pn_20_output_set(type_PN20_model* pn20_ptr, uint8_t output_state);
+void pn_20_report_create(type_PN20_model* pn20_ptr);
+uint8_t pn_20_get_inputs_state(type_PN20_model* pn20_ptr);
+uint8_t pn_20_get_outputs_state(type_PN20_model* pn20_ptr);
+void pn_20_pwr_on(type_PN20_model* pn20_ptr);
+void pn_20_pwr_off(type_PN20_model* pn20_ptr);
 
-void pn_11_dbg_reset_state(type_PN11_model* pn11_ptr);
+void pn_20_dbg_reset_state(type_PN20_model* pn20_ptr);
 
 
 #endif

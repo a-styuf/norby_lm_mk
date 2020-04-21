@@ -122,6 +122,8 @@ int main(void)
   MX_UART4_Init();
   MX_USART2_UART_Init();
   MX_SPI2_Init();
+  MX_USART1_UART_Init();
+  MX_USART3_UART_Init();
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
   lm_init(&lm);
@@ -139,6 +141,7 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim3); //100ms time slot timer
   HAL_UART_Receive_IT(lm.pl._11A.interface.tr_lvl.huart, lm.pl._11A.interface.tr_lvl.rx_data, 1);
   HAL_UART_Receive_IT(lm.pl._11B.interface.tr_lvl.huart, lm.pl._11B.interface.tr_lvl.rx_data, 1);
+  HAL_UART_Receive_IT(lm.pl._12.interface.tr_lvl.huart, lm.pl._12.interface.tr_lvl.rx_data, 1);
 
   /* USER CODE END 2 */
 
@@ -157,17 +160,19 @@ int main(void)
 			tmp_process_100ms(&lm.tmp);
 			//работа с циклограммой
 			cyclogram_process_100ms(&lm.cyclogram, &lm.pl);
-      // работа с продолжительными функциями
+      // работа с продолжительными функциями запускаемые через переменную команд (0x02)
       cmd_process_test_led(MODE_WORK, 100);
+      cmd_process_dcr_write_flight_task(MODE_WORK, 100);
+      // работа с декор и полетным заданием для декор
+      pn_dcr_process(&lm.pl._dcr, 100);
 			//reset flag
 			time_slot_flag_100ms = 0;
 		}
 		if (time_slot_flag_10ms){ // 10ms
-      //обработка данных принятых от декор
+      //обработка данных принятых от декор и последуещее заполнение памяти кадров ими
       pn_dcr_process_rx_frames_10ms(&lm.pl._dcr);
-      // заполнение кадра для ДКР (возможно необхрдимо вызвать реже, необхродимо проверять)
       fill_dcr_rx_frame(&lm);
-			//поддрежка транспортного уровня протокола ИСС
+			//поддрежка транспортного уровня протокола �?СС
 			tr_lvl_process_10ms(&lm.pl._11A.interface.tr_lvl);
 			tr_lvl_process_10ms(&lm.pl._11B.interface.tr_lvl);
 			//reset flag
@@ -188,6 +193,10 @@ int main(void)
         break;
       case CMD_INIT_DCR_MEM:
         printf("cmd:init decor memory\n");
+        break;
+      case CMD_DCR_WRITE_FLIGHT_TASK:
+        printf("cmd:write dcr flight task from_can to dcr-model\n");
+        cmd_process_dcr_write_flight_task(lm.interface.cmd.array[CMD_DCR_WRITE_FLIGHT_TASK], 0);
         break;
       case CMD_DBG_LED_TEST:
         printf("cmd: (dbg) led test 0x%02X\n", lm.interface.cmd.array[CMD_DBG_LED_TEST]);
@@ -220,6 +229,10 @@ int main(void)
         lm.mem.read_ptr = *((uint32_t*)&lm.interface.cmdreg.array[CMDREG_ALL_MEM_RD_PTR_0]);
         printf("cmdreg:LM set full mem read_ptr 0x%4X\n", *((uint32_t*)&lm.interface.cmdreg.array[CMDREG_ALL_MEM_RD_PTR_0]));
         break;
+      case CMDREG_DCR_MODE_SET:
+        pn_dcr_set_mode(&lm.pl._dcr, lm.interface.cmdreg.array[CMDREG_DCR_MODE_SET]);
+        printf("cmdreg:DCR set mode 0x%2X\n", lm.interface.cmdreg.array[CMDREG_DCR_MODE_SET]);
+        break;  
       case CMDREG_DBG_LED:
         led_alt_setup(&mcu_state_led, LED_BLINK, 1000, lm.interface.cmdreg.array[CMDREG_DBG_LED], 3000);
         printf("cmdreg: (dbg) led test 0x%2X\n", lm.interface.cmdreg.array[CMDREG_DBG_LED]);
@@ -238,10 +251,10 @@ int main(void)
     int16_val = dcr_inerface_check_to_process(&lm.interface);
     switch(int16_val){
       case DCR_INTERFACE_INSTASEND_LENG_OFFSET:
-        pn_dcr_uart_send(&lm.pl._dcr.uart, lm.interface.dcr_interface.DCR_InstaMessage, lm.interface.dcr_interface.DCR_InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET]);
-        printf("dcr_int:Instasend 0x%2X\n", lm.interface.dcr_interface.DCR_InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET]);
-        _printf_buff(lm.interface.dcr_interface.DCR_InstaMessage, lm.interface.dcr_interface.DCR_InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET], '\n');
-				lm.interface.dcr_interface.DCR_InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET] = 0;
+        pn_dcr_uart_send(&lm.pl._dcr.uart, lm.interface.dcr_interface.InstaMessage, lm.interface.dcr_interface.InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET]);
+        printf("dcr_int:Instasend 0x%2X\n", lm.interface.dcr_interface.InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET]);
+        printf_buff(lm.interface.dcr_interface.InstaMessage, lm.interface.dcr_interface.InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET], '\n');
+				lm.interface.dcr_interface.InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET] = 0;
         break;
       default: //если команда в резерве, то реагируем немедленным выполнением
         NULL;
@@ -358,33 +371,21 @@ void blocking_test(void)
 {
   // test
   printf_time();
-  printf("Start test\n");
-  // ext_mem_full_erase(&lm.mem, 0xAA);
-  // printf("Full data frames: %d\n", FRAME_MEM_VOL_FRAMES);
+  printf("Start test\n\n");
+  // pn_11_a
+  printf("\tPL_11A\n");
+  pn_11_dbg_reset_state(&lm.pl._11A);
+  // pn_11_a
+  printf("\tPL_11B\n");
+  pn_11_dbg_reset_state(&lm.pl._11B);
+  // pn_12
+  printf("\tPL_12\n");
+  pn_12_dbg_reset_state(&lm.pl._12);
+  // pn_20
+  printf("\tPL_20\n");
+  pn_20_dbg_reset_state(&lm.pl._20);
   //
-  // ext_mem_format_part(&lm.mem, PART_ISS);
-  // printf_time();
-  // printf("start_addr: %d, stop_addr: %d, volume: %d\n", lm.mem.part[PART_ISS].start_frame_num, lm.mem.part[PART_ISS].finish_frame_num, lm.mem.part[PART_ISS].full_frame_num);
-  // //
-  // ext_mem_format_part(&lm.mem, PART_DCR);
-  // printf_time();
-  // printf("start_addr: %d, stop_addr: %d, volume: %d\n", lm.mem.part[PART_DCR].start_frame_num, lm.mem.part[PART_DCR].finish_frame_num, lm.mem.part[PART_DCR].full_frame_num);
-  // //
-  // for (uint8_t i=0; i<64; i++){
-  //   ext_mem_any_line_read(&lm.mem, uint8_buff);
-  //   printf("%03d: ", i);
-  //   _printf_buff(uint8_buff, 16, '\n');
-  //   HAL_Delay(200);
-  // }
-	// // Полная проверка памяти 
-	// printf("%d\n", ext_mem_check(&lm.mem, 0xBB));
-  // //
-  // Проверка обещния с ДеКоР
-  pn_dcr_pwr_on(&lm.pl._dcr, PN_DCR_PWR_ALL);
-	//
-  //
-  printf_time();
-  printf("Finish test\n");
+  printf("Finish test\n\n");
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
@@ -439,35 +440,47 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	led_alt_setup(&mcu_state_led, 2, 600, 127, 10000);
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart_req)
 {
-	if(huart == &huart2){ // PL1.1A
+	if(huart_req == &huart2){ // PL1.1A
 		rx_uart_data(&lm.pl._11A.interface.tr_lvl);
 	}
-	if(huart == &huart4){ // PL1.1B
+	if(huart_req == &huart4){ // PL1.1B
 		rx_uart_data(&lm.pl._11B.interface.tr_lvl);
 	}
-	if(huart == &huart6){ // PL_DCR
+  if(huart_req == &huart1){ // PL1.2
+		rx_uart_data(&lm.pl._12.interface.tr_lvl);
+	}
+  if(huart_req == &huart3){ // PL2.0
+		rx_uart_data(&lm.pl._20.interface.tr_lvl);
+	}
+	if(huart_req == &huart6){ // PL_DCR
 		pn_dcr_uart_rx_prcs_cb(&lm.pl._dcr.uart);
 	}
 }
 
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart_req)
 {
-	if(huart == &huart2){ // PL1.1A
+	if(huart_req == &huart2){ // PL1.1A
 		tr_lvl_set_timeout(&lm.pl._11A.interface.tr_lvl, 1);
 	}
-	if(huart == &huart4){ // PL1.1B
+	if(huart_req == &huart4){ // PL1.1B
 		tr_lvl_set_timeout(&lm.pl._11A.interface.tr_lvl, 1);
 	}
-	if(huart == &huart6){ // PL_DCR
+  if(huart_req == &huart1){ // PL1.2
+		tr_lvl_set_timeout(&lm.pl._12.interface.tr_lvl, 1);
+	}
+  if(huart_req == &huart3){ // PL2.0
+		tr_lvl_set_timeout(&lm.pl._20.interface.tr_lvl, 1);
+	}
+	if(huart_req == &huart6){ // PL_DCR
 		pn_dcr_uart_tx_prcs_cb(&lm.pl._dcr.uart);
 	}
 }
 
-void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart_req)
 {
-  if(huart == &huart6){ // PL_DCR
+  if(huart_req == &huart6){ // PL_DCR
 		pn_dcr_uart_err_prcs_cb(&lm.pl._dcr.uart);
 	}
 }

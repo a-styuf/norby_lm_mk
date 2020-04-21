@@ -6,6 +6,7 @@
 #include <math.h>
 #include "spi.h"
 #include "my_gpio.h"
+#include "debug.h"
 
 // Раскрашивание переменных
 #define CY15_VOLUME_BYTES (1 << 10)//(1 << 19)
@@ -40,7 +41,5 @@ typedef struct
 int8_t cy15_init(type_CY15B104QN_CONTROL* cy15_ptr, SPI_HandleTypeDef* spi_ptr, GPIO_TypeDef* cs_bank, uint16_t cs_pos);
 int8_t cy15_write(type_CY15B104QN_CONTROL* cy15_ptr, uint32_t addr, uint8_t *buff, uint8_t len);
 int8_t cy15_read(type_CY15B104QN_CONTROL* cy15_ptr, uint32_t addr, uint8_t *buff, uint8_t len);
-
-void _printf_buff(uint8_t *buff, uint8_t len, char end_char);
 
 #endif

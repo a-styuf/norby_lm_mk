@@ -5,5 +5,6 @@
 #include "rtc.h"
 
 void printf_time(void);
+void printf_buff(uint8_t *buff, uint8_t len, char end_char);
 
 #endif

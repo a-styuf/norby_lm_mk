@@ -152,7 +152,7 @@ typedef struct {
 } type_DCR_LONG_Frame; //128
 
 /**
-  * @brief  DCR-data frame
+  * @brief  DCR-status
   * @note   status_frame (up to 116-bytes) for share to can-mem
   */
 typedef struct {

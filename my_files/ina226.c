@@ -141,9 +141,9 @@ uint16_t ina226_read_data_process(type_INA226_DEVICE* ina226_ptr)
 			ina226_ptr->voltage = (__REV16(ina226_ptr->rx_data))*1.25*256./1000.; //значение, где старший байт - вольты, младший - дробная часть в 1/256 В
 			break;
 		case CURRENT_REGISTER_ADDR:
-			ina226_ptr->current = (__REV16(ina226_ptr->rx_data))*256./1000.; //значение, где старший байт - вольты, младший - дробная часть в 1/256 В
+			ina226_ptr->current = (__REV16(ina226_ptr->rx_data))*256./1000.; //значение, где старший байт - амперы, младший - дробная часть в 1/256 В
 			break;
-		case POWER_REGISTER_ADDR:
+		case POWER_REGISTER_ADDR: // todo: не опрашивается
 			ina226_ptr->power = (__REV16(ina226_ptr->rx_data))*20.*256./1000.; //значение, где старший байт - вольты, младший - дробная часть в 1/256 В
 			break;
 	}

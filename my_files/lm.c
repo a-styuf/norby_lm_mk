@@ -4,6 +4,8 @@
 void lm_init(type_LM_DEVICE* lm_ptr)
 {
 	int8_t report = 0;
+	printf("Version :%s\n", SOFT_VERSION);
+	printf("DevId:%d\n", DEV_ID);
 	printf("Start init: %d\n", report);
 	lm_ctrl_init(lm_ptr);
 	printf("\tLM-struct init init: %d\n", report);
@@ -14,7 +16,7 @@ void lm_init(type_LM_DEVICE* lm_ptr)
 	report = tmp_init(&lm_ptr->tmp, &hi2c2);
 	printf("\tTemperature monitors init: %d\n", report);
 	//PL
-	pl_init(&lm_ptr->pl, lm_ptr->pwr.ch, lm_ptr->tmp.tmp1075, &huart2, &huart4, &huart6);
+	pl_init(&lm_ptr->pl, lm_ptr->pwr.ch, lm_ptr->tmp.tmp1075, &huart2, &huart4, &huart1, &huart3, &huart6);
 	printf("\tPL init %d\n", report);
 	//Cyclogram
 	cyclogram_init(&lm_ptr->cyclogram, &lm_ptr->pl);
@@ -342,6 +344,8 @@ void fill_gen_tmi(type_LM_DEVICE* lm_ptr)
 	lm_report_create(lm_ptr);
 	pn_11_report_create(&lm_ptr->pl._11A);
 	pn_11_report_create(&lm_ptr->pl._11B);
+	pn_12_report_create(&lm_ptr->pl._12);
+	pn_20_report_create(&lm_ptr->pl._20);
 	pn_dcr_report_create(&lm_ptr->pl._dcr);
 	// 
 	memset((uint8_t*)&gen_fr, 0xFEFE, sizeof(type_LM_GEN_TMI_Frame));
@@ -349,6 +353,8 @@ void fill_gen_tmi(type_LM_DEVICE* lm_ptr)
 	memcpy(gen_fr.lm_report, (uint8_t*)&lm_ptr->report, sizeof(type_LM_REPORT));
 	memcpy(gen_fr.pl11a_report, (uint8_t*)&lm_ptr->pl._11A.report, sizeof(type_PN11_report));
 	memcpy(gen_fr.pl11b_report, (uint8_t*)&lm_ptr->pl._11B.report, sizeof(type_PN11_report));
+	memcpy(gen_fr.pl12_report, (uint8_t*)&lm_ptr->pl._12.report, sizeof(type_PN12_report));
+	memcpy(gen_fr.pl20_report, (uint8_t*)&lm_ptr->pl._20.report, sizeof(type_PN20_report));
 	memcpy(gen_fr.pldcr_report, (uint8_t*)&lm_ptr->pl._dcr.report, sizeof(type_PNDCR_report));
 	//
 	memcpy((uint8_t*)&lm_ptr->interface.tmi_data.gen_tmi, (uint8_t*)&gen_fr, sizeof(gen_fr));
@@ -419,11 +425,3 @@ uint32_t get_uint32_val_from_bound(uint32_t val, uint32_t min, uint32_t max) //Ğ
 	else if (val < min) return min;
 	return val;
 }
-
-void printf_time(void)
-{
-	RTC_TimeTypeDef time;
-	HAL_RTC_GetTime(&hrtc, &time, RTC_FORMAT_BIN);
-	printf("%d:%d:%2.3f ", time.Hours, time.Minutes, time.Seconds + time.SubSeconds*(1./(1+time.SecondFraction)));
-}
-

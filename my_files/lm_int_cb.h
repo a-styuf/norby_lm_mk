@@ -20,5 +20,6 @@ void ProcCallbackExtMems(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, in
 void ProcCallbackDCRInterface(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, int state);
 
 void cmd_process_test_led(uint8_t mode, uint32_t period_ms);
+void cmd_process_dcr_write_flight_task(uint8_t mode, uint32_t period_ms);
 
 #endif

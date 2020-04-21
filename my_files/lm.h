@@ -10,12 +10,14 @@
 #include "math.h"
 #include "tmp1075.h"
 #include "pn11.h"
+#include "pn12.h"
+#include "pn20.h"
 #include "pwr_ch.h"
 #include "pl_cyclogram.h"
 #include "usart.h"
 #include "lm_interfaces.h"
 #include "ext_mem.h"
-
+#include "debug.h"
 
 #define max(A, B) ((A) > (B) ? (A) : (B))
 #define min(A, B) ((A) < (B) ? (A) : (B))
@@ -24,6 +26,7 @@ typedef unsigned short uint16_t;
 
 // настройки прибора
 #define DEV_ID (0x06)
+#define SOFT_VERSION "0.14"
 // свойства микроконтроллера
 
 // раскрашивание переменных

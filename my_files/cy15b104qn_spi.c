@@ -124,18 +124,3 @@ int8_t cy15_read(type_CY15B104QN_CONTROL* cy15_ptr, uint32_t addr,uint8_t *buff,
   memcpy(buff, cy15_ptr->in_buff+5, len);
   return report;
 }
-
-/**
-  * @brief  вывод на экран массива hex-значений
-  * @param  buff: указатель на блок памяти
-  * @param  len: длина данных
-  * @param  end_char: символ окончания вывода
-  */
-void _printf_buff(uint8_t *buff, uint8_t len, char end_char)
-{
-  for (uint8_t i=0; i<len; i++){
-    printf("%02X ", buff[i]);
-  }
-  printf("%c", end_char);
-}
-
