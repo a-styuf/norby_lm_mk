@@ -6,22 +6,29 @@
 #include "lm_interfaces_data.h"
 #include "crc16.h"
 
-#define CY15B104_MEM_NUM 4
-#define SINGLE_MEM_VOL_FRAMES (CY15_VOLUME_BYTES/128)
-#define FULL_MEM_VOL_FRAMES (SINGLE_MEM_VOL_FRAMES*CY15B104_MEM_NUM)
-#define FRAME_MEM_VOL_FRAMES (SINGLE_MEM_VOL_FRAMES*CY15B104_MEM_NUM - CY15B104_MEM_NUM)
-
-
+#define CY15B104_MEM_NUM 4  // кол-во микросхем памяти
+#define SINGLE_MEM_VOL_FRAMES (CY15_VOLUME_BYTES/128)  // кол-во кадров в отдельной микросхеме памяти
+#define FULL_MEM_VOL_FRAMES (SINGLE_MEM_VOL_FRAMES*CY15B104_MEM_NUM)  // общее количество кадров по 128-байт в физической памяти
+#define FRAME_MEM_VOL_FRAMES (SINGLE_MEM_VOL_FRAMES*CY15B104_MEM_NUM - CY15B104_MEM_NUM)  // количество кадров в физической памяти за исключением кадров для параметров
 
 #define PART_ISS 0
 #define PART_DCR 1
-#define PART_NUM 2 // 0 - ISS, 1 - DCR
-//относительный объем памяти выделенной под разные приборы высчитывается как: Vol_1(Fr) = AVLL_MEM_VOL_FRAMES * (Vol_1_rel / (PART_FULL_VOL_REL))
-//сумма частей не должна превышать полную память
-#define PART_FULL_VOL_REL      256
-#define PART_ISS_VOL_REL       192
-#define PART_DCR_VOL_REL        64
+#define PART_DCR_FLIGHT_TASK 2
+#define PART_NUM 3 // 0 - ISS, 1 - DCR, 2 - DCR Flight task
 
+// есть два типа памяти - постоянного размера (например для полетного задания)
+
+// Постоянная память: маппирование в конце физической памяти, по абсолютному размеру\
+// размер в блоках по 128-байт
+#define PART_DCR_FLIGHT_TASK_CONST      16
+#define PART_FULL_CONST                 16 //общий размер памяти выделенной под постоянные блоки в 128-байтовых блоков
+// Относительная память: маппирование частей памяти распределяемой относительно: сумма частей не должна превышать (полную память - постоянная часть)
+// относительный объем памяти выделенной под разные приборы высчитывается как: Vol_1(Fr) = AVLL_MEM_VOL_FRAMES * (Vol_1_rel / (PART_FULL_VOL_REL))
+#define PART_FULL_VOL_REL               256
+#define PART_ISS_VOL_REL                192
+#define PART_DCR_VOL_REL                64
+
+//
 #define PART_MODE_READ_BLOCK   0x00  // указатель чтения доганяет указатель записи и блокается
 #define PART_MODE_WRITE_BLOCK  0x01  // указатель записи доганяет указатель чтения и блокается
 #define PART_MODE_REWRITE      0x02  // указатель записи независит от указателя чтения
@@ -63,10 +70,13 @@ void ext_mem_wr_data_frame(type_MEM_CONTROL* mem_ptr, uint32_t addr, uint8_t *fr
 void ext_mem_rd_data_frame(type_MEM_CONTROL* mem_ptr, uint32_t addr, uint8_t *frame);
 void ext_mem_wr_frame_to_part(type_MEM_CONTROL* mem_ptr, uint8_t *frame, uint8_t part_num);
 void ext_mem_rd_frame_from_part(type_MEM_CONTROL* mem_ptr, uint8_t *frame, uint8_t part_num);
+void ext_mem_rd_frame_from_part_by_addr(type_MEM_CONTROL* mem_ptr, uint8_t *frame, uint8_t fr_addr, uint8_t part_num);
+void ext_mem_wr_frame_from_part_by_addr(type_MEM_CONTROL* mem_ptr, uint8_t *frame, uint8_t fr_addr, uint8_t part_num);
 void ext_mem_full_erase(type_MEM_CONTROL* mem_ptr, uint8_t symbol);
 void ext_mem_format_part(type_MEM_CONTROL* mem_ptr, uint8_t part_num);
 //
-uint32_t part_init(type_MEM_PART_CONTROL* part_ptr, uint16_t full_rel_vol, uint16_t rel_vol, uint32_t start_frame_addr, uint8_t mode);
+uint32_t part_rel_init(type_MEM_PART_CONTROL* part_ptr, uint8_t mode, uint16_t full_rel_vol, uint16_t rel_vol, uint32_t start_frame_addr);
+uint32_t part_const_init(type_MEM_PART_CONTROL* part_ptr, uint8_t mode, uint16_t const_vol, uint32_t start_frame_addr);
 uint8_t part_fill_volume(type_MEM_PART_CONTROL* part_ptr);
 uint8_t part_wr_rd_ptr_calc(type_MEM_PART_CONTROL* part_ptr, uint8_t mode);
 

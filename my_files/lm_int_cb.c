@@ -198,6 +198,9 @@ void cmd_process_dcr_write_flight_task(uint8_t mode, uint32_t period_ms)
     else if (lm.cmd_ctrl[cmd_code].ena == 1){
       //
       pn_dcr_load_can_flight_task(&lm.pl._dcr, (uint8_t*)lm.interface.dcr_interface.FlightTask);
+      for (uint8_t i=0; i<16; i++){
+        ext_mem_wr_frame_from_part_by_addr(&lm.mem, (uint8_t*)lm.interface.dcr_interface.FlightTask + i*128, i, PART_DCR_FLIGHT_TASK);
+      }
       //
       lm.cmd_ctrl[cmd_code].main_counter += 1;
       lm.cmd_ctrl[cmd_code].time_ms += period_ms;

@@ -26,8 +26,9 @@ int8_t ext_mem_init(type_MEM_CONTROL* mem_ptr, SPI_HandleTypeDef* spi_ptr)
   report += cy15_init(&mem_ptr->cy15b104[2], spi_ptr, GPIOD, 12);
 	report += cy15_init(&mem_ptr->cy15b104[3], spi_ptr, GPIOD, 13);
   // инициализируем блоки памяти для переферии
-  start_addr = part_init(&mem_ptr->part[PART_ISS], PART_FULL_VOL_REL, PART_ISS_VOL_REL, start_addr, PART_MODE_WRITE_BLOCK);
-  start_addr = part_init(&mem_ptr->part[PART_DCR], PART_FULL_VOL_REL, PART_DCR_VOL_REL, start_addr, PART_MODE_REWRITE);
+  start_addr = part_rel_init(&mem_ptr->part[PART_ISS], PART_MODE_WRITE_BLOCK, PART_FULL_VOL_REL, PART_ISS_VOL_REL, start_addr);
+  start_addr = part_rel_init(&mem_ptr->part[PART_DCR], PART_MODE_REWRITE, PART_FULL_VOL_REL, PART_DCR_VOL_REL, start_addr);
+  start_addr = part_const_init(&mem_ptr->part[PART_DCR_FLIGHT_TASK], PART_MODE_REWRITE, PART_DCR_FLIGHT_TASK_CONST, start_addr);
   //
   return report;
 }
@@ -88,19 +89,6 @@ void ext_mem_any_line_read(type_MEM_CONTROL* mem_ptr, uint8_t* buff)
   else mem_ptr->read_ptr += 1;
 }
 
-/**
-  * @brief  блокирующее стирание всей памяти
-  * @param  mem_ptr: структура для управления памятью
-  * @param  symbol: символ для записи
-  */
-void ext_mem_full_erase(type_MEM_CONTROL* mem_ptr, uint8_t symbol)
-{
-  uint8_t buff[128];
-  memset(buff, symbol, 128);
-  for(uint32_t addr=0; addr < FULL_MEM_VOL_FRAMES; addr++){
-    ext_mem_any_write(mem_ptr, addr, buff);
-  }
-}
 
 /**
   * @brief  блокирующая неразрушающая проверка памяти 128-ми байтными блоками
@@ -209,6 +197,44 @@ void ext_mem_rd_frame_from_part(type_MEM_CONTROL* mem_ptr, uint8_t *frame, uint8
 }
 
 /**
+  * @brief  запись кадра в блок по адресу
+  * @param  mem_ptr: структура для управления памятью
+  * @param  frame: указатель на структуру с кадром
+  * @param  fr_addr: адрес кадра в блоке
+  * @param  part_num: номер тома памяти
+  */
+void ext_mem_rd_frame_from_part_by_addr(type_MEM_CONTROL* mem_ptr, uint8_t *frame, uint8_t fr_addr, uint8_t part_num)
+{
+  ext_mem_rd_data_frame(mem_ptr, mem_ptr->part[part_num].start_frame_num + fr_addr, frame);
+}
+
+/**
+  * @brief  чтение кадра из блока по адресу
+  * @param  mem_ptr: структура для управления памятью
+  * @param  frame: указатель на структуру с кадром
+  * @param  fr_addr: адрес кадра в блоке
+  * @param  part_num: номер тома памяти
+  */
+void ext_mem_wr_frame_from_part_by_addr(type_MEM_CONTROL* mem_ptr, uint8_t *frame, uint8_t fr_addr, uint8_t part_num)
+{
+  ext_mem_wr_data_frame(mem_ptr, mem_ptr->part[part_num].start_frame_num + fr_addr, frame);
+}
+
+/**
+  * @brief  блокирующее стирание всей памяти
+  * @param  mem_ptr: структура для управления памятью
+  * @param  symbol: символ для записи
+  */
+void ext_mem_full_erase(type_MEM_CONTROL* mem_ptr, uint8_t symbol)
+{
+  uint8_t buff[128];
+  memset(buff, symbol, 128);
+  for(uint32_t addr=0; addr < FULL_MEM_VOL_FRAMES; addr++){
+    ext_mem_any_write(mem_ptr, addr, buff);
+  }
+}
+
+/**
   * @brief  форматирование тома памяти, блокирующее
   * @param  mem_ptr: структура для управления памятью
   * @param  part_num: номер тома памяти
@@ -224,16 +250,21 @@ void ext_mem_format_part(type_MEM_CONTROL* mem_ptr, uint8_t part_num)
   }
 }
 
+///*** Работа с блоками памяти ***///
+
 /**
-  * @brief  инициализация работы с отдельным куском памяти
+  * @brief  инициализация работы с отдельным куском памяти c относительным распределением памяти
   * @param  part_ptr: структура для управления памятью
+  * @param  mode: тип чтения-записи в блок памяти
+  * @param  full_rel_vol: общий отнсительный объем памяти
+  * @param  rel_vol: относительный объем блока памяти
+  * @param  start_frame_addr: адрес блока памяти в общем пространстве доступных кадров
   * @retval адрес начала следующего тома области в кадрах
   */
-uint32_t part_init(type_MEM_PART_CONTROL* part_ptr, uint16_t full_rel_vol, uint16_t rel_vol, uint32_t start_frame_addr, uint8_t mode)
+uint32_t part_rel_init(type_MEM_PART_CONTROL* part_ptr, uint8_t mode, uint16_t full_rel_vol, uint16_t rel_vol, uint32_t start_frame_addr)
 {
-  // подсчет границ и объема отдельной части
   part_ptr->start_frame_num = start_frame_addr;
-  part_ptr->full_frame_num = (1. * FRAME_MEM_VOL_FRAMES * rel_vol) / full_rel_vol;
+  part_ptr->full_frame_num = (1. * (FRAME_MEM_VOL_FRAMES - PART_FULL_CONST) * rel_vol) / full_rel_vol;
   part_ptr->finish_frame_num = part_ptr->start_frame_num + part_ptr->full_frame_num - 1;
   // 
   part_ptr->write_ptr = 0;
@@ -241,8 +272,31 @@ uint32_t part_init(type_MEM_PART_CONTROL* part_ptr, uint16_t full_rel_vol, uint1
   part_ptr->mode = mode;
   //
   part_ptr->part_fill_volume_prc = 0;
-  part_ptr->part_fill_volume_prc = 0;
+	//
+	return part_ptr->finish_frame_num + 1;
+}
+
+/**
+  * @brief  инициализация работы с отдельным куском памяти c постояннаым распределением памяти
+  * @param  part_ptr: структура для управления памятью
+  * @param  mode: тип чтения-записи в блок памяти
+  * @param  const_vol:объем блока памяти в 128-байтных кадрах
+  * @param  start_frame_addr: адрес блока памяти в общем пространстве доступных кадров
+  * @retval адрес начала следующего тома области в кадрах
+  */
+uint32_t part_const_init(type_MEM_PART_CONTROL* part_ptr, uint8_t mode, uint16_t const_vol, uint32_t start_frame_addr)
+{
+  // подсчет границ и объема отдельной части
+  part_ptr->start_frame_num = start_frame_addr;
+  part_ptr->full_frame_num = const_vol;
+  part_ptr->finish_frame_num = part_ptr->start_frame_num + part_ptr->full_frame_num - 1;
+  // 
+  part_ptr->write_ptr = 0;
+  part_ptr->read_ptr = 0;
+  part_ptr->mode = mode;
   //
+  part_ptr->part_fill_volume_prc = 0;
+	//
 	return part_ptr->finish_frame_num + 1;
 }
 

@@ -27,6 +27,9 @@ void lm_init(type_LM_DEVICE* lm_ptr)
 	//ext_mem
 	report = ext_mem_init(&lm_ptr->mem, &hspi2);
 	printf("\tExt-mem init: %d\n", report);
+	// load saved_parameters
+	report =  lm_load_parameters(lm_ptr);
+	printf("\tLoad parameters from mem: %d\n", report);
 	//
 	printf("Finish init at %d\n", lm_ptr->ctrl.global_time_s);
 }
@@ -62,6 +65,22 @@ void lm_report_create(type_LM_DEVICE* lm_ptr)
 	lm_ptr->report.voltage 				= lm_ptr->pwr.ch[0].ina226.voltage;
 	lm_ptr->report.current 				= lm_ptr->pwr.ch[0].ina226.current;
 	lm_ptr->report.temperature 		= lm_ptr->tmp.tmp1075[0].temp;
+}
+
+/**
+  * @brief  загрузка параметров из памяти
+	* @param  lm_ptr: указатель на структуру управления МС
+	* @retval статус успешности инициализации: кол-во успешно инициализированных блоков
+  */
+int8_t lm_load_parameters(type_LM_DEVICE* lm_ptr)
+{
+	int8_t ret_val = 0;
+	//
+	for (uint8_t i=0; i<16; i++){
+		ext_mem_rd_frame_from_part_by_addr(&lm_ptr->mem, (uint8_t*)lm_ptr->interface.dcr_interface.FlightTask + i*128, i, PART_DCR_FLIGHT_TASK);
+	}
+	//
+	return ret_val;
 }
 
 //*** управление питанием ***//

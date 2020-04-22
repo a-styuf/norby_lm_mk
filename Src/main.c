@@ -372,18 +372,24 @@ void blocking_test(void)
   // test
   printf_time();
   printf("Start test\n\n");
+	///*** test mem
+	printf("Full mem vol frame %d\n", FULL_MEM_VOL_FRAMES);
+	for(uint8_t i=0; i<PART_NUM; i++){
+		printf("\tPart=%d, Start=%d, stop=%d, vol=%d;\n", i, lm.mem.part[i].start_frame_num, lm.mem.part[i].finish_frame_num, lm.mem.part[i].full_frame_num);
+	}
+	///*** test pn
   // pn_11_a
-  printf("\tPL_11A\n");
-  pn_11_dbg_reset_state(&lm.pl._11A);
+  // printf("\tPL_11A\n");
+  // pn_11_dbg_reset_state(&lm.pl._11A);
   // pn_11_a
-  printf("\tPL_11B\n");
-  pn_11_dbg_reset_state(&lm.pl._11B);
+  // printf("\tPL_11B\n");
+  // pn_11_dbg_reset_state(&lm.pl._11B);
   // pn_12
-  printf("\tPL_12\n");
-  pn_12_dbg_reset_state(&lm.pl._12);
+  // printf("\tPL_12\n");
+  // pn_12_dbg_reset_state(&lm.pl._12);
   // pn_20
-  printf("\tPL_20\n");
-  pn_20_dbg_reset_state(&lm.pl._20);
+  // printf("\tPL_20\n");
+  // pn_20_dbg_reset_state(&lm.pl._20);
   //
   printf("Finish test\n\n");
 }

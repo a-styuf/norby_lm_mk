@@ -258,7 +258,6 @@ int8_t rx_check_frame(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 						status = FR_LAST_STATUS_ANS;
 						break;
 					case FR_RST_REQ:
-						NULL;
 						status = FR_RST_REQ;
 						break;
 					case FR_DATA:
