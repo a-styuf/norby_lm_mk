@@ -149,6 +149,15 @@ typedef struct
 	uint32_t pause_ms;
 } type_PNDCR_FlightTask_Ctrl;
 
+/** 
+  * @brief  структура формирования параметров для хранения в ПЗУ по Декор (18 байт) для последующей упаковки всех состаяний в один кадр из 116 байт
+  */
+typedef struct
+{
+	uint16_t status; 				//+0
+	uint8_t rsrv[16]; 				//+2
+} type_PNDCR_сfg; 			//18
+
 #pragma pack(8)
 
 /** 
@@ -161,6 +170,8 @@ typedef struct
 	type_PNDCR_interface uart;
 	type_PNDCR_report report;
 	type_PNDCR_FlightTask_Ctrl fl_task;
+	type_PNDCR_сfg loaded_cfg;
+	type_PNDCR_сfg cfg;
 	uint16_t status;
 	uint16_t error_flags;
 	uint8_t error_cnt;
@@ -190,9 +201,11 @@ void pn_dcr_set_mode(type_PN_DCR_model* pn_dcr_ptr, uint8_t mode);
 void pn_dcr_load_can_flight_task(type_PN_DCR_model* pn_dcr_ptr, uint8_t *flight_task);
 void pn_dcr_process(type_PN_DCR_model* pn_dcr_ptr, uint32_t time_step_ms);
 uint8_t pn_dcr_run_step_function(type_PN_DCR_model* pn_dcr_ptr);
-void pn_dcr_process_flight_task_100ms(type_PN_DCR_model* pn_dcr_ptr);
 uint8_t _pn_dcr_form_frame(uint8_t frame_type, type_PN_DCR_frame *frame, uint8_t cmd_type, uint8_t cmd_header, uint8_t *data);
 void  _pn_dcr_error_collector(type_PN_DCR_model* pn_dcr_ptr, uint16_t error, int16_t data);
+//
+uint8_t pn_dcr_get_cfg(type_PN_DCR_model* pn_dcr_ptr, uint8_t *cfg);
+uint8_t pn_dcr_set_cfg(type_PN_DCR_model* pn_dcr_ptr, uint8_t *cfg);
 
 // работа с интерфейсом, исключительно передача и прием данных, без разоора и принятия решений по Декор
 void pn_dcr_uart_init(type_PNDCR_interface *int_ptr, UART_HandleTypeDef *uart_ptr);

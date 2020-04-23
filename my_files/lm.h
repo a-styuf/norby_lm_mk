@@ -26,7 +26,7 @@ typedef unsigned short uint16_t;
 
 // настройки прибора
 #define DEV_ID (0x06)
-#define SOFT_VERSION "0.15"
+#define SOFT_VERSION "0.16"
 // свойства микроконтроллера
 
 // раскрашивание переменных
@@ -120,6 +120,7 @@ typedef struct
 	type_PL pl;
 	type_LM_INTERFACES interface;
 	type_LM_REPORT report;
+	type_LM_CFG_Frame loaded_cfg, cfg_to_save;
 } type_LM_DEVICE;
 
 // прототипы функций

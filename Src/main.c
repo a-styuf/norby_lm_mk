@@ -64,7 +64,7 @@ RTC_TimeTypeDef time;
 
 uint8_t tx_data[256], tx_data_len=0; //масив для формирования данных для отправки через VCP
 uint8_t rx_data[256], rx_data_len=0;
-uint8_t time_slot_flag_100ms = 0, time_slot_flag_10ms = 0;
+uint8_t time_slot_flag_100ms = 0, time_slot_flag_10ms = 0, time_slot_flag_1s = 0;
 uint8_t uint8_val = 0, uint8_buff[128] = {0};
 uint16_t uint16_val = 0;
 int16_t int16_val = 0;
@@ -150,6 +150,12 @@ int main(void)
 
   while (1)
   {
+    if (time_slot_flag_1s){ // 1s
+      // сохраняем рабочие параметры
+      lm_save_parameters(&lm);
+      //reset flag
+			time_slot_flag_1s = 0;
+    }
 		if (time_slot_flag_100ms){ // 100ms
 			//формирование кадров телеметрии
       fill_tmi_and_beacon(&lm);
@@ -403,6 +409,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	}
 	if (htim == &htim2) {
 		lm.ctrl.global_time_s += 1;
+    time_slot_flag_1s = 1;
 	}
 	if (htim == &htim3) {
 		time_slot_flag_100ms = 1;

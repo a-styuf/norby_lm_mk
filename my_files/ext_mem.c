@@ -121,6 +121,10 @@ int32_t ext_mem_check(type_MEM_CONTROL* mem_ptr, uint8_t symbol)
 int32_t ext_mem_wr_param(type_MEM_CONTROL* mem_ptr, uint8_t *param)
 {
   uint8_t buff[128];
+	uint16_t crc16;
+  memcpy(buff, param, 126);
+  crc16 = norby_crc16_calc(buff, 126);
+  *(uint16_t*)&buff[126] = crc16;
   for(uint8_t num=0; num < CY15B104_MEM_NUM; num++){
     ext_mem_any_write(mem_ptr, num*SINGLE_MEM_VOL_FRAMES, buff);
   }
@@ -136,10 +140,12 @@ int32_t ext_mem_wr_param(type_MEM_CONTROL* mem_ptr, uint8_t *param)
 int32_t ext_mem_rd_param(type_MEM_CONTROL* mem_ptr, uint8_t *param)
 {
   uint8_t buff[128];
+	uint16_t crc16=0;
   for(uint8_t num=0; num < CY15B104_MEM_NUM; num++){
     ext_mem_any_read(mem_ptr, num*SINGLE_MEM_VOL_FRAMES, buff);
     memcpy(param, buff, 128);
-    if(norby_crc16_calc(param, 128) == 0){
+		crc16 = norby_crc16_calc(param, 128);
+    if(crc16 == 0){
       return 1;
     }
   }

@@ -68,17 +68,46 @@ void lm_report_create(type_LM_DEVICE* lm_ptr)
 }
 
 /**
-  * @brief  загрузка параметров из памяти
+  * @brief  загрузка параметров из ПЗУ
 	* @param  lm_ptr: указатель на структуру управления МС
-	* @retval статус успешности инициализации: кол-во успешно инициализированных блоков
+	* @retval статус загрузки параметров: 1 - хорошо, 0 - ошибка
   */
 int8_t lm_load_parameters(type_LM_DEVICE* lm_ptr)
 {
-	int8_t ret_val = 0;
-	//
+	uint8_t retval = 0;
+		// отдельная загрузка полетного задания для ДеКоР (обязательно до записи остальных параметров ДеКоР)
 	for (uint8_t i=0; i<16; i++){
 		ext_mem_rd_frame_from_part_by_addr(&lm_ptr->mem, (uint8_t*)lm_ptr->interface.dcr_interface.FlightTask + i*128, i, PART_DCR_FLIGHT_TASK);
+		pn_dcr_load_can_flight_task(&lm_ptr->pl._dcr, (uint8_t*)lm_ptr->interface.dcr_interface.FlightTask);
 	}
+	// загрузка параметров из специальной облости памяти
+	if (ext_mem_rd_param(&lm_ptr->mem, (uint8_t*)&lm_ptr->loaded_cfg)){
+		pn_dcr_set_cfg(&lm_ptr->pl._dcr, lm_ptr->loaded_cfg.pldcr_cfg);
+		//
+		retval |= 0x01;
+	}
+	else{
+	}
+	//
+	return retval;
+}
+
+/**
+  * @brief  загрузка параметров в ПЗУ
+	* @param  lm_ptr: указатель на структуру управления МС
+	* @retval статус успешности инициализации: кол-во успешно инициализированных блоков
+  */
+int8_t lm_save_parameters(type_LM_DEVICE* lm_ptr)
+{
+	int8_t ret_val = 0;
+	;
+	memset((uint8_t*)&lm_ptr->cfg_to_save, 0xFE, 128);
+	// запрашиваем конфигурации всех устройст
+	pn_dcr_get_cfg(&lm_ptr->pl._dcr, (uint8_t *)&lm_ptr->cfg_to_save.pldcr_cfg);
+	// прилипляем заголовок
+	frame_create_header((uint8_t *)&lm_ptr->cfg_to_save.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_LM_CONFIG, 0x00, 0x00, lm_ptr->ctrl.global_time_s);
+	// записываем в память
+	ext_mem_wr_param(&lm_ptr->mem, (uint8_t *)&lm_ptr->cfg_to_save);
 	//
 	return ret_val;
 }

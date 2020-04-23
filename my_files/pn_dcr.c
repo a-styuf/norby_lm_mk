@@ -523,6 +523,39 @@ void  _pn_dcr_error_collector(type_PN_DCR_model* pn_dcr_ptr, uint16_t error, int
   }
 }
 
+/**
+  * @brief  получение параметров работы прибора для сохранения в ПЗУ
+  * @param  pn_dcr_ptr: указатель на структуру управления ПН_ДКР
+  * @param  cfg: укзаатель на структуру с параметрами ДеКоР
+  * @retval  1 - ОК, 0 - ошибка
+  */
+uint8_t pn_dcr_get_cfg(type_PN_DCR_model* pn_dcr_ptr, uint8_t *cfg)
+{
+	memset((uint8_t*)&pn_dcr_ptr->cfg, 0xFE, sizeof(type_PNDCR_сfg));
+	pn_dcr_ptr->cfg.status = pn_dcr_ptr->status & 0x000F;
+	//
+	memcpy(cfg, (uint8_t*)&pn_dcr_ptr->cfg, sizeof(type_PNDCR_сfg));
+	//
+	return 1;
+}
+
+/**
+  * @brief  получение параметров работы прибора для сохранения в ПЗУ
+  * @param  pn_dcr_ptr: указатель на структуру управления ПН_ДКР
+  * @param  cfg: укзаатель на структуру с параметрами ДеКоР
+  * @retval  1 - ОК, 0 - ошибка (заготовка под проверку валидности данных)
+  */
+uint8_t pn_dcr_set_cfg(type_PN_DCR_model* pn_dcr_ptr, uint8_t *cfg)
+{
+	//
+	memcpy((uint8_t*)&pn_dcr_ptr->loaded_cfg, (uint8_t*)cfg, sizeof(type_PNDCR_сfg));
+	//
+	pn_dcr_ptr->status = pn_dcr_ptr->loaded_cfg.status & 0x000F; //из-за преобразования типов необходимо поменть байты местами
+	pn_dcr_set_mode(pn_dcr_ptr, pn_dcr_ptr->status);
+	//
+	return 1;
+}
+
 //*** Протокол общения с ДеКоР ***//
 
 /**
