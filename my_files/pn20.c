@@ -187,7 +187,7 @@ void pn_20_int_send_frame(type_PN20_interface *int_ptr, uint8_t data_len, uint8_
 		int_ptr->tx_msg.frame.data_hb 	= data_hb;
 		int_ptr->tx_msg.frame.data_lb 	= data_lb;
 		int_ptr->tx_msg.frame.crc8 			= сrc8_calc_for_pn_20(int_ptr->tx_msg.array.frame, 4);
-		int_ptr->tx_msg.frame.eot 			= 0xAA;
+		int_ptr->tx_msg.frame.eot 			= 0x55;
 		//отправляем данные
 		memcpy(int_ptr->tx_data, &int_ptr->tx_msg, sizeof(type_PN20_frame));
 		int_ptr->tx_len = sizeof(type_PN20_frame);
@@ -271,7 +271,7 @@ void pn_20_int_err_prcs_cb(type_PN20_interface *int_ptr)
 		HAL_UART_ERROR &= ~HAL_UART_ERROR_NE;
 	}
 	else if (HAL_UART_ERROR){
-		_pn_dcr_uart_error_collector(int_ptr, PN_20_INTERFACE_ERR_HAL);
+		_pn_20_int_error_collector(int_ptr, PN_20_INTERFACE_ERR_HAL);
 	}
 }
 
