@@ -222,6 +222,7 @@ int main(void)
         printf("cmdreg:LM mode 0x%2X\n", lm.interface.cmdreg.array[CMDREG_LM_MODE]);
         break;
       case CMDREG_PL_PWR_SW:
+        pwr_on_off(&lm.pwr, lm.interface.cmdreg.array[CMDREG_PL_PWR_SW]);
         printf("cmdreg:PL pwr sw 0x%2X\n", lm.interface.cmdreg.array[CMDREG_PL_PWR_SW]);
         break;
       case CMDREG_PL_INH_0:
@@ -271,53 +272,6 @@ int main(void)
     if (can_vcp_read_process(&can_vcp)) {
 			led_alt_setup(&con_state_led, LED_BLINK, 700, 127, 1000);
 		}
-    //* обработка команд USB-VCP *//
-    // if (vcp_uart_read(&vcp)){
-    //   led_alt_setup(&con_state_led, LED_BLINK, 300, 127, 1000);
-    //   if (vcp.rx_buff[0] == DEV_ID){
-    //     if (vcp.rx_buff[4] == 0x00){ //зеркало для ответа
-    //       memcpy(tx_data, &vcp.rx_buff[6], vcp.rx_buff[5]&0x7F);
-    //       tx_data_len = vcp.rx_buff[5];
-    //       memcpy(tx_data, &vcp.rx_buff[6], vcp.tx_size);
-    //     }
-    //     else if (vcp.rx_buff[4] == 0x01){ //включение/отклюение каналов питания по выбору
-    //       pwr_on_off(&lm.pwr, vcp.rx_buff[6]);
-    //       tx_data_len = 0;
-    //     }
-    //     else if (vcp.rx_buff[4] == 0x02){ //ТМ�? системы питания
-    //       memcpy(tx_data, &lm.pwr.report, sizeof(lm.pwr.report));
-    //       tx_data_len = sizeof(lm.pwr.report);
-    //     }
-    //     else if (vcp.rx_buff[4] == 0x03){ //одиночный запуск циклограммы по выбору c выбранным режимом
-    //       tx_data[0] = cyclogram_start(&lm.cyclogram, vcp.rx_buff[6], vcp.rx_buff[7]);
-    //       tx_data_len = 1;
-    //     }
-    //     else if (vcp.rx_buff[4] == 0x04){ //состояние полезной нагрузки по выбору
-    //       pl_report_get(&lm.pl, vcp.rx_buff[6], tx_data, &tx_data_len);
-    //     }
-    //     else if (vcp.rx_buff[4] == 0x05){ //тестирование интерфейса
-    //       /* Начало: тестирование модулей общения ПН1.1*/
-    //       led_setup(&mcu_state_led, LED_BLINK, 500, 127);
-    //       HAL_Delay(100);
-    //       //отправка данных протоколом транспортного уровня из ПН1.1А в ПН1.1Б
-    //       sprintf((char*)tx_data, "Test: A->B, tr_lvl, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 30 Test: A->B, tr_lvl, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 30");
-    //       tr_lvl_send_data(&lm.pl._11A.interface.tr_lvl, tx_data, strlen((char*)tx_data)+1);
-    //       //
-    //       sprintf((char*)rx_data, "Test end.");
-    //       vcp_uart_write(&vcp, rx_data, strlen((char*)rx_data)+1);
-    //       led_setup(&mcu_state_led, LED_HEART_BEAT, 1000, 0);
-    //       /* Конец: тестирование модулей общения ПН1.1*/
-    //       tx_data_len = 0;
-    //     }
-    //     else if (vcp.rx_buff[4] == 0x06){ //включение/отклюение каналов питания используя отдельные сигналы ena
-    //       int8_val = vcp.rx_buff[6] <= 7 ? vcp.rx_buff[6] : 0;
-    //       pwr_ch_on_off_separatly(&lm.pwr.ch[int8_val], vcp.rx_buff[7]);
-    //       tx_data_len = 0;
-    //     }
-    //     vcp.tx_size = com_ans_form(vcp.rx_buff[1], DEV_ID, &vcp.tx_seq_num, vcp.rx_buff[4], tx_data_len, tx_data, vcp.tx_buff);
-    //     vcp_uart_write(&vcp, vcp.tx_buff, vcp.tx_size);
-    //   }
-    // }
   }
   /* USER CODE END 3 */
 }
@@ -379,10 +333,10 @@ void blocking_test(void)
   printf_time();
   printf("Start test\n\n");
 	///*** test mem
-	printf("Full mem vol frame %d\n", FULL_MEM_VOL_FRAMES);
-	for(uint8_t i=0; i<PART_NUM; i++){
-		printf("\tPart=%d, Start=%d, stop=%d, vol=%d;\n", i, lm.mem.part[i].start_frame_num, lm.mem.part[i].finish_frame_num, lm.mem.part[i].full_frame_num);
-	}
+	// printf("Full mem vol frame %d\n", FULL_MEM_VOL_FRAMES);
+	// for(uint8_t i=0; i<PART_NUM; i++){
+	// 	printf("\tPart=%d, Start=%d, stop=%d, vol=%d;\n", i, lm.mem.part[i].start_frame_num, lm.mem.part[i].finish_frame_num, lm.mem.part[i].full_frame_num);
+	// }
 	///*** test pn
   // pn_11_a
   // printf("\tPL_11A\n");
@@ -465,7 +419,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart_req)
 		rx_uart_data(&lm.pl._12.interface.tr_lvl);
 	}
   if(huart_req == &huart3){ // PL2.0
-		rx_uart_data(&lm.pl._20.interface.tr_lvl);
+	//	rx_uart_data(&lm.pl._20.interface.huart);
 	}
 	if(huart_req == &huart6){ // PL_DCR
 		pn_dcr_uart_rx_prcs_cb(&lm.pl._dcr.uart);
@@ -484,7 +438,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart_req)
 		tr_lvl_set_timeout(&lm.pl._12.interface.tr_lvl, 1);
 	}
   if(huart_req == &huart3){ // PL2.0
-		tr_lvl_set_timeout(&lm.pl._20.interface.tr_lvl, 1);
+	//	tr_lvl_set_timeout(&lm.pl._20.interface.tr_lvl, 1);
 	}
 	if(huart_req == &huart6){ // PL_DCR
 		pn_dcr_uart_tx_prcs_cb(&lm.pl._dcr.uart);

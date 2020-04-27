@@ -161,7 +161,7 @@ void pn_11_get_interrupt (type_PN11_model* pn11_ptr)
 	* 				оставшиеся сигналы ТМ подключаются по желанию
   * @param  pn11_ptr: указатель на структуру управления ПН1.1
   */
-void pn_11_dbg_reset_state(type_PN11_model* pn11_ptr)
+void pn_11_dbg_test(type_PN11_model* pn11_ptr)
 {
 	uint8_t test_data[16]={0xAA, 0x55, 0x02, 0x03}, receive_data[16]={0};
 		pwr_ch_on_off_separatly(pn11_ptr->pwr_ch, 0x07);

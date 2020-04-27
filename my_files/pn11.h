@@ -90,7 +90,7 @@ uint8_t pn_11_get_outputs_state(type_PN11_model* pn11_ptr);
 void pn_11_pwr_on(type_PN11_model* pn11_ptr);
 void pn_11_pwr_off(type_PN11_model* pn11_ptr);
 
-void pn_11_dbg_reset_state(type_PN11_model* pn11_ptr);
+void pn_11_dbg_test(type_PN11_model* pn11_ptr);
 
 
 #endif

@@ -83,7 +83,7 @@ uint8_t pn_12_get_outputs_state(type_PN12_model* pn12_ptr);
 void pn_12_pwr_on(type_PN12_model* pn12_ptr);
 void pn_12_pwr_off(type_PN12_model* pn12_ptr);
 
-void pn_12_dbg_reset_state(type_PN12_model* pn12_ptr);
+void pn_12_dbg_test(type_PN12_model* pn12_ptr);
 
 
 #endif

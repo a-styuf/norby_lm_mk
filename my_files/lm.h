@@ -32,7 +32,7 @@ typedef unsigned short uint16_t;
 // раскрашивание переменных
 
 // описание рабочих структур
-// Power //
+// Power //-
 typedef struct
 {
 	uint32_t gpio_state;  // 31:pwr_gd, 30:pwr_alert, 29-21:NU, 20-18: ena[2:0] LM ... 2-0: ena[2:0] PL_DCR2

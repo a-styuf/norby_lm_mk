@@ -138,7 +138,7 @@ void pn_12_pwr_off(type_PN12_model* pn12_ptr)
 	* 				оставшиеся сигналы ТМ подключаются по желанию
   * @param  pn12_ptr: указатель на структуру управления ПН1.1
   */
-void pn_12_dbg_reset_state(type_PN12_model* pn12_ptr)
+void pn_12_dbg_test(type_PN12_model* pn12_ptr)
 {
 	uint8_t test_data[16]={0xAA, 0x55, 0x02, 0x03}, receive_data[16]={0};
 		pwr_ch_on_off_separatly(pn12_ptr->pwr_ch, 0x07);

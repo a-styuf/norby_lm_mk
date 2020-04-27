@@ -367,7 +367,7 @@ int8_t pl_pn11A_check_INT(type_PL* pl_ptr)
 	gpio_state = pn_11_get_inputs_state(&pl_ptr->_11A);
 	//debug
 	printf_time();
-	printf("--PL11A check INT-%d\n", gpio_state&0x1);
+	printf("--PL11A check INT %d\n", gpio_state&0x1);
 	//
 	return 1;
 }

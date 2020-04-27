@@ -560,8 +560,8 @@ uint8_t pn_dcr_set_cfg(type_PN_DCR_model* pn_dcr_ptr, uint8_t *cfg)
 
 /**
   * @brief  инициализация интерфейса общения для ПН ДКР
-  * @param  pn_dcr_ptr: указатель на структуру управления ПН_ДКР
-	* @param  mode: тип канала питания согласно #define в .h файле
+  * @param  int_ptr: указатель на структуру управления интерфейсом ПН_ДКР
+	* @param  uart_ptr: указатель на uart, используемый для данной ПН
   */
 void pn_dcr_uart_init(type_PNDCR_interface *int_ptr, UART_HandleTypeDef *uart_ptr)
 {
@@ -581,9 +581,10 @@ void pn_dcr_uart_init(type_PNDCR_interface *int_ptr, UART_HandleTypeDef *uart_pt
 }
 
 /**
-  * @brief  инициализация интерфейса общения для ПН ДКР
-  * @param  pn_dcr_ptr: указатель на структуру управления ПН_ДКР
-	* @param  mode: тип канала питания согласно #define в .h файле
+  * @brief  функция передачи произвольного массива в UART
+  * @param  int_ptr: указатель на структуру управления интерфейсом ПН_ДКР
+	* @param  data: указатель на массив данных для передачи
+	* @param  len: указатель на длину данных для передачи
   */
 void pn_dcr_uart_send(type_PNDCR_interface *int_ptr, uint8_t* data, uint8_t len)
 {
@@ -594,8 +595,7 @@ void pn_dcr_uart_send(type_PNDCR_interface *int_ptr, uint8_t* data, uint8_t len)
 
 /**
   * @brief  обработка колбэка на прием данных
-  * @param  pn_dcr_ptr: указатель на структуру управления ПН_ДКР
-  * @param  mem_ptr: указатлье на внешнюю энергонезависимую память
+  * @param  int_ptr: указатель на структуру управления интерфейсом ПН_ДКР
   */
 void pn_dcr_uart_rx_prcs_cb(type_PNDCR_interface *int_ptr)
 {
@@ -622,7 +622,6 @@ void pn_dcr_uart_rx_prcs_cb(type_PNDCR_interface *int_ptr)
 
 /**
   * @brief  обработка колбэка на успешную отправку данных данных
-  * @param  pn_dcr_ptr: указатель на структуру управления ПН_ДКР
   */
 void pn_dcr_uart_tx_prcs_cb(type_PNDCR_interface *int_ptr)
 {
@@ -631,7 +630,6 @@ void pn_dcr_uart_tx_prcs_cb(type_PNDCR_interface *int_ptr)
 
 /**
   * @brief  обработка колбэка на ошибку при приеме или передачи
-  * @param  pn_dcr_ptr: указатель на структуру управления ПН_ДКР
   */
 void pn_dcr_uart_err_prcs_cb(type_PNDCR_interface *int_ptr)
 {
