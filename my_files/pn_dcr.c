@@ -586,7 +586,8 @@ void pn_dcr_uart_init(type_PNDCR_interface *int_ptr, UART_HandleTypeDef *uart_pt
 	* @param  data: указатель на массив данных для передачи
 	* @param  len: указатель на длину данных для передачи
   */
-void pn_dcr_uart_send(type_PNDCR_interface *int_ptr, uint8_t* data, uint8_t len)
+void 
+pn_dcr_uart_send(type_PNDCR_interface *int_ptr, uint8_t* data, uint8_t len)
 {
 	memcpy(int_ptr->tx_data, data, len);
 	int_ptr->tx_len = len;

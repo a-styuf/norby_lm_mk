@@ -18,7 +18,12 @@
 #define DATA_TYPE_GEN_TMI             0x82
 #define DATA_TYPE_DCR_LAST_RX_FRAME   0x83
 #define DATA_TYPE_DCR_LAST_RX_STATUS  0x84
-#define DATA_TYPE_LM_CONFIG           0x85
+#define DATA_TYPE_PL11A_INT_DATA      0x85
+#define DATA_TYPE_PL11B_INT_DATA      0x86
+#define DATA_TYPE_PL12_INT_DATA       0x87
+#define DATA_TYPE_PL20_INT_DATA       0x88
+
+#define DATA_TYPE_LM_CONFIG           0x8F
 
 
 
@@ -163,6 +168,18 @@ typedef struct {
   //
   uint16_t crc16; //+126
 } type_DCR_STATUS_Frame; //128
+
+/**
+  * @brief  PL1.1_A, PL1.1_B, PL1.2, PL2.0 interface answer
+  * @note   answer from PL1-ISS from UART must be less than 116-byte
+  */
+typedef struct {
+  type_SingleFrame_Header header; //+0
+  //
+  uint8_t data[116]; //+10
+  //
+  uint16_t crc16; //+126
+} type_PL_ISS_INT_data; //128
 
 /**
   * @brief  Parameters data

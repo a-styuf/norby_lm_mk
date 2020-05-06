@@ -20,6 +20,7 @@
 #define ID_IVAR_PARAM         6
 #define ID_IVAR_EXTMEM        7
 #define ID_IVAR_DCR_INTERFACE 8
+#define ID_IVAR_ISS_INTERFACE 9
 #define ID_IVAR_DBG           12
 #define ID_IVAR_BRD           13
 //
@@ -35,10 +36,10 @@
 //
 #define CMD_NO_ONE            -1
 // default cmd statuses
-#define CMD_STATUS_CLEAR      0x00
-#define CMD_STATUS_START      0x01
-#define CMD_STATUS_FINISH     0x7F
-#define CMD_STATUS_CANCEL     0xFF
+#define CMD_STATUS_CLEAR           0x00
+#define CMD_STATUS_START           0x01
+#define CMD_STATUS_FINISH          0x7F
+#define CMD_STATUS_CANCEL          0xFF
 // default cmd
 #define CMD_CLEAR                 0x00
 #define CMD_START                 0x01
@@ -56,6 +57,12 @@
 //
 #define CMDREG_DCR_MODE_SET       0x08
 //
+#define CMDREG_PL11A_OUT_SET      0x09
+#define CMDREG_PL11B_OUT_SET      0x0A  //10
+#define CMDREG_PL12_OUT_SET       0x0B  //11
+#define CMDREG_PL20_OUT_SET       0x0C  //12
+
+//
 #define CMDREG_DBG_LED            0x10
 #define CMDREG_DBG_CYCLOGRAMS_0   0x11
 #define CMDREG_DBG_CYCLOGRAMS_1   0x12
@@ -65,6 +72,14 @@
 #define DCR_INTERFACE_INSTASEND_LENG_OFFSET   127
 
 #define DCR_INTERFACE_CMD_POOL_LEN   128
+
+//***PL_ISS_Interface setup
+#define PL11A_INTERFACE_INSTASEND_LENG_OFFSET   (0*128)
+#define PL11B_INTERFACE_INSTASEND_LENG_OFFSET   (1*128)
+#define PL12_INTERFACE_INSTASEND_LENG_OFFSET    (2*128)
+#define PL20_INTERFACE_INSTASEND_LENG_OFFSET    (3*128)
+
+#define PL_ISS_INTERFACE_CMD_POOL_LEN           (4*128)
 //
 
 //*** structures ***//
@@ -97,12 +112,16 @@ typedef struct {
   * @brief  TMI data fieldes: contain data in 128-bytes form
   */
 typedef struct {
-  type_LM_Beacon_Frame beacon;  //+0
-  type_LM_TMI_Data_Frame tmi; //+128
-  type_LM_GEN_TMI_Frame gen_tmi; //+256
-  type_DCR_STATUS_Frame dcr_status; //+384
-  type_DCR_LONG_Frame dcr_frame; //+512
-} type_IVar_TMI;//640
+  type_LM_Beacon_Frame beacon;          //+0
+  type_LM_TMI_Data_Frame tmi;           //+128
+  type_LM_GEN_TMI_Frame gen_tmi;        //+256
+  type_DCR_STATUS_Frame dcr_status;     //+384
+  type_DCR_LONG_Frame dcr_frame;        //+512
+  type_PL_ISS_INT_data pl11a_frame;   //+640
+  type_PL_ISS_INT_data pl11b_frame;   //+768
+  type_PL_ISS_INT_data pl12_frame;    //+896
+  type_PL_ISS_INT_data pl20_frame;    //+1024
+} type_IVar_TMI;                        //1152
 
 /**
   * @brief  Parameteres data
@@ -129,6 +148,13 @@ typedef struct {
   uint8_t InstaMessage[128];  //+0
   uint8_t FlightTask[128][16];  //+128
 } type_IVar_DCR_Interface; //2176
+
+/**
+  * @brief  IVar for PL_ISS-interface
+  */
+typedef struct {
+  uint8_t InstaMessage[4][128];   //+0
+} type_IVar_PL_ISS_Interface;        //128*4
 
 /**
   * @brief  debug data
@@ -161,6 +187,10 @@ typedef struct
   uint8_t dcr_int_offset_to_check[DCR_INTERFACE_CMD_POOL_LEN];
   uint16_t dcr_int_flg;
   //
+  type_IVar_PL_ISS_Interface pl_iss_interface;
+  uint8_t pl_iss_int_offset_to_check[PL_ISS_INTERFACE_CMD_POOL_LEN];
+  uint16_t pl_iss_int_flg;
+  //
   type_IVar_DBG_Data dbg_data;
   //
   typeRegistrationRec* reg_rec_ptr;
@@ -183,5 +213,8 @@ int16_t cmdreg_check_to_process(type_LM_INTERFACES* lm_in_ptr);
 //работа с командами интерфейса к ДеКоР
 void dcr_inerface_process_cb(type_LM_INTERFACES* lm_in_ptr, uint16_t offset);
 int16_t dcr_inerface_check_to_process(type_LM_INTERFACES* lm_in_ptr);
+//работа с командами интерфейса к ПН_ИСС
+void pl_iss_inerface_process_cb(type_LM_INTERFACES* lm_in_ptr, uint16_t offset);
+int16_t pl_iss_inerface_check_to_process(type_LM_INTERFACES* lm_in_ptr);
 
 #endif

@@ -146,39 +146,17 @@
           <Name>-U56FF6B064884494953410187 -O2254 -S0 -C0 -A0 -N00("ARM CoreSight SW-DP") -D00(2BA01477) -L00(0) -TO19 -TC72000000 -TP21 -TDS8023 -TDT0 -TDC1F -TIE1 -TIP0 -FO7 -FD20000000 -FC800 -FN1 -FF0STM32F4xx_1024.FLM -FS08000000 -FL0100000 -FP0($$Device:STM32F405ZG$CMSIS\Flash\STM32F4xx_1024.FLM)</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint>
-        <Bp>
-          <Number>0</Number>
-          <Type>0</Type>
-          <LineNumber>58</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134220496</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\my_files\aa_can.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\norby_lm_mk\../my_files/aa_can.c\58</Expression>
-        </Bp>
-      </Breakpoint>
+      <Breakpoint/>
       <WatchWindow1>
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>\\norby_lm_mk\../Src/main.c\lm.pl._dcr</ItemText>
+          <ItemText>\\norby_lm_mk\../Src/main.c\lm.pl._11A.interface.tr_lvl</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>data</ItemText>
-        </Ww>
-        <Ww>
-          <count>2</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>\\norby_lm_mk\../Src/main.c\lm.interface.dcr_interface</ItemText>
+          <ItemText>\\norby_lm_mk\../Src/main.c\lm.pl._11A.interface</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -186,31 +164,6 @@
           <count>0</count>
           <WinNumber>2</WinNumber>
           <ItemText>lm</ItemText>
-        </Ww>
-        <Ww>
-          <count>1</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>RegistrationRec[filtr_num]</ItemText>
-        </Ww>
-        <Ww>
-          <count>2</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>\\norby_lm_mk\../Src/main.c\lm.mem.part[1]</ItemText>
-        </Ww>
-        <Ww>
-          <count>3</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>long_dcr_fr</ItemText>
-        </Ww>
-        <Ww>
-          <count>4</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>full_cfg</ItemText>
-        </Ww>
-        <Ww>
-          <count>5</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>buff</ItemText>
         </Ww>
       </WatchWindow2>
       <MemoryWindow1>

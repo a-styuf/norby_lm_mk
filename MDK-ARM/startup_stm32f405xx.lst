@@ -852,12 +852,11 @@ ARM Macro Assembler    Page 14
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp --apcs=int
 erwork --depend=norby_lm_mk\startup_stm32f405xx.d -onorby_lm_mk\startup_stm32f4
-05xx.o -ID:\YandexDisk\Work\Microcontrolers\STM32\Projects\norby_lm_mk\MDK-ARM\
-RTE\_norby_lm_mk -IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include -IC:\
-Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\In
-clude --predefine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 522" 
---predefine="_RTE_ SETA 1" --predefine="STM32F405xx SETA 1" --list=startup_stm3
-2f405xx.lst startup_stm32f405xx.s
+05xx.o -I.\RTE\_norby_lm_mk -IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include
+ -IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F
+4xx\Include --predefine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA
+ 523" --predefine="_RTE_ SETA 1" --predefine="STM32F405xx SETA 1" --list=startu
+p_stm32f405xx.lst startup_stm32f405xx.s
 
 
 

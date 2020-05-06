@@ -86,25 +86,29 @@ void cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr)
 	ccl_ptr->num = 0;
 	ccl_ptr->time_ms = 0;
 	// Циклограмма 0: 0x01 - ПН1.1А
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 0, pl_pn11A_set_iku_default, 2000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 1, pl_pn11A_check_temp, 2000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 2, pl_pn11A_pwr_on, 5000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 3, pl_pn11A_pwr_check, 2000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 4, pl_pn11A_fpga_on, 2000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 5, pl_pn11A_pwr_check, 2000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 6, pl_pn11A_fpga_mcu_on, 2000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 7, pl_pn11A_pwr_check, 2000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 8, pl_pn11A_write_mode, 500);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 9, pl_pn11A_read_req_mode, 500);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 10, pl_pn11A_read_mode, 500);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 11, pl_pn11A_get_and_check_hw_telemetry, 2000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 12, pl_pn11A_check_INT, 2000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 13, pl_pn11A_set_iku_default, 2000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 14, pl_pn11A_pwr_off, 5000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, 15, pl_pn11A_pwr_check, 2000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_set_iku_default, 2000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_check_temp, 2000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_pwr_on, 5000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_pwr_check, 2000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_fpga_on, 2000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_pwr_check, 2000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_interface_sync, 100);	
+	//
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_write_mode, 500);
+
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_read_req_mode, 500);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_read_mode, 500);
+	//
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_get_and_check_hw_telemetry, 2000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_check_INT, 2000);
+	//
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_interface_reset, 2000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_set_iku_default, 2000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_pwr_off, 5000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_pwr_check, 2000);
 	// Циклограмма 1: 0x02 - ПН1.1B
-	cyclogram_step_init(ccl_ptr, pl_ptr, 1, 0, pl_pn11A_set_iku_default, 1000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 1, 1, pl_pn11A_pwr_off, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_set_iku_default, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_pwr_off, 1000);
 }
 
 /**
@@ -112,15 +116,18 @@ void cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr)
   * @param  ccl_ptr: структура управления циклограммой
   * @param  pl_ptr:  структура управления ПН-ми
   * @param  cyclogramm:  номер циклограммы
-  * @param  step:  номер шага циклограммы
   * @param  (*function)(type_PL*):  функция, выполняемая на step-шаге
   * @param  delay:  задержка в мс до следующего шага
   */
-void cyclogram_step_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t cyclogramm, uint8_t step, int8_t (*function)(type_PL*), uint32_t delay)
+void cyclogram_step_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t cyclogramm, int8_t (*function)(type_PL*), uint32_t delay)
 {
-	ccl_ptr->array[cyclogramm].step[step].function = function;
-	ccl_ptr->array[cyclogramm].step[step].state = 0;
-	ccl_ptr->array[cyclogramm].step[step].delay_to_next_step_ms = delay;
+	if(ccl_ptr->array[cyclogramm].full_step_num >= STEP_NUM){
+		return;
+	}
+	ccl_ptr->array[cyclogramm].step[ccl_ptr->array[cyclogramm].full_step_num].function = function;
+	ccl_ptr->array[cyclogramm].step[ccl_ptr->array[cyclogramm].full_step_num].state = 0;
+	ccl_ptr->array[cyclogramm].step[ccl_ptr->array[cyclogramm].full_step_num].delay_to_next_step_ms = delay;
+	ccl_ptr->array[cyclogramm].full_step_num += 1;
 }
 
 /**
@@ -292,9 +299,29 @@ int8_t pl_pn11A_fpga_on(type_PL* pl_ptr)
 	return 1;
 }
 
+int8_t pl_pn11A_interface_sync(type_PL* pl_ptr)
+{
+	tr_lvl_send_sync_frames(&pl_ptr->_11A.interface.tr_lvl);
+	//debug
+	printf_time();
+	printf("--PL11A reset and sync interface\n");
+	//
+	return 1;
+}
+
+int8_t pl_pn11A_interface_reset(type_PL* pl_ptr)
+{
+	tr_lvl_reset(&pl_ptr->_11A.interface.tr_lvl);
+	//debug
+	printf_time();
+	printf("--PL11A reset interface\n");
+	//
+	return 1;
+}
+
 int8_t pl_pn11A_write_mode(type_PL* pl_ptr)
 {
-	uint32_t u32_data = 0x01;
+	uint32_t u32_data = 0x02;
 	app_lvl_write(&pl_ptr->_11A.interface, APP_LVL_ADDR_MODE, &u32_data, 1);
 	
 	//debug

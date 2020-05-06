@@ -46,6 +46,7 @@ typedef struct
 	uint32_t state;
 	int32_t step_timeout;
 	uint8_t step_num;
+	uint8_t full_step_num;
 } type_CYCLOGRAM_control;
 
 // PL //
@@ -61,7 +62,7 @@ void pl_init(type_PL* pl_ptr, type_PWR_CHANNEL* pwr_arr, type_TMP1075_DEVICE* tm
 void pl_report_get(type_PL* pl_ptr, uint8_t pl_num, uint8_t* report, uint8_t* len);
 
 void cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr);
-void cyclogram_step_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t cyclogramm, uint8_t step, int8_t (*function)(type_PL*), uint32_t delay);
+void cyclogram_step_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t cyclogramm, int8_t (*function)(type_PL*), uint32_t delay);
 int8_t cyclogram_start(type_CYCLOGRAM* ccl_ptr, uint8_t mode, uint8_t cyclogram_num);
 void cyclogram_single_init(type_CYCLOGRAM* ccl_ptr, uint8_t cyclogram_num);
 int8_t cyclogram_process_100ms(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr);
@@ -71,6 +72,8 @@ int8_t pl_pn11A_set_iku_default(type_PL* pl_ptr);
 int8_t pl_pn11A_check_temp(type_PL* pl_ptr);
 int8_t pl_pn11A_pwr_on(type_PL* pl_ptr);
 int8_t pl_pn11A_pwr_check(type_PL* pl_ptr);
+int8_t pl_pn11A_interface_sync(type_PL* pl_ptr);
+int8_t pl_pn11A_interface_reset(type_PL* pl_ptr);
 int8_t pl_pn11A_fpga_on(type_PL* pl_ptr);
 int8_t pl_pn11A_pwr_off(type_PL* pl_ptr);
 int8_t pl_pn11A_fpga_mcu_on(type_PL* pl_ptr);

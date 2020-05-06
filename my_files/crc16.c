@@ -189,7 +189,7 @@ unsigned char RMAP_CalculateCRC(unsigned char INCRC, unsigned char INBYTE)
 } 
 
 /**
-  * @brief  подсчет контрольной суммы CRC-8 ECSS-E-ST-50-52C (RMAP) для данных: данные не инвертируются
+  * @brief  подсчет контрольной суммы CRC-8 ECSS-E-ST-50-52C (RMAP) для данных:  порядок данных, поступающих на вход регистра иперед финальным суммирование по модулю два, инвертируются
   * @param  data: буфер с данными для подсчета контрольной суммы
   * @param  len: длина буфера данных
   * @retval crc8: финальная контрольная сумма посчитанная на выходные данные
@@ -200,11 +200,11 @@ uint8_t crc8_rmap_data(uint8_t* data, uint8_t len)
 	for(i=0; i<len; i++){
 		crc8 = RMAP_CalculateCRC(crc8, data[i]);
 	}
-	return crc8;
+	return reverse_byte(crc8);
 }
 
 /**
-  * @brief  подсчет контрольной суммы CRC-8 ECSS-E-ST-50-52C (RMAP) для заголовка: порядок данных, поступающих на вход регистра иперед финальным суммирование по модулю два, инвертируются
+  * @brief  подсчет контрольной суммы CRC-8 ECSS-E-ST-50-52C (RMAP) для заголовка: данные не инвертируются
   * @param  data: буфер с данными для подсчета контрольной суммы
   * @param  len: длина буфера данных
   * @retval crc8: финальная контрольная сумма посчитанная на выходные данные
@@ -213,7 +213,7 @@ uint8_t crc8_rmap_header(uint8_t* data, uint8_t len)
 {
 	uint8_t i, crc8=0;
 	for(i=0; i<len; i++){
-		crc8 = RMAP_CalculateCRC(reverse_byte(crc8), data[i]);
+		crc8 = RMAP_CalculateCRC(crc8, data[i]);
 	}
 	return crc8;
 }

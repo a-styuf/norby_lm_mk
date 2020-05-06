@@ -64,11 +64,13 @@ RTC_TimeTypeDef time;
 
 uint8_t tx_data[256], tx_data_len=0; //масив для формирования данных для отправки через VCP
 uint8_t rx_data[256], rx_data_len=0;
-uint8_t time_slot_flag_100ms = 0, time_slot_flag_10ms = 0, time_slot_flag_1s = 0;
+uint8_t time_slot_flag_100ms = 0, time_slot_flag_10ms = 0, time_slot_flag_5ms = 0, time_slot_flag_1s = 0;
+uint8_t timer_slot_5ms_counter = 0;
 uint8_t uint8_val = 0, uint8_buff[128] = {0};
 uint16_t uint16_val = 0;
 int16_t int16_val = 0;
-int8_t int8_val = 0;
+int8_t int8_val = 0l;
+char str[128];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -178,11 +180,19 @@ int main(void)
       //обработка данных принятых от декор и последуещее заполнение памяти кадров ими
       pn_dcr_process_rx_frames_10ms(&lm.pl._dcr);
       fill_dcr_rx_frame(&lm);
-			//поддрежка транспортного уровня протокола �?СС
-			tr_lvl_process_10ms(&lm.pl._11A.interface.tr_lvl);
-			tr_lvl_process_10ms(&lm.pl._11B.interface.tr_lvl);
+      fill_pl_iss_last_frame(&lm);
 			//reset flag
 			time_slot_flag_10ms = 0;
+		}
+    if (time_slot_flag_5ms){ // 5ms
+			//поддрежка транспортного уровня протокола ПН_ИСС
+			tr_lvl_process(&lm.pl._11A.interface.tr_lvl, 5);
+			tr_lvl_process(&lm.pl._11B.interface.tr_lvl, 5);
+      //поддрежка уровня приложения протокола ПН_ИСС
+			app_lvl_process(&lm.pl._11A.interface, 5);
+			app_lvl_process(&lm.pl._11B.interface, 5);
+			//reset flag
+			time_slot_flag_5ms = 0;
 		}
     /* USER CODE END WHILE */
 
@@ -192,16 +202,16 @@ int main(void)
     int16_val = cmd_check_to_process(&lm.interface);
     switch(int16_val){
       case CMD_INIT_LM:
-        printf("cmd:init LM\n");
+        printf("cmd: init LM\n");
         break;
       case CMD_INIT_ISS_MEM:
-        printf("cmd:init iss memory\n");
+        printf("cmd: init iss memory\n");
         break;
       case CMD_INIT_DCR_MEM:
-        printf("cmd:init decor memory\n");
+        printf("cmd: init decor memory\n");
         break;
       case CMD_DCR_WRITE_FLIGHT_TASK:
-        printf("cmd:write dcr flight task from_can to dcr-model\n");
+        printf("cmd: write dcr flight task from_can to dcr-model\n");
         cmd_process_dcr_write_flight_task(lm.interface.cmd.array[CMD_DCR_WRITE_FLIGHT_TASK], 0);
         break;
       case CMD_DBG_LED_TEST:
@@ -209,7 +219,7 @@ int main(void)
         cmd_process_test_led(lm.interface.cmd.array[CMD_DBG_LED_TEST], 0);
         break;
       case CMD_NO_ONE:
-        NULL;
+        // NULL;
         break;
       default: //если команда в резерве, то реагируем немедленным выполнением
         cmd_set_status(&lm.interface, int16_val, 0x7F);
@@ -219,30 +229,46 @@ int main(void)
     int16_val = cmdreg_check_to_process(&lm.interface);
     switch(int16_val){
       case CMDREG_LM_MODE:
-        printf("cmdreg:LM mode 0x%2X\n", lm.interface.cmdreg.array[CMDREG_LM_MODE]);
+        printf("cmdreg: LM mode 0x%02X\n", lm.interface.cmdreg.array[CMDREG_LM_MODE]);
         break;
       case CMDREG_PL_PWR_SW:
         pwr_on_off(&lm.pwr, lm.interface.cmdreg.array[CMDREG_PL_PWR_SW]);
-        printf("cmdreg:PL pwr sw 0x%2X\n", lm.interface.cmdreg.array[CMDREG_PL_PWR_SW]);
+        printf("cmdreg: PL pwr sw 0x%02X\n", lm.interface.cmdreg.array[CMDREG_PL_PWR_SW]);
         break;
       case CMDREG_PL_INH_0:
       case CMDREG_PL_INH_1:
-        printf("cmdreg:PL inhibit 0x%4X\n", *((uint16_t*)&lm.interface.cmdreg.array[CMDREG_PL_INH_0]));
+        printf("cmdreg: PL inhibit 0x%04X\n", *((uint16_t*)&lm.interface.cmdreg.array[CMDREG_PL_INH_0]));
         break;
       case CMDREG_ALL_MEM_RD_PTR_0:
       case CMDREG_ALL_MEM_RD_PTR_1:
       case CMDREG_ALL_MEM_RD_PTR_2:
       case CMDREG_ALL_MEM_RD_PTR_3:
         lm.mem.read_ptr = *((uint32_t*)&lm.interface.cmdreg.array[CMDREG_ALL_MEM_RD_PTR_0]);
-        printf("cmdreg:LM set full mem read_ptr 0x%4X\n", *((uint32_t*)&lm.interface.cmdreg.array[CMDREG_ALL_MEM_RD_PTR_0]));
+        printf("cmdreg: LM set full mem read_ptr 0x%04X\n", *((uint32_t*)&lm.interface.cmdreg.array[CMDREG_ALL_MEM_RD_PTR_0]));
         break;
       case CMDREG_DCR_MODE_SET:
         pn_dcr_set_mode(&lm.pl._dcr, lm.interface.cmdreg.array[CMDREG_DCR_MODE_SET]);
-        printf("cmdreg:DCR set mode 0x%2X\n", lm.interface.cmdreg.array[CMDREG_DCR_MODE_SET]);
+        printf("cmdreg: DCR set mode 0x%02X\n", lm.interface.cmdreg.array[CMDREG_DCR_MODE_SET]);
+        break;
+      case CMDREG_PL11A_OUT_SET:
+        pn_11_output_set(&lm.pl._11A, lm.interface.cmdreg.array[int16_val]);
+        printf("cmdreg: PL11A set output 0x%02X\n", lm.interface.cmdreg.array[int16_val]);
+        break;  
+      case CMDREG_PL11B_OUT_SET:
+        pn_11_output_set(&lm.pl._11B, lm.interface.cmdreg.array[int16_val]);
+        printf("cmdreg: PL11B set output 0x%02X\n", lm.interface.cmdreg.array[int16_val]);
+        break;  
+      case CMDREG_PL12_OUT_SET:
+        pn_12_output_set(&lm.pl._12, lm.interface.cmdreg.array[int16_val]);
+        printf("cmdreg: PL12 set output 0x%02X\n", lm.interface.cmdreg.array[int16_val]);
+        break;  
+      case CMDREG_PL20_OUT_SET:
+        pn_20_output_set(&lm.pl._20, lm.interface.cmdreg.array[int16_val]);
+        printf("cmdreg: PL20 set output 0x%02X\n", lm.interface.cmdreg.array[int16_val]);
         break;  
       case CMDREG_DBG_LED:
         led_alt_setup(&mcu_state_led, LED_BLINK, 1000, lm.interface.cmdreg.array[CMDREG_DBG_LED], 3000);
-        printf("cmdreg: (dbg) led test 0x%2X\n", lm.interface.cmdreg.array[CMDREG_DBG_LED]);
+        printf("cmdreg: (dbg) led test 0x%02X\n", lm.interface.cmdreg.array[CMDREG_DBG_LED]);
         break;
 			case CMDREG_DBG_CYCLOGRAMS_0:
 			// case CMDREG_DBG_CYCLOGRAMS_1:
@@ -250,8 +276,8 @@ int main(void)
         printf("cmdreg: (dbg) cyclograms 0x%04X\n", *(uint16_t*)&lm.interface.cmdreg.array[CMDREG_DBG_CYCLOGRAMS_0]);
         break;
       case CMD_NO_ONE:
-      default: //если команда в резерве, то реагируем немедленным выполнением
-        NULL;
+      default:
+        // NULL;
         break;
     }
     //* обработка команды для интерфейса к Декор *//
@@ -259,12 +285,39 @@ int main(void)
     switch(int16_val){
       case DCR_INTERFACE_INSTASEND_LENG_OFFSET:
         pn_dcr_uart_send(&lm.pl._dcr.uart, lm.interface.dcr_interface.InstaMessage, lm.interface.dcr_interface.InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET]);
+        lm.interface.dcr_interface.InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET] = 0;  // обнуляем для проверки отправки
         printf("dcr_int:Instasend 0x%2X\n", lm.interface.dcr_interface.InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET]);
         printf_buff(lm.interface.dcr_interface.InstaMessage, lm.interface.dcr_interface.InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET], '\n');
 				lm.interface.dcr_interface.InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET] = 0;
         break;
-      default: //если команда в резерве, то реагируем немедленным выполнением
-        NULL;
+      case CMD_NO_ONE:
+      default:
+        // NULL;
+        break;
+    }
+    //* обработка команды для интерфейса к ПН_ИСС *//
+    int16_val = pl_iss_inerface_check_to_process(&lm.interface);
+    switch(int16_val){
+      case PL11A_INTERFACE_INSTASEND_LENG_OFFSET:
+        pl_iss_get_app_lvl_reprot(PL11A, lm.interface.pl_iss_interface.InstaMessage[PL11A-1], str);
+        printf("%s", str);
+        pn_11_can_instasend(&lm.pl._11A, lm.interface.pl_iss_interface.InstaMessage[PL11A-1]);
+        break;
+      case PL11B_INTERFACE_INSTASEND_LENG_OFFSET:
+        pl_iss_get_app_lvl_reprot(PL11B, lm.interface.pl_iss_interface.InstaMessage[PL11B-1], str);
+        printf("%s", str);
+        break;
+      case PL12_INTERFACE_INSTASEND_LENG_OFFSET:
+        pl_iss_get_app_lvl_reprot(PL12, lm.interface.pl_iss_interface.InstaMessage[PL12-1], str);
+        printf("%s", str);
+        break;
+      case PL20_INTERFACE_INSTASEND_LENG_OFFSET:
+        pl_iss_get_app_lvl_reprot(PL20, lm.interface.pl_iss_interface.InstaMessage[PL20-1], str);
+        printf("%s", str);
+        break;
+      case CMD_NO_ONE:
+      default:
+        // NULL;
         break;
     }
     //*** VCP-CAN. ***//
@@ -351,15 +404,22 @@ void blocking_test(void)
   // printf("\tPL_20\n");
   // pn_20_dbg_reset_state(&lm.pl._20);
   //
+  // pn_11_dbg_tr_lvl_test(&lm.pl._11A);
+  //
   printf("Finish test\n\n");
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if (htim == &htim6) {
-		led_processor(&mcu_state_led, 10);
-		led_processor(&con_state_led, 10);
-		time_slot_flag_10ms = 1;
+    timer_slot_5ms_counter += 1;
+    if (timer_slot_5ms_counter >= 2){ //создание искусственного события c периодом 10 мс
+      timer_slot_5ms_counter = 0;
+      time_slot_flag_10ms = 1;
+    }
+    led_processor(&mcu_state_led, 5);
+    led_processor(&con_state_led, 5);
+		time_slot_flag_5ms = 5;
 	}
 	if (htim == &htim2) {
 		lm.ctrl.global_time_s += 1;
@@ -429,13 +489,13 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart_req)
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart_req)
 {
 	if(huart_req == &huart2){ // PL1.1A
-		tr_lvl_set_timeout(&lm.pl._11A.interface.tr_lvl, 1);
+		tr_lvl_set_timeout(&lm.pl._11A.interface.tr_lvl);
 	}
 	if(huart_req == &huart4){ // PL1.1B
-		tr_lvl_set_timeout(&lm.pl._11A.interface.tr_lvl, 1);
+		tr_lvl_set_timeout(&lm.pl._11A.interface.tr_lvl);
 	}
   if(huart_req == &huart1){ // PL1.2
-		tr_lvl_set_timeout(&lm.pl._12.interface.tr_lvl, 1);
+		tr_lvl_set_timeout(&lm.pl._12.interface.tr_lvl);
 	}
   if(huart_req == &huart3){ // PL2.0
 	//	tr_lvl_set_timeout(&lm.pl._20.interface.tr_lvl, 1);

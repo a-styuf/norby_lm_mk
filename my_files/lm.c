@@ -444,6 +444,51 @@ void fill_dcr_rx_frame(type_LM_DEVICE* lm_ptr)
 	}
 }
 
+/**
+  * @brief  заполнение последенго принятого пакета для ПН1.1А, ПН1.1Б, ПН1.2, ПН2.0
+  * @param  lm_ptr: структура управления для МС
+  */
+void fill_pl_iss_last_frame(type_LM_DEVICE* lm_ptr)
+{
+	type_PL_ISS_INT_data last_frame[4]; //0-ПН1.1А, 1-ПН1.1Б, 2-ПН1.2, 3-ПН2.0
+	uint8_t* pl_ptr = NULL;
+	uint8_t data[256] = {0}, leng;
+	// pl1.1a
+	memset((uint8_t*)&last_frame[PL11A-1], 0x00, sizeof(type_PL_ISS_INT_data));
+	memset(data, 0x00, 128);
+	leng = pn_11_get_last_frame(&lm_ptr->pl._11A, data);
+	if (leng) {
+		// формируем заголовок для кадра
+		frame_create_header((uint8_t*)&last_frame[PL11A-1].header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_PL11A_INT_DATA, lm_ptr->pl._dcr.rx_status_cnt, 0x00, lm_ptr->ctrl.global_time_s);
+		// сохраняем в сформированный кадр данные, полученные из модели DCR
+		memcpy((uint8_t*)&last_frame[PL11A-1].data, data, 116);
+		// сохраняем данные дополнительно в переменную с запросом
+		for (uint8_t i=0; i<leng/4; i++){
+			*(uint32_t*)&lm_ptr->interface.pl_iss_interface.InstaMessage[PL11A-1][i*4] = __REV(*(uint32_t*)&data[4*i]);
+		}
+		lm_ptr->interface.pl_iss_interface.InstaMessage[PL11A-1][0] = 0x03;
+		// сохраняем сформированный кадр в расшаренную can-память
+		memcpy((uint8_t*)&lm_ptr->interface.tmi_data.pl11a_frame, (uint8_t*)&last_frame[PL11A-1], sizeof(type_PL_ISS_INT_data));
+	}
+	// pl1.1b
+	memset((uint8_t*)&last_frame[PL11B-1], 0x00, sizeof(type_PL_ISS_INT_data));
+	leng = pn_11_get_last_frame(&lm_ptr->pl._11B, data);
+	if (leng) {
+		// формируем заголовок для кадра
+		frame_create_header((uint8_t*)&last_frame[PL11B-1].header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_PL11B_INT_DATA, lm_ptr->pl._dcr.rx_status_cnt, 0x00, lm_ptr->ctrl.global_time_s);
+		// сохраняем в сформированный кадр данные, полученные из модели DCR
+		memcpy((uint8_t*)&last_frame[PL11B-1].data, data, 116);
+		// сохраняем данные дополнительно в переменную с запросом
+		for (uint8_t i=0; i<leng/4; i++){
+			*(uint32_t*)&lm_ptr->interface.pl_iss_interface.InstaMessage[PL11B-1][i*4] = __REV(*(uint32_t*)&data[4*i]);
+		}
+		lm_ptr->interface.pl_iss_interface.InstaMessage[PL11B-1][0] = 0x03;
+		// сохраняем сформированный кадр в расшаренную can-память
+		memcpy((uint8_t*)&lm_ptr->interface.tmi_data.pl11a_frame, (uint8_t*)&last_frame[PL11B-1], sizeof(type_PL_ISS_INT_data));
+	}
+	//
+}
+
 
 //*** протокол для передачи через VCP ***//
 uint16_t com_ans_form(uint8_t req_id, uint8_t self_id, uint8_t* seq_num, uint8_t type, uint8_t leng, uint8_t* com_data, uint8_t* ans_com)
@@ -472,4 +517,14 @@ uint32_t get_uint32_val_from_bound(uint32_t val, uint32_t min, uint32_t max) //�
 	if (val > max) return max;
 	else if (val < min) return min;
 	return val;
+}
+
+void pl_iss_get_app_lvl_reprot(uint8_t pl_type, uint8_t *instasend_data, char *report_ctr)
+{
+	uint8_t ctrl_byte;
+	uint32_t addr;
+	char mode[4][8]={"0x00", "0x01", "rd", "wr"}, pl_name[8][8] = {"_", "1.1_A", "1.1_B", "1.2", "2.0"};
+	addr = __REV(*(uint32_t*)&instasend_data[4]);
+	ctrl_byte = instasend_data[3];
+	sprintf(report_ctr, "PL%s: mode %s, u32_len %d addr 0x%08X\n", pl_name[pl_type], mode[ctrl_byte>>6], (ctrl_byte&0x3F) + 1, addr);
 }

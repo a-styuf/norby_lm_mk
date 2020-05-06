@@ -145,16 +145,83 @@ void pn_11_pwr_off(type_PN11_model* pn11_ptr)
 	pwr_ch_on_off(pn11_ptr->pwr_ch, 0x00);
 }
 
-void pn_11_get_pwr_val (type_PN11_model* pn11_ptr)
+void pn_11_get_pwr_val(type_PN11_model* pn11_ptr)
 {
 
 }
 
-void pn_11_get_interrupt (type_PN11_model* pn11_ptr)
+void pn_11_get_interrupt(type_PN11_model* pn11_ptr)
 {
 
 }
 
+/**
+  * @brief  получение последнего пакета принятого интерфейсом полезной нагрузки, для выставления на подадрес CAN
+  * @param  pn11_ptr: указатель на структуру управления полезной нагрузкой
+  * @retval >0 длина последнего принятого пакета, 0 - пакет уже прочитан, или нулевой длины
+  */
+uint8_t pn_11_get_last_frame(type_PN11_model* pn11_ptr, uint8_t *data)
+{
+	return app_lvl_get_last_rx_frame(&pn11_ptr->interface, data);
+}
+
+/**
+  * @brief  отправка запроса на чтение данных через app_lvl
+  * @param  pn11_ptr: указатель на структуру управления полезной нагрузкой
+	* @param  addr: адрес для записи данных
+	* @param  u32_len: длинна данных для записи в uint32_t словах
+  */
+void pn_11_read_req_u32_data(type_PN11_model* pn11_ptr, uint32_t addr, uint8_t u32_len)
+{
+	app_lvl_read_req(&pn11_ptr->interface, addr, u32_len);
+}
+
+/**
+  * @brief  запись данных через app_lvl
+  * @param  pn11_ptr: указатель на структуру управления полезной нагрузкой
+	* @param  addr: адрес для записи данных
+	* @param  data: указатель на структуру управления полезной нагрузкой
+	* @param  len: указатель на структуру управления полезной нагрузкой
+  */
+void pn_11_write_u32_data(type_PN11_model* pn11_ptr, uint32_t addr, uint32_t *u32_data, uint8_t u32_len)
+{
+	app_lvl_write(&pn11_ptr->interface, addr, u32_data, u32_len);
+}
+
+/**
+  * @brief  запись данных или запроса данных через app_lvl
+  * @param  pn11_ptr: указатель на структуру управления полезной нагрузкой
+	* @param  insta_send_data: данные (128Б) из переменной СФТ по следующему шаблону: 0-3 - адрес, 4-123 данные, 127 - ctrl_byte
+  */
+uint8_t pn_11_can_instasend(type_PN11_model* pn11_ptr, uint8_t* insta_send_data)
+{
+	uint8_t u32_len, mode;
+	uint32_t u32_data[30], addr;
+	//
+	u32_len = (insta_send_data[3] & 0x3F) + 1;
+	if (u32_len > 30) u32_len = 30;
+	for (uint8_t i=0; i < u32_len; i++){
+		u32_data[i] = __REV(*(uint32_t*)&insta_send_data[8+4*i]);  // 4 - сдвиг из-за ctrl_byte, 4 - сдвиг из-за адреса, 4*i - сдвиг указателя по 4 байта
+	}
+	//
+	addr = __REV(*(uint32_t*)&insta_send_data[4]);
+	//
+	mode = insta_send_data[3] >> 6;
+	//
+	switch(mode){
+		case APP_LVL_MODE_READ:
+			pn_11_read_req_u32_data(pn11_ptr, addr, u32_len);
+			insta_send_data[0] = 0x01;
+		break;
+		case APP_LVL_MODE_WRITE:
+			pn_11_write_u32_data(pn11_ptr, addr, u32_data, u32_len);
+			insta_send_data[0] = 0x01;
+		break;
+	}
+	return 0;
+}
+
+///*** Debug tests ***///
 /**
   * @brief  функция для проверки переферии ПН11, !блокирующая! только для отладки
   * @note   проверка проводится при выходе информационного интерфейса с выхода на вход, при ИКУ подключенных к ТМ (по возможности)
@@ -187,4 +254,64 @@ void pn_11_dbg_test(type_PN11_model* pn11_ptr)
 	printf("tx_data: ");
 	printf_buff(receive_data, 4, '\n');
 	HAL_Delay(2000);
+}
+
+/**
+  * @brief  функция для проверки транспортного протокола, !блокирующая! только для отладки
+  * @note   проверка проводится при подключенной полезной нагрузке с поданным питанием
+  * @param  pn11_ptr: указатель на структуру управления ПН1.1
+  */
+void pn_11_dbg_tr_lvl_test(type_PN11_model* pn11_ptr)
+{
+	uint8_t test_data[16]={0x55, 0x00, 0x00, 0x00}, receive_data[16]={0};
+	//
+	pn_11_pwr_on(pn11_ptr);
+	HAL_Delay(4000);
+	//
+	pn_11_output_set(pn11_ptr, PN11_OUTPUT_FPGA_ON);
+	HAL_Delay(8000);
+	printf("Output 0x%02X, input 0x%02X\n", pn_11_get_outputs_state(pn11_ptr), pn_11_get_inputs_state(pn11_ptr));
+	///***  проверка uart ***///
+	test_data[1] = 0x00;
+	test_data[3] = crc8_rmap_data(test_data, 3);
+	HAL_UART_Transmit_IT(pn11_ptr->interface.tr_lvl.huart, test_data, 4);
+	HAL_UART_Receive(pn11_ptr->interface.tr_lvl.huart, receive_data, 4, 100);
+	printf("Test UART:\n");
+	printf("rx_data: ");
+	printf_buff(test_data, 4, '\t');
+	printf("tx_data: ");
+	printf_buff(receive_data, 4, '\n');
+	//
+	test_data[1] = 0x01;
+	test_data[3] = crc8_rmap_data(test_data, 3);
+	HAL_UART_Transmit_IT(pn11_ptr->interface.tr_lvl.huart, test_data, 4);
+	HAL_UART_Receive(pn11_ptr->interface.tr_lvl.huart, receive_data, 4, 100);
+	printf("Test UART:\n");
+	printf("rx_data: ");
+	printf_buff(test_data, 4, '\t');
+	printf("tx_data: ");
+	printf_buff(receive_data, 4, '\n');
+	//
+	test_data[1] = 0x02;
+	test_data[3] = crc8_rmap_data(test_data, 3);
+	HAL_UART_Transmit_IT(pn11_ptr->interface.tr_lvl.huart, test_data, 4);
+	HAL_UART_Receive(pn11_ptr->interface.tr_lvl.huart, receive_data, 4, 100);
+	printf("Test UART:\n");
+	printf("rx_data: ");
+	printf_buff(test_data, 4, '\t');
+	printf("tx_data: ");
+	printf_buff(receive_data, 4, '\n');
+	//
+	test_data[1] = 0x20;
+	test_data[3] = crc8_rmap_data(test_data, 3);
+	HAL_UART_Transmit_IT(pn11_ptr->interface.tr_lvl.huart, test_data, 4);
+	HAL_UART_Receive(pn11_ptr->interface.tr_lvl.huart, receive_data, 4, 100);
+	printf("Test UART:\n");
+	printf("rx_data: ");
+	printf_buff(test_data, 4, '\t');
+	printf("tx_data: ");
+	printf_buff(receive_data, 4, '\n');
+	//
+	HAL_Delay(1000);
+	pn_11_pwr_off(pn11_ptr);
 }

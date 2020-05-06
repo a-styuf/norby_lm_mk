@@ -28,12 +28,14 @@ void tr_lvl_init(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, UART_HandleTypeDef* hua
   */
 uint8_t tr_lvl_send_data(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t* data, uint8_t len)
 {
-	//формируем и запрашиваем место в буфере
-	tx_create_frame(tr_lvl_ptr, FR_SPACE_REQ, NULL, NULL);
-	tx_uart_data(tr_lvl_ptr);
 	//записываем в структуру данные на отправку
 	memcpy(tr_lvl_ptr->row_tx_data, data, len);
 	tr_lvl_ptr->row_tx_len = len;
+	//обнуляем счетчик принятых данных
+	tr_lvl_ptr->row_rx_len = 0;
+	//формируем и запрашиваем место в буфере
+	tx_create_frame(tr_lvl_ptr, FR_SPACE_REQ, NULL, NULL);
+	tx_uart_data(tr_lvl_ptr);
 	return 1;
 }
 
@@ -49,22 +51,55 @@ uint8_t tr_lvl_send(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 	return 1;
 }
 
+/**
+  * @brief  сброс параметров интерфейса и посылка двух пакетов для синхронизации протокола
+  * @param  tr_lvl_ptr: указатель на структуру управления транспортным уровнем
+  */
+uint8_t tr_lvl_send_sync_frames(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
+{
+	UART_HandleTypeDef *huart = tr_lvl_ptr->huart;
+	// забываем все, что было до этого
+	memset(tr_lvl_ptr, 0x00, sizeof(type_PN11_INTERFACE_TR_LVL));
+	tr_lvl_ptr->huart = huart;
+	tr_lvl_ptr->rx_data_frame_num = 1;
+	//
+	HAL_UART_AbortReceive_IT(tr_lvl_ptr->huart);
+	HAL_UART_Receive_IT(tr_lvl_ptr->huart, &tr_lvl_ptr->rx_data[tr_lvl_ptr->rx_finish_ptr], 1);
+	// отправляем одиночный пакет для корректной синхронизации (второй пакет пошлется через таймаут)
+	tx_create_frame(tr_lvl_ptr, FR_LAST_STATUS_REQ, NULL, NULL);
+	tx_uart_data(tr_lvl_ptr);
+	return 1;
+}
+
+/**
+  * @brief  сброс параметров протокола для остановки бесконечной подачи пакетов по таймауту
+  * @param  tr_lvl_ptr: указатель на структуру управления транспортным уровнем
+  */
+uint8_t tr_lvl_reset(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
+{
+	UART_HandleTypeDef *huart = tr_lvl_ptr->huart;
+	// забываем все, что было до этого
+	memset(tr_lvl_ptr, 0x00, sizeof(type_PN11_INTERFACE_TR_LVL));
+	tr_lvl_ptr->huart = huart;
+	return 1;
+}
 
 /**
   * @brief  обработчик протокола
   * @param  tr_lvl_ptr: указатель на структуру управления транспортным уровнем
   */
-void tr_lvl_process_10ms(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
+void tr_lvl_process(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint16_t period_ms)
 {
 	int8_t rx_status = 0;
-	if (tr_lvl_ptr->rx_len) {
+	//
+	if (rx_get_rx_data_len(tr_lvl_ptr)) {
 		rx_status = rx_check_frame(tr_lvl_ptr);
 		if (rx_status == NO_RECOGNISED_FRAME){ //недостаточно данных для распознавания
-			NULL;
+			// NULL;
 		}
 		else if ((rx_status >= 0) && (rx_status != NO_RECOGNISED_FRAME)){ //удачный прием данных
 			tr_lvl_ptr->timeout_flag = 0;
-			tr_lvl_ptr->timeout = 0;
+			tr_lvl_ptr->timeout_ms = 0;
 			switch(rx_status){
 				case FR_SPACE_REQ:
 					tx_create_frame(tr_lvl_ptr, FR_SPACE_ANS, NULL, NULL);
@@ -77,7 +112,7 @@ void tr_lvl_process_10ms(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 					else{  // если места для данных не хватает, то запршивавем место заново
 						tx_create_frame(tr_lvl_ptr, FR_SPACE_REQ, NULL, NULL);
 					}
-					break;
+					break; 
 				case FR_LAST_STATUS_REQ:
 					tx_create_frame(tr_lvl_ptr, FR_LAST_STATUS_ANS, NULL, NULL);
 					break;
@@ -99,7 +134,7 @@ void tr_lvl_process_10ms(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 							tx_create_frame(tr_lvl_ptr, FR_SPACE_ANS, NULL, NULL);
 							tr_lvl_ptr->tx_state = SPACE_ERROR;
 							break;
-						case ERR_TYPE_NUM: // повторяем отправку данных справильным номером данных
+						case ERR_TYPE_NUM: // повторяем отправку данных с правильным номером данных
 							tr_lvl_ptr->tx_data_frame_num = tr_lvl_ptr->tx_error_frame_num;
 							tx_create_frame(tr_lvl_ptr, FR_DATA, tr_lvl_ptr->row_tx_data, tr_lvl_ptr->row_tx_len);
 							tr_lvl_ptr->tx_state = NUME_ERROR;
@@ -107,36 +142,38 @@ void tr_lvl_process_10ms(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 					}
 					break;
 				case FR_RST_REQ:
-					NULL;
+					// NULL;
 					break;
 				case FR_DATA:
 					tx_create_frame(tr_lvl_ptr, FR_LAST_STATUS_ANS, NULL, NULL);
 					break;
 			}
-			if (tr_lvl_ptr->tx_len){ 
-				tx_uart_data(tr_lvl_ptr);
-			}
+			tx_uart_data(tr_lvl_ptr);
 		}
 		else if (rx_status < 0){ //неудачный прием данных
 			switch(rx_status){
 				case -1:
-					NULL;
-				break;
+					// NULL;
+					break;
 			}
 		}
 	}
 	else {
-		
+		// NULL;
 	}
 	// обработка таймаутов
-	if (tr_lvl_ptr->timeout > 0 && tr_lvl_ptr->timeout_flag == 2) {
-		tr_lvl_ptr->timeout -= 1;
-	}
-	else if (tr_lvl_ptr->timeout == 0 && tr_lvl_ptr->timeout_flag == 2){
-		tx_create_frame(tr_lvl_ptr, FR_LAST_STATUS_ANS, NULL, NULL);
-		if (tr_lvl_ptr->tx_len){ 
-				tx_uart_data(tr_lvl_ptr);
+	if ((tr_lvl_ptr->timeout_ms > 0) && (tr_lvl_ptr->timeout_flag == 2)) {
+		if ((tr_lvl_ptr->timeout_ms > TR_LVL_DEFAULT_TIMEOUT_MS) || (tr_lvl_ptr->timeout_ms ==0 )) {
+			tr_lvl_ptr->timeout_ms = 0;
 		}
+		else{
+			tr_lvl_ptr->timeout_ms -= period_ms;
+		}
+	}
+	else if ((tr_lvl_ptr->timeout_ms == 0) && (tr_lvl_ptr->timeout_flag == 2)){
+		tx_create_frame(tr_lvl_ptr, FR_LAST_STATUS_REQ, NULL, NULL);
+		tx_uart_data(tr_lvl_ptr);
+		// printf("t\n");
 	}
 }
 
@@ -161,7 +198,7 @@ void tx_create_frame(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t fr_type, ui
 			tr_lvl_ptr->tx_data[2] = 0x00;
 			break;
 		case FR_SPACE_ANS:
-			tr_lvl_ptr->tx_data[2] = DT_MAX_LEN - tr_lvl_ptr->rx_len;
+			tr_lvl_ptr->tx_data[2] = DT_MAX_LEN - rx_get_rx_data_len(tr_lvl_ptr);
 			break;
 		case FR_DATA:
 			if ((len) > DT_MAX_LEN) tr_len = DT_MAX_LEN;
@@ -172,11 +209,11 @@ void tx_create_frame(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t fr_type, ui
 			tr_lvl_ptr->tx_data_frame_num += 1;
 			break;
 		case FR_LAST_STATUS_ANS:
+			tr_lvl_ptr->tx_data[1] = (tr_lvl_ptr->tx_frame_type << 5) | (tr_lvl_ptr->rx_req_frame_num & 0x1F);
 			tr_lvl_ptr->tx_data[2] = tx_get_error_type(tr_lvl_ptr);
 			break;
 	}
 	tr_lvl_ptr->tx_data[3] = crc8_rmap_header(tr_lvl_ptr->tx_data, 3);
-	
 }
 
 /**
@@ -204,7 +241,7 @@ uint8_t tx_get_error_type(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 		return tr_lvl_ptr->rx_error_type;
 	}
 	else{
-		tr_lvl_ptr->rx_error_type = ERR_TYPE_OK;
+		return tr_lvl_ptr->rx_error_type;
 	}
 	return 0;
 }
@@ -214,10 +251,12 @@ uint8_t tx_get_error_type(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
   * @param  tr_lvl_ptr: указатель на структуру управления транспортным уровнем
   * @param  timeout: таймаут в шагах tr_lvl_process_10ms
   */
-void tr_lvl_set_timeout(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t timeout)
+void tr_lvl_set_timeout(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 {
-	tr_lvl_ptr->timeout_flag = 2;
-	tr_lvl_ptr->timeout = timeout;
+	if (tr_lvl_ptr->timeout_flag) {
+		tr_lvl_ptr->timeout_flag = 2;
+		tr_lvl_ptr->timeout_ms = TR_LVL_DEFAULT_TIMEOUT_MS;
+	}
 }
 
 /**
@@ -227,44 +266,50 @@ void tr_lvl_set_timeout(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t timeout)
   */
 int8_t rx_check_frame(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 {
-	uint8_t data_state = 0;
+	uint8_t data_state = 0, frame[256] = {0}, frame_len = 0;
 	int8_t status;
-	if(tr_lvl_ptr->rx_len < 4){  //пакет не может быть меньше 4-х байт
+	if(rx_get_rx_data_len(tr_lvl_ptr) < 4){  //пакет не может быть меньше 4-х байт
 		status = NO_RECOGNISED_FRAME;
 	}
 	else{
-		if (tr_lvl_ptr->rx_data[0] != 0x55){ //пакет обязательно начинается с 0x55
-			memmove(tr_lvl_ptr->rx_data, tr_lvl_ptr->rx_data+1, tr_lvl_ptr->rx_len);
-			tr_lvl_ptr->rx_len -= 1;
+		if (tr_lvl_ptr->rx_data[tr_lvl_ptr->rx_start_ptr] != 0x55){ //пакет обязательно начинается с 0x55
+			tr_lvl_ptr->rx_start_ptr += 1;
 			rx_error_set(tr_lvl_ptr, ERR_TYPE_OTHERS);
 			status = NO_RECOGNISED_FRAME;
 		}
 		else{
-			tr_lvl_ptr->rx_frame_type = (tr_lvl_ptr->rx_data[1] >> 5) & 0x07;
-			if ((crc8_rmap_header(tr_lvl_ptr->rx_data, 3) == tr_lvl_ptr->rx_data[3])){
+			// копируем предполагаемый кадр из приемного буфера во временный массив
+			rx_frame_copy(tr_lvl_ptr, frame);
+			// printf_buff(frame, rx_get_rx_data_len(tr_lvl_ptr), '\n');
+			//
+			tr_lvl_ptr->rx_frame_type = (frame[1] >> 5) & 0x07;
+			tr_lvl_ptr->rx_req_frame_num = (frame[1] >> 0) & 0x1F;
+			frame_len += 4;
+			if ((crc8_rmap_header(frame, 3) == frame[3])){
 				switch (tr_lvl_ptr->rx_frame_type){ // определяем статус пакета
 					case FR_SPACE_REQ:
 						status = FR_SPACE_REQ;
 						break;
 					case FR_SPACE_ANS:
-						tr_lvl_ptr->tx_space = tr_lvl_ptr->rx_data[1];
+						tr_lvl_ptr->tx_space = frame[1];
 						status = FR_SPACE_ANS;
 						break;
 					case FR_LAST_STATUS_REQ:
 						status = FR_LAST_STATUS_REQ;
 						break;
 					case FR_LAST_STATUS_ANS:
-						rx_error_check(tr_lvl_ptr, tr_lvl_ptr->rx_data[2]);
+						rx_error_check(tr_lvl_ptr, frame[2]);
 						status = FR_LAST_STATUS_ANS;
 						break;
 					case FR_RST_REQ:
 						status = FR_RST_REQ;
 						break;
 					case FR_DATA:
-						data_state = rx_data_check(tr_lvl_ptr);
+						data_state = rx_data_check(tr_lvl_ptr, frame);
+						frame_len += tr_lvl_ptr->row_rx_len;
 						switch (data_state){
-							case NO_RECOGNISED_FRAME:
-								status = NO_RECOGNISED_FRAME;
+							case NO_RECOGNISED_DATA:
+								status = NO_RECOGNISED_DATA;
 							break;
 							case INCORRECT_DATA_CRC8:
 								rx_error_set(tr_lvl_ptr, ERR_TYPE_DATA_CRC);
@@ -275,7 +320,8 @@ int8_t rx_check_frame(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 								status = FR_DATA;
 							break;
 							case CORRECT_DATA:
-								tr_lvl_ptr->rx_data_frame_num += 1;
+								rx_error_set(tr_lvl_ptr, ERR_TYPE_OK);
+							  tr_lvl_ptr->rx_data_frame_num += 1;
 								tr_lvl_ptr->rx_state = 1;
 								status = FR_DATA;
 							break;
@@ -290,11 +336,72 @@ int8_t rx_check_frame(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 				rx_error_set(tr_lvl_ptr, ERR_TYPE_HEADER_CRC);
 				status = -3; // некорректный crc
 			}
-			
 		}
 	}
-	if (status != NO_RECOGNISED_FRAME) tr_lvl_ptr->rx_len = 0;
+	if (status != NO_RECOGNISED_FRAME) tr_lvl_ptr->rx_start_ptr += frame_len;
 	return status;
+}
+
+/**
+  * @brief  проверка пришедших данных на правильность
+  * @param  tr_lvl_ptr: указатель на структуру управления транспортным уровнем
+  * @param  frame: указатель на структуру c предполагаемым кадром
+  * @retval статус ошибки: согласно хэдэру 
+  */
+uint8_t rx_data_check(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t *frame)
+{
+	uint8_t data_len=0, frame_len=0; 
+	//
+	data_len = frame[2];
+	frame_len = 4+data_len+1;
+	//
+	if (frame_len > rx_get_rx_data_len(tr_lvl_ptr)) {
+		return NO_RECOGNISED_DATA;
+	}
+	else if(frame[4+data_len] != crc8_rmap_data(&frame[4], data_len)) {
+		return INCORRECT_DATA_CRC8;
+	}
+	else if (0) {//if(((tr_lvl_ptr->rx_data_frame_num + 1) & 0x1F) != ((frame[1] >> 0) & 0x1F)) {
+		return INCORRECT_DATA_NUM;
+	}
+	else {
+		tr_lvl_ptr->row_rx_len = data_len;
+		memcpy(tr_lvl_ptr->row_rx_data, &frame[4], data_len);
+		return CORRECT_DATA;
+	}
+}
+
+/**
+  * @brief  функция копирования предпологаемого кадра в желаемый массив
+  * @param  tr_lvl_ptr: указатель на структуру управления транспортным уровнем
+  * @param  data: указатель на массив данных для передачи (размер больше, чем максимально возможный кадр)
+  */
+void rx_frame_copy(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t* frame)
+{
+	uint8_t part_1_len = 0, part_2_len = 0;
+	if(tr_lvl_ptr->rx_finish_ptr > tr_lvl_ptr->rx_start_ptr){
+		memcpy(frame, &tr_lvl_ptr->rx_data[tr_lvl_ptr->rx_start_ptr], rx_get_rx_data_len(tr_lvl_ptr));
+	}
+	else{
+		part_1_len = sizeof(tr_lvl_ptr->rx_data) - tr_lvl_ptr->rx_start_ptr;
+		part_2_len = rx_get_rx_data_len(tr_lvl_ptr) - part_1_len;
+		memcpy(frame, &tr_lvl_ptr->rx_data[tr_lvl_ptr->rx_start_ptr], part_1_len);
+		memcpy(frame + part_1_len, &tr_lvl_ptr->rx_data[0], part_2_len);
+	}
+}
+
+/**
+  * @brief  получение длины принятых данных
+  * @param  tr_lvl_ptr: указатель на структуру управления транспортным уровнем
+  */
+uint8_t rx_get_rx_data_len(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
+{
+	if(tr_lvl_ptr->rx_finish_ptr >= tr_lvl_ptr->rx_start_ptr){
+		return tr_lvl_ptr->rx_finish_ptr - tr_lvl_ptr->rx_start_ptr;
+	}
+	else{
+		return sizeof(tr_lvl_ptr->rx_data) - (tr_lvl_ptr->rx_start_ptr - tr_lvl_ptr->rx_finish_ptr);
+	}
 }
 
 /**
@@ -320,8 +427,8 @@ void rx_error_set(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t type)
 			break;
 	}
 	//
-	tr_lvl_ptr->rx_error_type = ((type & 0x07) << 5) | (tr_lvl_ptr->rx_data_frame_num & 0x1F);
-	tr_lvl_ptr->rx_error_code = ((type & 0x07) << 5);
+	tr_lvl_ptr->rx_error_type = ((type & 0x07) << 0) | 1 << 3; // | ((tr_lvl_ptr->rx_data_frame_num & 0x1F) << 3); //debug - проверка с выставлением номера пакета всегда в ноль
+	tr_lvl_ptr->rx_error_code = ((type & 0x07) << 0);
 	tr_lvl_ptr->rx_error_frame_num = (tr_lvl_ptr->rx_data_frame_num & 0x1F);
 	//
 	if(type != ERR_TYPE_OK) {
@@ -338,39 +445,11 @@ void rx_error_set(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t type)
 void rx_error_check(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t err_type)
 {
 	tr_lvl_ptr->tx_error_type = err_type;
-	tr_lvl_ptr->tx_error_code = (err_type >> 5) & 0x07;
-	tr_lvl_ptr->tx_error_frame_num = (err_type >> 0) & 0x1F;
+	tr_lvl_ptr->tx_error_code = (err_type >> 0) & 0x07;
+	tr_lvl_ptr->tx_error_frame_num = (err_type >> 3) & 0x1F;
 	if (tr_lvl_ptr->tx_error_code != ERR_TYPE_OK){
 		tr_lvl_ptr->tx_error_cnt += 1;
 		tr_lvl_ptr->tx_error_flag = 1;
-	}
-}
-
-/**
-  * @brief  проверка пришедших данных на правильность
-  * @param  tr_lvl_ptr: указатель на структуру управления транспортным уровнем
-  * @retval статус ошибки: согласно хэдэру 
-  */
-uint8_t rx_data_check(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
-{
-	uint8_t data_len=0, frame_len=0; 
-	//
-	data_len = tr_lvl_ptr->rx_data[2];
-	frame_len = 4+data_len+1;
-	//
-	if (frame_len > tr_lvl_ptr->rx_len) {
-		return NO_RECOGNISED_FRAME;
-	}
-	else if(tr_lvl_ptr->rx_data_frame_num != ((tr_lvl_ptr->rx_data[1] >> 0) & 0x1F)) {
-		return INCORRECT_DATA_NUM;
-	}
-	else if(tr_lvl_ptr->rx_data[4+data_len] != crc8_rmap_data(&tr_lvl_ptr->rx_data[4], data_len)) {
-		return INCORRECT_DATA_CRC8;
-	}
-	else {
-		tr_lvl_ptr->row_rx_len = data_len;
-		memcpy(tr_lvl_ptr->row_rx_data, &tr_lvl_ptr->rx_data[4], data_len);
-		return CORRECT_DATA;
 	}
 }
 
@@ -385,6 +464,7 @@ uint8_t rx_data_get(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t *data)
 {
 	if((tr_lvl_ptr->rx_state) && (tr_lvl_ptr->row_rx_len)){
 		memcpy(data, tr_lvl_ptr->row_rx_data, tr_lvl_ptr->row_rx_len);
+		tr_lvl_ptr->rx_state = 0;
 		return tr_lvl_ptr->row_rx_len;
 	}
 	return 0;
@@ -396,9 +476,11 @@ uint8_t rx_data_get(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t *data)
   */
 void tx_uart_data(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 {
-	HAL_UART_Transmit_IT(tr_lvl_ptr->huart, tr_lvl_ptr->tx_data, tr_lvl_ptr->tx_len);
-	tr_lvl_ptr->timeout_flag = 1;
-	//tr_lvl_ptr->tx_len = 0;
+	if (tr_lvl_ptr->tx_len){
+		HAL_UART_Transmit_IT(tr_lvl_ptr->huart, tr_lvl_ptr->tx_data, tr_lvl_ptr->tx_len);
+		tr_lvl_ptr->timeout_flag = 1;
+		//tr_lvl_ptr->tx_len = 0;
+	}
 }
 
 /**
@@ -407,6 +489,8 @@ void tx_uart_data(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
   */
 void rx_uart_data(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 {
-	tr_lvl_ptr->rx_len++;
-	HAL_UART_Receive_IT(tr_lvl_ptr->huart, &tr_lvl_ptr->rx_data[tr_lvl_ptr->rx_len], 1);
+	tr_lvl_ptr->rx_finish_ptr++;
+	HAL_UART_Receive_IT(tr_lvl_ptr->huart, &tr_lvl_ptr->rx_data[tr_lvl_ptr->rx_finish_ptr], 1);
 }
+
+

@@ -55,6 +55,9 @@ uint16_t interfaces_init(type_LM_INTERFACES* lm_in_ptr, uint8_t id_dev)
       case ID_IVAR_DCR_INTERFACE:
         lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->dcr_interface, sizeof(type_IVar_DCR_Interface), (void*)0, ID_IVAR_DCR_INTERFACE, 0);
         break;
+      case ID_IVAR_ISS_INTERFACE:
+        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->pl_iss_interface, sizeof(type_IVar_PL_ISS_Interface), (void*)0, ID_IVAR_ISS_INTERFACE, 0);
+        break;
       case ID_IVAR_DBG:
         lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->dbg_data, sizeof(type_IVar_DBG_Data), (void*)0, ID_IVAR_DBG, 1);
         break;
@@ -232,6 +235,7 @@ void dcr_inerface_process_cb(type_LM_INTERFACES* lm_in_ptr, uint16_t offset)
   }
 }
 
+
 /**
   * @brief  проверка на обработку командного регистра для интерфейса к ДеКоР
   * @param  lm_in_ptr указатель на сруктуру с интерфейсом
@@ -251,6 +255,52 @@ int16_t dcr_inerface_check_to_process(type_LM_INTERFACES* lm_in_ptr)
       }
     }
     lm_in_ptr->dcr_int_flg -= 1;
+  }
+	return -1;
+}
+
+///*** PL_ISS Interface ***///
+/**
+  * @brief  обработка записи в регистр интерфейса к ПНН_ИСС
+  * @param  lm_in_ptr указатель на сруктуру с интерфейсом
+  * @param  offset смещение записанного регистра
+  * @note   запуск немедленной отправки осуществляется записью длины в поле длины (смещение 127), остальные  возможные команды 
+  *         планируется выполнять через регистр статусов
+  */
+void pl_iss_inerface_process_cb(type_LM_INTERFACES* lm_in_ptr, uint16_t offset)
+{
+  switch(offset){
+    case PL11A_INTERFACE_INSTASEND_LENG_OFFSET:
+    case PL11B_INTERFACE_INSTASEND_LENG_OFFSET:
+    case PL12_INTERFACE_INSTASEND_LENG_OFFSET:
+    case PL20_INTERFACE_INSTASEND_LENG_OFFSET:
+      //для немедленной отправки сообщения проверяем только поле длины (offset = 127)
+      lm_in_ptr->pl_iss_int_offset_to_check[offset] = 0x01;
+      lm_in_ptr->pl_iss_int_flg += 1;
+      break;
+  }
+}
+
+
+/**
+  * @brief  проверка на обработку командного регистра для интерфейса к ДеКоР
+  * @param  lm_in_ptr указатель на сруктуру с интерфейсом
+  * @retval -1: нет команд; другое: номер командного регистра 
+  */
+int16_t pl_iss_inerface_check_to_process(type_LM_INTERFACES* lm_in_ptr)
+{
+  if (lm_in_ptr->pl_iss_int_flg == 0){
+    return -1;
+  }
+  else {
+    for (int i=0; i<PL_ISS_INTERFACE_CMD_POOL_LEN; i++){
+      if (lm_in_ptr->pl_iss_int_offset_to_check[i]){
+        lm_in_ptr->pl_iss_int_offset_to_check[i] = 0;
+        lm_in_ptr->pl_iss_int_flg -= 1;
+        return i;
+      }
+    }
+    lm_in_ptr->pl_iss_int_flg -= 1;
   }
 	return -1;
 }

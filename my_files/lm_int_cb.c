@@ -20,8 +20,9 @@ void ProcCallbackCmds_Init(void)
 {
   interface_cb_registration(&lm.interface, ID_IVAR_CMD, ProcCallbackCmds);
   interface_cb_registration(&lm.interface, ID_IVAR_CMDREG, ProcCallbackCmdRegs);
-  interface_cb_registration(&lm.interface, ID_IVAR_DCR_INTERFACE, ProcCallbackDCRInterface);
   interface_cb_registration(&lm.interface, ID_IVAR_EXTMEM, ProcCallbackExtMems);
+  interface_cb_registration(&lm.interface, ID_IVAR_DCR_INTERFACE, ProcCallbackDCRInterface);
+  interface_cb_registration(&lm.interface, ID_IVAR_ISS_INTERFACE, ProcCallbackISSInterface);
 }
 
 //*** набор callback-функция для бработки команд интерфейса общения с внешним миром (*CallBackProc)(CAN_TypeDef *can_ref, typeIdxMask id, uint16_t leng, int state); ***//
@@ -67,26 +68,6 @@ void ProcCallbackCmdRegs(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, in
 }
 
 /**
-  * @brief  регистрация колбэков для обработки команд CAN
-  * @param  can_ptr: указатель на структуру управления CAN
-  * @param  id: номер переменной для обработки CB
-  * @param  leng: длина данных для обработки
-  * @param  state: тип CB - 0 до записи данных, 1 - после
-  */
-void ProcCallbackDCRInterface(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, int state) 
-{
-  volatile int n, vcmd;
-	uint32_t i;
-  if(state == 0) return;  //первый вызов тут не нужен
-  if (id.std.RTR == 1) return;  //обработка чтения нам не нужна
-  if(can_ptr == CAN1) n = 1; else if(can_ptr == CAN2) n = 2; else n = 0;
-	for (i=id.uf.Offset; i<(id.uf.Offset + leng); i++){
-      dcr_inerface_process_cb(&lm.interface, i);
-  }
-  // printf("CAN%d DevId=%d VarId=%d Offset=%d RTR=%d Leng=%d State=%d\n\r", n, id.uf.DevId, id.uf.VarId, id.uf.Offset, id.uf.RTR, leng, state);
-}
-
-/**
   * @brief  регистрация колбэк функции для чтения данных из памяти 3-х типов
   * @param  can_ptr: указатель на структуру управления CAN
   * @param  id: номер переменной для обработки CB
@@ -110,6 +91,48 @@ void ProcCallbackExtMems(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, in
       }
       // printf("CAN%d DevId=%d VarId=%d Offset=%d RTR=%d Leng=%d State=%d\n\r", n, id.uf.DevId, id.uf.VarId, id.uf.Offset, id.uf.RTR, leng, state);
   }
+}
+
+
+/**
+  * @brief  регистрация колбэков для обработки команд CAN
+  * @param  can_ptr: указатель на структуру управления CAN
+  * @param  id: номер переменной для обработки CB
+  * @param  leng: длина данных для обработки
+  * @param  state: тип CB - 0 до записи данных, 1 - после
+  */
+void ProcCallbackDCRInterface(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, int state) 
+{
+  volatile int n, vcmd;
+	uint32_t i;
+  if(state == 0) return;  //первый вызов тут не нужен
+  if (id.std.RTR == 1) return;  //обработка чтения нам не нужна
+  if(can_ptr == CAN1) n = 1; else if(can_ptr == CAN2) n = 2; else n = 0;
+	for (i=id.uf.Offset; i<(id.uf.Offset + leng); i++){
+      dcr_inerface_process_cb(&lm.interface, i);
+  }
+  // printf("CAN%d DevId=%d VarId=%d Offset=%d RTR=%d Leng=%d State=%d\n\r", n, id.uf.DevId, id.uf.VarId, id.uf.Offset, id.uf.RTR, leng, state);
+}
+
+
+/**
+  * @brief  регистрация колбэков для обработки команд CAN
+  * @param  can_ptr: указатель на структуру управления CAN
+  * @param  id: номер переменной для обработки CB
+  * @param  leng: длина данных для обработки
+  * @param  state: тип CB - 0 до записи данных, 1 - после
+  */
+void ProcCallbackISSInterface(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, int state) 
+{
+  volatile int n, vcmd;
+	uint32_t i;
+  if(state == 0) return;  //первый вызов тут не нужен
+  if (id.std.RTR == 1) return;  //обработка чтения нам не нужна
+  if(can_ptr == CAN1) n = 1; else if(can_ptr == CAN2) n = 2; else n = 0;
+	for (i=id.uf.Offset; i<(id.uf.Offset + leng); i++){
+      pl_iss_inerface_process_cb(&lm.interface, i);
+  }
+  // printf("CAN%d DevId=%d VarId=%d Offset=%d RTR=%d Leng=%d State=%d\n\r", n, id.uf.DevId, id.uf.VarId, id.uf.Offset, id.uf.RTR, leng, state);
 }
 
 //*** Cmds process function ***//

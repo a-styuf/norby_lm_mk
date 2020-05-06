@@ -26,7 +26,7 @@ typedef unsigned short uint16_t;
 
 // настройки прибора
 #define DEV_ID (0x06)
-#define SOFT_VERSION "0.17"
+#define SOFT_VERSION "0.18"
 // свойства микроконтроллера
 
 // раскрашивание переменных
@@ -130,6 +130,7 @@ void lm_init(type_LM_DEVICE* lm_ptr);
 int8_t lm_ctrl_init(type_LM_DEVICE* lm_ptr);
 void lm_report_create(type_LM_DEVICE* lm_ptr);
 int8_t lm_load_parameters(type_LM_DEVICE* lm_ptr);
+int8_t lm_save_parameters(type_LM_DEVICE* lm_ptr);
 
 int8_t pwr_init(type_PWR_CONTROL* pwr_ptr, I2C_HandleTypeDef* hi2c_ptr);
 void pwr_on_off(type_PWR_CONTROL* pwr_ptr, uint8_t pwr_switches);
@@ -146,8 +147,10 @@ void tmp_cb_it_process(type_TMP_CONTROL* tmp_ptr, uint8_t error);
 void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr);
 void fill_gen_tmi(type_LM_DEVICE* lm_ptr);
 void fill_dcr_rx_frame(type_LM_DEVICE* lm_ptr);
+void fill_pl_iss_last_frame(type_LM_DEVICE* lm_ptr);
 
 uint16_t com_ans_form(uint8_t req_id, uint8_t self_id, uint8_t* seq_num, uint8_t type, uint8_t leng, uint8_t* com_data, uint8_t* ans_com);
-void printf_time(void);
+uint32_t get_uint32_val_from_bound(uint32_t val, uint32_t min, uint32_t max); //если число внутри границ - используется оно, если нет, то ближайшая граница
+void pl_iss_get_app_lvl_reprot(uint8_t pl_type, uint8_t *instasend_data, char *report_ctr);
 
 #endif
