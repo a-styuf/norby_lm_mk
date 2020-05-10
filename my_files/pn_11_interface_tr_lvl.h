@@ -56,7 +56,7 @@ typedef struct
 	uint8_t rx_start_ptr, rx_finish_ptr;
 	uint8_t rx_space;
 	uint8_t rx_req_frame_num;
-	uint8_t rx_data_frame_num;
+	uint8_t rx_data_frame_num, rx_last_correct_data_frame_num;
 	uint8_t rx_frame_type;
 	uint8_t rx_error_type;
 	uint8_t rx_error_frame_num;

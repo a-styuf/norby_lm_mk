@@ -166,6 +166,25 @@ uint8_t pn_11_get_last_frame(type_PN11_model* pn11_ptr, uint8_t *data)
 }
 
 /**
+  * @brief  получение последнего пакета принятого интерфейсом полезной нагрузки, для выставления на подадрес CAN
+  * @param  pn11_ptr: указатель на структуру управления полезной нагрузкой
+  * @retval >0 длина последнего принятого пакета, 0 - пакет уже прочитан, или нулевой длины
+  */
+uint8_t pn_11_get_last_frame_in_128B_format(type_PN11_model* pn11_ptr, uint8_t *data)
+{
+	uint8_t leng = 0, u8_data[128]={0};
+	uint32_t u32_data[32]  = {0};
+	leng = app_lvl_get_last_rx_frame(&pn11_ptr->interface, u8_data);
+	if (leng){
+		for (uint8_t i=0; i<128/4; i++){
+			u32_data[i] = __REV(*(uint32_t*)&u8_data[4*i]);
+		}
+		memcpy(data, (uint8_t*)u32_data, 128);
+	}
+	return leng;
+}
+
+/**
   * @brief  отправка запроса на чтение данных через app_lvl
   * @param  pn11_ptr: указатель на структуру управления полезной нагрузкой
 	* @param  addr: адрес для записи данных
@@ -196,26 +215,26 @@ void pn_11_write_u32_data(type_PN11_model* pn11_ptr, uint32_t addr, uint32_t *u3
 uint8_t pn_11_can_instasend(type_PN11_model* pn11_ptr, uint8_t* insta_send_data)
 {
 	uint8_t u32_len, mode;
-	uint32_t u32_data[30], addr;
+	uint32_t u32_data[APP_LVL_MAX_U32_DATA], addr;
 	//
-	u32_len = (insta_send_data[3] & 0x3F) + 1;
-	if (u32_len > 30) u32_len = 30;
+	u32_len = (insta_send_data[127] & 0x3F) + 1;
+	if (u32_len > APP_LVL_MAX_U32_DATA) u32_len = APP_LVL_MAX_U32_DATA;
 	for (uint8_t i=0; i < u32_len; i++){
-		u32_data[i] = __REV(*(uint32_t*)&insta_send_data[8+4*i]);  // 4 - сдвиг из-за ctrl_byte, 4 - сдвиг из-за адреса, 4*i - сдвиг указателя по 4 байта
+		u32_data[i] = __REV(*(uint32_t*)&insta_send_data[4+4*i]);  // 4 - сдвиг из-за адреса, 4*i - сдвиг указателя по 4 байта
 	}
 	//
-	addr = __REV(*(uint32_t*)&insta_send_data[4]);
+	addr = __REV(*(uint32_t*)&insta_send_data[0]);
 	//
-	mode = insta_send_data[3] >> 6;
+	mode = insta_send_data[127] >> 6;
 	//
 	switch(mode){
 		case APP_LVL_MODE_READ:
 			pn_11_read_req_u32_data(pn11_ptr, addr, u32_len);
-			insta_send_data[0] = 0x01;
+			insta_send_data[124] = 0x01;
 		break;
 		case APP_LVL_MODE_WRITE:
 			pn_11_write_u32_data(pn11_ptr, addr, u32_data, u32_len);
-			insta_send_data[0] = 0x01;
+			insta_send_data[124] = 0x01;
 		break;
 	}
 	return 0;

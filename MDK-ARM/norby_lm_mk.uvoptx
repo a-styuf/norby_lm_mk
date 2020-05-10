@@ -158,6 +158,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>\\norby_lm_mk\../Src/main.c\lm.pl._11A.interface</ItemText>
         </Ww>
+        <Ww>
+          <count>2</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>\\norby_lm_mk\../Src/main.c\lm.interface.pl_iss_interface.InstaMessage[0]</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>

@@ -3,11 +3,11 @@
 <title>Static Call Graph - [norby_lm_mk\norby_lm_mk.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image norby_lm_mk\norby_lm_mk.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Wed May 06 21:25:22 2020
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Fri May 08 21:27:06 2020
 <BR><P>
-<H3>Maximum Stack Usage =        840 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =       1096 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
-main &rArr; fill_pl_iss_last_frame &rArr; pn_11_get_last_frame &rArr; app_lvl_get_last_rx_frame
+main &rArr; fill_pl_iss_last_frame &rArr; pn_11_get_last_frame_in_128B_format &rArr; app_lvl_get_last_rx_frame
 <P>
 <H3>
 Mutually Recursive functions
@@ -403,6 +403,7 @@ Global Symbols
 <LI><a href="#[1f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_get_last_status
 <LI><a href="#[1f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_get_last_frame
 <LI><a href="#[214]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_get_cfg
+<LI><a href="#[1fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_get_last_frame_in_128B_format
 <LI><a href="#[20a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;interfaces_init
 <LI><a href="#[1ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ext_mem_wr_param
 <LI><a href="#[1ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ext_mem_rd_param
@@ -471,7 +472,8 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[d5]"></a>__aeabi_memclr4</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text))
-<BR><BR>[Called By]<UL><LI><a href="#[1dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cyclogram_init
+<BR><BR>[Called By]<UL><LI><a href="#[1fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_get_last_frame_in_128B_format
+<LI><a href="#[1dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cyclogram_init
 <LI><a href="#[20e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pwr_init
 <LI><a href="#[228]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_iss_get_app_lvl_reprot
 <LI><a href="#[1fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fill_tmi_and_beacon
@@ -1479,12 +1481,12 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[136]"></a>HAL_TIM_ConfigClockSource</STRONG> (Thumb, 264 bytes, Stack size 24 bytes, stm32f4xx_hal_tim.o(i.HAL_TIM_ConfigClockSource))
-<BR><BR>[Stack]<UL><LI>Max Depth = 36<LI>Call Chain = HAL_TIM_ConfigClockSource &rArr; TIM_ETR_SetConfig
+<BR><BR>[Stack]<UL><LI>Max Depth = 36<LI>Call Chain = HAL_TIM_ConfigClockSource &rArr; TIM_TI2_ConfigInputStage
 </UL>
-<BR>[Calls]<UL><LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_ETR_SetConfig
-<LI><a href="#[13a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_TI2_ConfigInputStage
+<BR>[Calls]<UL><LI><a href="#[13a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_TI2_ConfigInputStage
 <LI><a href="#[138]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_TI1_ConfigInputStage
 <LI><a href="#[139]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_ITRx_SetConfig
+<LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_ETR_SetConfig
 </UL>
 <BR>[Called By]<UL><LI><a href="#[16d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_TIM5_Init
 <LI><a href="#[16c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_TIM3_Init
@@ -2649,6 +2651,7 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = __2printf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[20c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_init
+<LI><a href="#[253]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rx_check_frame
 <LI><a href="#[1c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
 <LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_write_mode
 <LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_set_iku_default
@@ -2761,7 +2764,7 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_get_last_frame
+<BR>[Called By]<UL><LI><a href="#[1fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_get_last_frame_in_128B_format
 </UL>
 
 <P><STRONG><a name="[1bd]"></a>app_lvl_init</STRONG> (Thumb, 22 bytes, Stack size 16 bytes, pn_11_interface_app_lvl.o(i.app_lvl_init))
@@ -2926,8 +2929,8 @@ Global Symbols
 <LI><a href="#[1d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gpio_parameters_set
 <LI><a href="#[132]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_TransmitReceive
 <LI><a href="#[130]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_Transmit
-<LI><a href="#[1da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;memcmp
 <LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
+<LI><a href="#[1da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;memcmp
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1e4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ext_mem_init
 </UL>
@@ -3125,7 +3128,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[1f3]"></a>fill_gen_tmi</STRONG> (Thumb, 278 bytes, Stack size 152 bytes, lm.o(i.fill_gen_tmi))
+<P><STRONG><a name="[1f3]"></a>fill_gen_tmi</STRONG> (Thumb, 282 bytes, Stack size 152 bytes, lm.o(i.fill_gen_tmi))
 <BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = fill_gen_tmi &rArr; pn_dcr_report_create &rArr; pn_dcr_get_outputs_state &rArr; gpio_get
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_report_create
@@ -3140,10 +3143,10 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[1f9]"></a>fill_pl_iss_last_frame</STRONG> (Thumb, 354 bytes, Stack size 800 bytes, lm.o(i.fill_pl_iss_last_frame))
-<BR><BR>[Stack]<UL><LI>Max Depth = 832<LI>Call Chain = fill_pl_iss_last_frame &rArr; pn_11_get_last_frame &rArr; app_lvl_get_last_rx_frame
+<P><STRONG><a name="[1f9]"></a>fill_pl_iss_last_frame</STRONG> (Thumb, 280 bytes, Stack size 800 bytes, lm.o(i.fill_pl_iss_last_frame))
+<BR><BR>[Stack]<UL><LI>Max Depth = 1088<LI>Call Chain = fill_pl_iss_last_frame &rArr; pn_11_get_last_frame_in_128B_format &rArr; app_lvl_get_last_rx_frame
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_get_last_frame
+<BR>[Calls]<UL><LI><a href="#[1fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_get_last_frame_in_128B_format
 <LI><a href="#[1f1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;frame_create_header
 <LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 <LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr
@@ -3199,11 +3202,11 @@ Global Symbols
 <LI><a href="#[b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pwr_alert_gd_it_process
 <LI><a href="#[237]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_get_outputs_state
 <LI><a href="#[22f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_get_inputs_state
-<LI><a href="#[23b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_get_outputs_state
-<LI><a href="#[23a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_get_inputs_state
 <LI><a href="#[23d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_get_outputs_state
 <LI><a href="#[23c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_get_inputs_state
 <LI><a href="#[242]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_get_outputs_state
+<LI><a href="#[23b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_get_outputs_state
+<LI><a href="#[23a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_get_inputs_state
 </UL>
 
 <P><STRONG><a name="[1d8]"></a>gpio_parameters_set</STRONG> (Thumb, 24 bytes, Stack size 16 bytes, my_gpio.o(i.gpio_parameters_set))
@@ -3227,11 +3230,11 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[145]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;led_processor
 <LI><a href="#[239]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pwr_ch_on_off
 <LI><a href="#[221]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_output_set
-<LI><a href="#[222]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_output_set
 <LI><a href="#[223]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_output_set
 <LI><a href="#[1dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cy15_write
 <LI><a href="#[1db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cy15_read
 <LI><a href="#[1d7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cy15_init
+<LI><a href="#[222]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_output_set
 </UL>
 
 <P><STRONG><a name="[201]"></a>ina226_body_read_queue</STRONG> (Thumb, 90 bytes, Stack size 8 bytes, ina226.o(i.ina226_body_read_queue))
@@ -3256,8 +3259,8 @@ Global Symbols
 <LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2uiz
 <LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_Master_Transmit
 <LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_Master_Receive
-<LI><a href="#[1da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;memcmp
 <LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
+<LI><a href="#[1da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;memcmp
 </UL>
 <BR>[Called By]<UL><LI><a href="#[250]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pwr_ch_init
 </UL>
@@ -3375,7 +3378,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[20c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_init
 </UL>
 
-<P><STRONG><a name="[1f4]"></a>lm_report_create</STRONG> (Thumb, 100 bytes, Stack size 8 bytes, lm.o(i.lm_report_create))
+<P><STRONG><a name="[1f4]"></a>lm_report_create</STRONG> (Thumb, 82 bytes, Stack size 8 bytes, lm.o(i.lm_report_create))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = lm_report_create
 </UL>
 <BR>[Calls]<UL><LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memset
@@ -3395,7 +3398,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[6d]"></a>main</STRONG> (Thumb, 1804 bytes, Stack size 8 bytes, main.o(i.main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 840<LI>Call Chain = main &rArr; fill_pl_iss_last_frame &rArr; pn_11_get_last_frame &rArr; app_lvl_get_last_rx_frame
+<BR><BR>[Stack]<UL><LI>Max Depth = 1096<LI>Call Chain = main &rArr; fill_pl_iss_last_frame &rArr; pn_11_get_last_frame_in_128B_format &rArr; app_lvl_get_last_rx_frame
 </UL>
 <BR>[Calls]<UL><LI><a href="#[215]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;led_setup
 <LI><a href="#[20b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;led_init
@@ -3419,7 +3422,6 @@ Global Symbols
 <LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_buff
 <LI><a href="#[221]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_output_set
 <LI><a href="#[229]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_can_instasend
-<LI><a href="#[222]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_output_set
 <LI><a href="#[223]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_output_set
 <LI><a href="#[225]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_uart_send
 <LI><a href="#[220]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_set_mode
@@ -3453,6 +3455,7 @@ Global Symbols
 <LI><a href="#[d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Init
 <LI><a href="#[1c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;blocking_test
 <LI><a href="#[185]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemClock_Config
+<LI><a href="#[222]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_output_set
 <LI><a href="#[1c9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> entry9a.o(.ARM.Collect$$$$0000000B)
@@ -3505,7 +3508,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[20c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_init
 </UL>
 
-<P><STRONG><a name="[228]"></a>pl_iss_get_app_lvl_reprot</STRONG> (Thumb, 88 bytes, Stack size 128 bytes, lm.o(i.pl_iss_get_app_lvl_reprot))
+<P><STRONG><a name="[228]"></a>pl_iss_get_app_lvl_reprot</STRONG> (Thumb, 90 bytes, Stack size 128 bytes, lm.o(i.pl_iss_get_app_lvl_reprot))
 <BR><BR>[Stack]<UL><LI>Max Depth = 152<LI>Call Chain = pl_iss_get_app_lvl_reprot &rArr; __2sprintf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
@@ -3642,7 +3645,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[229]"></a>pn_11_can_instasend</STRONG> (Thumb, 110 bytes, Stack size 144 bytes, pn11.o(i.pn_11_can_instasend))
+<P><STRONG><a name="[229]"></a>pn_11_can_instasend</STRONG> (Thumb, 118 bytes, Stack size 144 bytes, pn11.o(i.pn_11_can_instasend))
 <BR><BR>[Stack]<UL><LI>Max Depth = 524<LI>Call Chain = pn_11_can_instasend &rArr; pn_11_write_u32_data &rArr; app_lvl_write &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
 </UL>
 <BR>[Calls]<UL><LI><a href="#[236]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_write_u32_data
@@ -3661,10 +3664,12 @@ Global Symbols
 <LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_check_INT
 </UL>
 
-<P><STRONG><a name="[1fa]"></a>pn_11_get_last_frame</STRONG> (Thumb, 18 bytes, Stack size 16 bytes, pn11.o(i.pn_11_get_last_frame))
-<BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = pn_11_get_last_frame &rArr; app_lvl_get_last_rx_frame
+<P><STRONG><a name="[1fa]"></a>pn_11_get_last_frame_in_128B_format</STRONG> (Thumb, 80 bytes, Stack size 272 bytes, pn11.o(i.pn_11_get_last_frame_in_128B_format))
+<BR><BR>[Stack]<UL><LI>Max Depth = 288<LI>Call Chain = pn_11_get_last_frame_in_128B_format &rArr; app_lvl_get_last_rx_frame
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_lvl_get_last_rx_frame
+<LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
+<LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fill_pl_iss_last_frame
 </UL>
@@ -4028,8 +4033,8 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[217]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Receive_IT
 <LI><a href="#[24d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_pn_dcr_uart_error_collector
-<LI><a href="#[1da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;memcmp
 <LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
+<LI><a href="#[1da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;memcmp
 </UL>
 <BR>[Called By]<UL><LI><a href="#[153]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_RxCpltCallback
 </UL>
@@ -4191,7 +4196,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[1d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;crc8_rmap_data
 </UL>
 
-<P><STRONG><a name="[253]"></a>rx_check_frame</STRONG> (Thumb, 312 bytes, Stack size 280 bytes, pn_11_interface_tr_lvl.o(i.rx_check_frame))
+<P><STRONG><a name="[253]"></a>rx_check_frame</STRONG> (Thumb, 382 bytes, Stack size 280 bytes, pn_11_interface_tr_lvl.o(i.rx_check_frame))
 <BR><BR>[Stack]<UL><LI>Max Depth = 324<LI>Call Chain = rx_check_frame &rArr; rx_data_check &rArr; crc8_rmap_data
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;crc8_rmap_header
@@ -4201,11 +4206,12 @@ Global Symbols
 <LI><a href="#[257]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rx_error_check
 <LI><a href="#[258]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rx_data_check
 <LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
+<LI><a href="#[1c9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[21c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tr_lvl_process
 </UL>
 
-<P><STRONG><a name="[258]"></a>rx_data_check</STRONG> (Thumb, 74 bytes, Stack size 24 bytes, pn_11_interface_tr_lvl.o(i.rx_data_check))
+<P><STRONG><a name="[258]"></a>rx_data_check</STRONG> (Thumb, 82 bytes, Stack size 24 bytes, pn_11_interface_tr_lvl.o(i.rx_data_check))
 <BR><BR>[Stack]<UL><LI>Max Depth = 44<LI>Call Chain = rx_data_check &rArr; crc8_rmap_data
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;crc8_rmap_data
@@ -4227,7 +4233,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[253]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rx_check_frame
 </UL>
 
-<P><STRONG><a name="[255]"></a>rx_error_set</STRONG> (Thumb, 120 bytes, Stack size 0 bytes, pn_11_interface_tr_lvl.o(i.rx_error_set))
+<P><STRONG><a name="[255]"></a>rx_error_set</STRONG> (Thumb, 124 bytes, Stack size 0 bytes, pn_11_interface_tr_lvl.o(i.rx_error_set))
 <BR><BR>[Called By]<UL><LI><a href="#[253]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rx_check_frame
 </UL>
 
@@ -4274,9 +4280,9 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_Master_Transmit
 <LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_Master_Receive
-<LI><a href="#[1da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;memcmp
 <LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr
 <LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
+<LI><a href="#[1da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;memcmp
 </UL>
 <BR>[Called By]<UL><LI><a href="#[20f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp_init
 </UL>
@@ -4358,7 +4364,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[1be]"></a>tr_lvl_init</STRONG> (Thumb, 20 bytes, Stack size 16 bytes, pn_11_interface_tr_lvl.o(i.tr_lvl_init))
+<P><STRONG><a name="[1be]"></a>tr_lvl_init</STRONG> (Thumb, 26 bytes, Stack size 16 bytes, pn_11_interface_tr_lvl.o(i.tr_lvl_init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = tr_lvl_init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
@@ -4366,7 +4372,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[1bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_lvl_init
 </UL>
 
-<P><STRONG><a name="[21c]"></a>tr_lvl_process</STRONG> (Thumb, 380 bytes, Stack size 16 bytes, pn_11_interface_tr_lvl.o(i.tr_lvl_process))
+<P><STRONG><a name="[21c]"></a>tr_lvl_process</STRONG> (Thumb, 372 bytes, Stack size 16 bytes, pn_11_interface_tr_lvl.o(i.tr_lvl_process))
 <BR><BR>[Stack]<UL><LI>Max Depth = 340<LI>Call Chain = tr_lvl_process &rArr; rx_check_frame &rArr; rx_data_check &rArr; crc8_rmap_data
 </UL>
 <BR>[Calls]<UL><LI><a href="#[264]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tx_uart_data
@@ -4385,23 +4391,21 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_interface_reset
 </UL>
 
-<P><STRONG><a name="[1c5]"></a>tr_lvl_send_data</STRONG> (Thumb, 52 bytes, Stack size 16 bytes, pn_11_interface_tr_lvl.o(i.tr_lvl_send_data))
+<P><STRONG><a name="[1c5]"></a>tr_lvl_send_data</STRONG> (Thumb, 46 bytes, Stack size 16 bytes, pn_11_interface_tr_lvl.o(i.tr_lvl_send_data))
 <BR><BR>[Stack]<UL><LI>Max Depth = 76<LI>Call Chain = tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
 </UL>
-<BR>[Calls]<UL><LI><a href="#[264]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tx_uart_data
-<LI><a href="#[263]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tx_create_frame
+<BR>[Calls]<UL><LI><a href="#[263]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tx_create_frame
 <LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_lvl_write
 <LI><a href="#[1c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_lvl_read_req
 </UL>
 
-<P><STRONG><a name="[231]"></a>tr_lvl_send_sync_frames</STRONG> (Thumb, 68 bytes, Stack size 16 bytes, pn_11_interface_tr_lvl.o(i.tr_lvl_send_sync_frames))
+<P><STRONG><a name="[231]"></a>tr_lvl_send_sync_frames</STRONG> (Thumb, 62 bytes, Stack size 16 bytes, pn_11_interface_tr_lvl.o(i.tr_lvl_send_sync_frames))
 <BR><BR>[Stack]<UL><LI>Max Depth = 76<LI>Call Chain = tr_lvl_send_sync_frames &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
 </UL>
 <BR>[Calls]<UL><LI><a href="#[217]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Receive_IT
 <LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_AbortReceive_IT
-<LI><a href="#[264]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tx_uart_data
 <LI><a href="#[263]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tx_create_frame
 <LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
@@ -4421,10 +4425,11 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[263]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tx_create_frame
 </UL>
 
-<P><STRONG><a name="[263]"></a>tx_create_frame</STRONG> (Thumb, 214 bytes, Stack size 24 bytes, pn_11_interface_tr_lvl.o(i.tx_create_frame))
+<P><STRONG><a name="[263]"></a>tx_create_frame</STRONG> (Thumb, 242 bytes, Stack size 24 bytes, pn_11_interface_tr_lvl.o(i.tx_create_frame))
 <BR><BR>[Stack]<UL><LI>Max Depth = 60<LI>Call Chain = tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;crc8_rmap_header
+<LI><a href="#[264]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tx_uart_data
 <LI><a href="#[266]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tx_get_error_type
 <LI><a href="#[265]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tx_create_data_frame
 <LI><a href="#[254]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rx_get_rx_data_len
@@ -4438,14 +4443,13 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[263]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tx_create_frame
 </UL>
 
-<P><STRONG><a name="[264]"></a>tx_uart_data</STRONG> (Thumb, 32 bytes, Stack size 8 bytes, pn_11_interface_tr_lvl.o(i.tx_uart_data))
+<P><STRONG><a name="[264]"></a>tx_uart_data</STRONG> (Thumb, 26 bytes, Stack size 8 bytes, pn_11_interface_tr_lvl.o(i.tx_uart_data))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = tx_uart_data &rArr; HAL_UART_Transmit_IT
 </UL>
 <BR>[Calls]<UL><LI><a href="#[24e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Transmit_IT
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tr_lvl_send_data
+<BR>[Called By]<UL><LI><a href="#[263]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tx_create_frame
 <LI><a href="#[21c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tr_lvl_process
-<LI><a href="#[231]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tr_lvl_send_sync_frames
 </UL>
 
 <P><STRONG><a name="[a9]"></a>vcp_uart_CDC_Receive</STRONG> (Thumb, 122 bytes, Stack size 16 bytes, vcp_time_segmentation.o(i.vcp_uart_CDC_Receive))

@@ -456,33 +456,29 @@ void fill_pl_iss_last_frame(type_LM_DEVICE* lm_ptr)
 	// pl1.1a
 	memset((uint8_t*)&last_frame[PL11A-1], 0x00, sizeof(type_PL_ISS_INT_data));
 	memset(data, 0x00, 128);
-	leng = pn_11_get_last_frame(&lm_ptr->pl._11A, data);
+	leng = pn_11_get_last_frame_in_128B_format(&lm_ptr->pl._11A, data);
 	if (leng) {
 		// формируем заголовок для кадра
 		frame_create_header((uint8_t*)&last_frame[PL11A-1].header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_PL11A_INT_DATA, lm_ptr->pl._dcr.rx_status_cnt, 0x00, lm_ptr->ctrl.global_time_s);
-		// сохраняем в сформированный кадр данные, полученные из модели DCR
+		// сохраняем в сформированный кадр данные, полученные из модели ПН1.1
 		memcpy((uint8_t*)&last_frame[PL11A-1].data, data, 116);
 		// сохраняем данные дополнительно в переменную с запросом
-		for (uint8_t i=0; i<leng/4; i++){
-			*(uint32_t*)&lm_ptr->interface.pl_iss_interface.InstaMessage[PL11A-1][i*4] = __REV(*(uint32_t*)&data[4*i]);
-		}
-		lm_ptr->interface.pl_iss_interface.InstaMessage[PL11A-1][0] = 0x03;
+		data[124] = 3;
+		memcpy((uint8_t*)&lm_ptr->interface.pl_iss_interface.InstaMessage[PL11A-1][0], data, 128);
 		// сохраняем сформированный кадр в расшаренную can-память
 		memcpy((uint8_t*)&lm_ptr->interface.tmi_data.pl11a_frame, (uint8_t*)&last_frame[PL11A-1], sizeof(type_PL_ISS_INT_data));
 	}
 	// pl1.1b
 	memset((uint8_t*)&last_frame[PL11B-1], 0x00, sizeof(type_PL_ISS_INT_data));
-	leng = pn_11_get_last_frame(&lm_ptr->pl._11B, data);
+	leng = pn_11_get_last_frame_in_128B_format(&lm_ptr->pl._11B, data);
 	if (leng) {
 		// формируем заголовок для кадра
 		frame_create_header((uint8_t*)&last_frame[PL11B-1].header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_PL11B_INT_DATA, lm_ptr->pl._dcr.rx_status_cnt, 0x00, lm_ptr->ctrl.global_time_s);
-		// сохраняем в сформированный кадр данные, полученные из модели DCR
+		// сохраняем в сформированный кадр данные, полученные из модели ПН1.1
 		memcpy((uint8_t*)&last_frame[PL11B-1].data, data, 116);
 		// сохраняем данные дополнительно в переменную с запросом
-		for (uint8_t i=0; i<leng/4; i++){
-			*(uint32_t*)&lm_ptr->interface.pl_iss_interface.InstaMessage[PL11B-1][i*4] = __REV(*(uint32_t*)&data[4*i]);
-		}
-		lm_ptr->interface.pl_iss_interface.InstaMessage[PL11B-1][0] = 0x03;
+		data[124] = 3;
+		memcpy((uint8_t*)&lm_ptr->interface.pl_iss_interface.InstaMessage[PL11B-1][0], data, 128);
 		// сохраняем сформированный кадр в расшаренную can-память
 		memcpy((uint8_t*)&lm_ptr->interface.tmi_data.pl11a_frame, (uint8_t*)&last_frame[PL11B-1], sizeof(type_PL_ISS_INT_data));
 	}
@@ -524,7 +520,7 @@ void pl_iss_get_app_lvl_reprot(uint8_t pl_type, uint8_t *instasend_data, char *r
 	uint8_t ctrl_byte;
 	uint32_t addr;
 	char mode[4][8]={"0x00", "0x01", "rd", "wr"}, pl_name[8][8] = {"_", "1.1_A", "1.1_B", "1.2", "2.0"};
-	addr = __REV(*(uint32_t*)&instasend_data[4]);
-	ctrl_byte = instasend_data[3];
+	addr = __REV(*(uint32_t*)&instasend_data[0]);
+	ctrl_byte = instasend_data[124];
 	sprintf(report_ctr, "PL%s: mode %s, u32_len %d addr 0x%08X\n", pl_name[pl_type], mode[ctrl_byte>>6], (ctrl_byte&0x3F) + 1, addr);
 }

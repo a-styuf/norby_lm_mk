@@ -26,7 +26,7 @@ typedef unsigned short uint16_t;
 
 // настройки прибора
 #define DEV_ID (0x06)
-#define SOFT_VERSION "0.18"
+#define SOFT_VERSION "0.19"
 // свойства микроконтроллера
 
 // раскрашивание переменных

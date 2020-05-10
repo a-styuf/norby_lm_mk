@@ -25,13 +25,13 @@ void app_lvl_init(type_PN11_INTERFACE_APP_LVL* app_lvl_ptr, UART_HandleTypeDef* 
   * @param  app_lvl_ptr: указатель на структуру управления транспортным уровнем
   * @param  addr: адрес в структуре данных APB (байтовый)
   * @param  data: данные для записи по адресу в uint32_t-словах
-  * @param  len: длина данных для записи по адресу в uint32_t-словах (максимум 61 слово)
+  * @param  len: длина данных для записи по адресу в uint32_t-словах (максимум APP_LVL_MAX_U32_DATA слов из-за ограничения передачи через CAN)
   * @retval 0 - некорректная длина, 1 - успешная попытка передачи
   */
 int8_t app_lvl_write(type_PN11_INTERFACE_APP_LVL* app_lvl_ptr, uint32_t addr, uint32_t* data, uint8_t len)
 {
   uint8_t u8_data[256], u8_len = 0;
-  if ((len == 0) || (len > 61)) {
+  if ((len == 0) || (len > APP_LVL_MAX_U32_DATA)) {
     _app_lvl_error_collector(app_lvl_ptr, APP_LVL_ADDR_ERROR);
     return 0;
   }
@@ -70,13 +70,13 @@ void _app_lvl_form_data(type_APP_LVL_PCT *frame_ptr, uint8_t data_len, uint8_t *
   * @brief  запрос на чтение данных данных
   * @param  app_lvl_ptr: указатель на структуру управления транспортным уровнем
   * @param  addr: адрес в структуре данных APB (байтовый)
-  * @param  len: длина данных для чтения по адресу в uint32_t-словах (максимум 61 слово)
+  * @param  len: длина данных для чтения по адресу в uint32_t-словах (максимум APP_LVL_MAX_U32_DATA слов из-за ограничения передачи через CAN)
   * @retval 0 - некорректная длина, 1 - успешная попытка передачи
   */
 int8_t app_lvl_read_req(type_PN11_INTERFACE_APP_LVL* app_lvl_ptr, uint32_t addr, uint8_t len)
 {
   uint8_t u8_data[256], u8_len = 0;
-  if ((len == 0) || (len > 61)) {
+  if ((len == 0) || (len > APP_LVL_MAX_U32_DATA)) {
     _app_lvl_error_collector(app_lvl_ptr, APP_LVL_ADDR_ERROR);
     return 0;
   }
@@ -123,6 +123,18 @@ void app_lvl_process(type_PN11_INTERFACE_APP_LVL* app_lvl_ptr, uint16_t period_m
     }
     app_lvl_ptr->rx_timeout_flag = 0;
   }
+}
+
+/**
+  * @brief  команда вкобчающая обработку приема, а так же организующая 
+  * @param  app_lvl_ptr: указатель на структуру управления транспортным уровнем
+  * @param  period_ms: период, с которым вызавается данный обработчик
+  */
+void app_lvl_process_and_read_req(type_PN11_INTERFACE_APP_LVL* app_lvl_ptr, uint16_t period_ms)
+{
+  //тут вызываем обработку, приема для уровня приложения
+  app_lvl_process(app_lvl_ptr, period_ms);
+  //
 }
 
 /**

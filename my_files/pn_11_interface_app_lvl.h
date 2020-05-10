@@ -19,19 +19,21 @@
 
 #define APP_LVL_ADDR_MODE       (APP_LVL_ADDR_OFFSET + 0x0)
 
+#define APP_LVL_MAX_U32_DATA         30  //принципиальное ограничение из-за работы через 128-байтные массивы
+
 #define APP_LVL_DEFAULT_TIMEOUT_MS     100
 
 
-#pragma pack(1)
+#pragma pack(2)
 /** 
   * @brief  структура управлени протоколом уровня приложения
   */
 typedef struct
 {
-	uint32_t ctrl_byte;
   uint32_t addr;
-  uint32_t data[61];
-} type_APP_LVL_PCT;
+  uint32_t data[APP_LVL_MAX_U32_DATA];
+	uint32_t ctrl_byte;
+} type_APP_LVL_PCT; //128
 
 #pragma pack(8)
 
@@ -59,6 +61,7 @@ void app_lvl_process(type_PN11_INTERFACE_APP_LVL* app_lvl_ptr, uint16_t period_m
 int8_t app_lvl_read_req(type_PN11_INTERFACE_APP_LVL* app_lvl_ptr, uint32_t addr, uint8_t len);
 int8_t app_lvl_read_check(type_PN11_INTERFACE_APP_LVL* app_lvl_ptr);
 uint8_t app_lvl_get_last_rx_frame(type_PN11_INTERFACE_APP_LVL* app_lvl_ptr, uint8_t *last_data);
+
 
 void  _app_lvl_error_collector(type_PN11_INTERFACE_APP_LVL* app_lvl_ptr, uint16_t error);
 #endif

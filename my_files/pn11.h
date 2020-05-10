@@ -91,6 +91,7 @@ void pn_11_pwr_on(type_PN11_model* pn11_ptr);
 void pn_11_pwr_off(type_PN11_model* pn11_ptr);
 
 uint8_t pn_11_get_last_frame(type_PN11_model* pn11_ptr, uint8_t *data);
+uint8_t pn_11_get_last_frame_in_128B_format(type_PN11_model* pn11_ptr, uint8_t *data);
 void pn_11_read_req_u32_data(type_PN11_model* pn11_ptr, uint32_t addr, uint8_t u32_len);
 void pn_11_write_u32_data(type_PN11_model* pn11_ptr, uint32_t addr, uint32_t *u32_data, uint8_t u32_len);
 uint8_t pn_11_can_instasend(type_PN11_model* pn11_ptr, uint8_t* insta_send_data);

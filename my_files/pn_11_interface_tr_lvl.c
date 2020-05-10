@@ -17,6 +17,7 @@
 void tr_lvl_init(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, UART_HandleTypeDef* huart)
 {
 	memset(tr_lvl_ptr, 0x00, sizeof(type_PN11_INTERFACE_TR_LVL));
+	tr_lvl_ptr->rx_data_frame_num = 1;
 	tr_lvl_ptr->huart = huart;
 }
 
@@ -35,7 +36,6 @@ uint8_t tr_lvl_send_data(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t* data, 
 	tr_lvl_ptr->row_rx_len = 0;
 	//формируем и запрашиваем место в буфере
 	tx_create_frame(tr_lvl_ptr, FR_SPACE_REQ, NULL, NULL);
-	tx_uart_data(tr_lvl_ptr);
 	return 1;
 }
 
@@ -47,7 +47,6 @@ uint8_t tr_lvl_send(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 {
 	//формируем и запрашиваем место в буфере
 	tx_create_frame(tr_lvl_ptr, FR_SPACE_REQ, NULL, NULL);
-	tx_uart_data(tr_lvl_ptr);
 	return 1;
 }
 
@@ -67,7 +66,7 @@ uint8_t tr_lvl_send_sync_frames(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 	HAL_UART_Receive_IT(tr_lvl_ptr->huart, &tr_lvl_ptr->rx_data[tr_lvl_ptr->rx_finish_ptr], 1);
 	// отправляем одиночный пакет для корректной синхронизации (второй пакет пошлется через таймаут)
 	tx_create_frame(tr_lvl_ptr, FR_LAST_STATUS_REQ, NULL, NULL);
-	tx_uart_data(tr_lvl_ptr);
+	
 	return 1;
 }
 
@@ -148,7 +147,6 @@ void tr_lvl_process(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint16_t period_ms)
 					tx_create_frame(tr_lvl_ptr, FR_LAST_STATUS_ANS, NULL, NULL);
 					break;
 			}
-			tx_uart_data(tr_lvl_ptr);
 		}
 		else if (rx_status < 0){ //неудачный прием данных
 			switch(rx_status){
@@ -196,9 +194,11 @@ void tx_create_frame(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t fr_type, ui
 		case FR_RST_REQ:
 		case FR_LAST_STATUS_REQ:
 			tr_lvl_ptr->tx_data[2] = 0x00;
+			tr_lvl_ptr->timeout_flag = 1;
 			break;
 		case FR_SPACE_ANS:
 			tr_lvl_ptr->tx_data[2] = DT_MAX_LEN - rx_get_rx_data_len(tr_lvl_ptr);
+			tr_lvl_ptr->timeout_flag = 0;
 			break;
 		case FR_DATA:
 			if ((len) > DT_MAX_LEN) tr_len = DT_MAX_LEN;
@@ -207,13 +207,19 @@ void tx_create_frame(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t fr_type, ui
 			tx_create_data_frame(tr_lvl_ptr, data, tr_len);
 			tr_lvl_ptr->tx_len += tr_len + 1;
 			tr_lvl_ptr->tx_data_frame_num += 1;
+			//
+			tr_lvl_ptr->timeout_flag = 1;
 			break;
 		case FR_LAST_STATUS_ANS:
 			tr_lvl_ptr->tx_data[1] = (tr_lvl_ptr->tx_frame_type << 5) | (tr_lvl_ptr->rx_req_frame_num & 0x1F);
 			tr_lvl_ptr->tx_data[2] = tx_get_error_type(tr_lvl_ptr);
+			//
+			tr_lvl_ptr->timeout_flag = 1;
 			break;
 	}
 	tr_lvl_ptr->tx_data[3] = crc8_rmap_header(tr_lvl_ptr->tx_data, 3);
+	//
+	tx_uart_data(tr_lvl_ptr);
 }
 
 /**
@@ -273,7 +279,13 @@ int8_t rx_check_frame(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 	}
 	else{
 		if (tr_lvl_ptr->rx_data[tr_lvl_ptr->rx_start_ptr] != 0x55){ //пакет обязательно начинается с 0x55
-			tr_lvl_ptr->rx_start_ptr += 1;
+			for (uint8_t i=0; i<128; i++){
+					if ((tr_lvl_ptr->rx_data[tr_lvl_ptr->rx_start_ptr] != 0x55) && (rx_get_rx_data_len(tr_lvl_ptr) > 4)){
+						printf("%02X", tr_lvl_ptr->rx_data[tr_lvl_ptr->rx_start_ptr]);
+						tr_lvl_ptr->rx_start_ptr += 1;
+					}
+					else break;
+			}
 			rx_error_set(tr_lvl_ptr, ERR_TYPE_OTHERS);
 			status = NO_RECOGNISED_FRAME;
 		}
@@ -306,7 +318,7 @@ int8_t rx_check_frame(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 						break;
 					case FR_DATA:
 						data_state = rx_data_check(tr_lvl_ptr, frame);
-						frame_len += tr_lvl_ptr->row_rx_len;
+						frame_len += tr_lvl_ptr->row_rx_len + 1;  // + 1 - из-за crc8
 						switch (data_state){
 							case NO_RECOGNISED_DATA:
 								status = NO_RECOGNISED_DATA;
@@ -361,11 +373,12 @@ uint8_t rx_data_check(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t *frame)
 	else if(frame[4+data_len] != crc8_rmap_data(&frame[4], data_len)) {
 		return INCORRECT_DATA_CRC8;
 	}
-	else if (0) {//if(((tr_lvl_ptr->rx_data_frame_num + 1) & 0x1F) != ((frame[1] >> 0) & 0x1F)) {
+	else if (0){ // ((tr_lvl_ptr->rx_data_frame_num & 0x1F) != ((frame[1] >> 0) & 0x1F)) { // при разборе протокола получилось, что данная проверка не работает. Считаем что всегда номер правильный
 		return INCORRECT_DATA_NUM;
 	}
 	else {
 		tr_lvl_ptr->row_rx_len = data_len;
+		tr_lvl_ptr->rx_last_correct_data_frame_num = tr_lvl_ptr->rx_data_frame_num;
 		memcpy(tr_lvl_ptr->row_rx_data, &frame[4], data_len);
 		return CORRECT_DATA;
 	}
@@ -427,7 +440,7 @@ void rx_error_set(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t type)
 			break;
 	}
 	//
-	tr_lvl_ptr->rx_error_type = ((type & 0x07) << 0) | 1 << 3; // | ((tr_lvl_ptr->rx_data_frame_num & 0x1F) << 3); //debug - проверка с выставлением номера пакета всегда в ноль
+	tr_lvl_ptr->rx_error_type = ((type & 0x07) << 0) | ((tr_lvl_ptr->rx_last_correct_data_frame_num & 0x1F) << 3);
 	tr_lvl_ptr->rx_error_code = ((type & 0x07) << 0);
 	tr_lvl_ptr->rx_error_frame_num = (tr_lvl_ptr->rx_data_frame_num & 0x1F);
 	//
@@ -478,7 +491,7 @@ void tx_uart_data(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 {
 	if (tr_lvl_ptr->tx_len){
 		HAL_UART_Transmit_IT(tr_lvl_ptr->huart, tr_lvl_ptr->tx_data, tr_lvl_ptr->tx_len);
-		tr_lvl_ptr->timeout_flag = 1;
+		
 		//tr_lvl_ptr->tx_len = 0;
 	}
 }
