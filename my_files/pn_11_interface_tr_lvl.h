@@ -53,6 +53,7 @@ typedef struct
 	UART_HandleTypeDef* huart;
 	
 	uint8_t rx_data[256];
+	uint8_t rx_frame[256];
 	uint8_t rx_start_ptr, rx_finish_ptr;
 	uint8_t rx_space;
 	uint8_t rx_req_frame_num;
@@ -88,10 +89,10 @@ typedef struct
 } type_PN11_INTERFACE_TR_LVL;
 
 void tr_lvl_init(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, UART_HandleTypeDef* huart);
+uint8_t tr_lvl_reset(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr);
+void tr_lvl_synch(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr);
 uint8_t tr_lvl_send_data(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t* data, uint8_t len);
 uint8_t tr_lvl_send(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr);
-uint8_t tr_lvl_send_sync_frames(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr);
-uint8_t tr_lvl_reset(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr);
 
 void tr_lvl_process(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint16_t period_ms);
 void tr_lvl_set_timeout(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr);

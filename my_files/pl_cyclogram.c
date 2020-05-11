@@ -86,28 +86,41 @@ void cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr)
 	ccl_ptr->num = 0;
 	ccl_ptr->time_ms = 0;
 	// Циклограмма 0: 0x01 - ПН1.1А
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_set_iku_default, 2000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_check_temp, 2000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_set_iku_default, 100);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_check_temp, 100);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_pwr_on, 5000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_pwr_check, 2000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_pwr_check, 100);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_fpga_on, 2000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_pwr_check, 2000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_interface_sync, 100);	
-	//
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_write_mode, 500);
-
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_read_req_mode, 500);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_read_mode, 500);
-	//
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_get_and_check_hw_telemetry, 2000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_check_INT, 2000);
-	//
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_interface_reset, 2000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_set_iku_default, 2000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_pwr_off, 5000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_pwr_check, 2000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_pwr_check, 100);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_fpga_mcu_on, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_interface_reset, 100);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_interface_sync, 100);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_write_mode, 100);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_read_req_mode, 100);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_read_mode, 100);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_read_req_all, 2000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_read_all, 100);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_set_iku_default, 100);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_pwr_off, 1000);
+	
 	// Циклограмма 1: 0x02 - ПН1.1B
-	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_set_iku_default, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_set_iku_default, 2000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_check_temp, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_pwr_on, 5000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_pwr_check, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_fpga_on, 2000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_pwr_check, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_fpga_mcu_on, 2000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_interface_reset, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_interface_sync, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_write_mode, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_read_req_mode, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_read_mode, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_get_and_check_hw_telemetry, 250000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_get_and_check_hw_telemetry, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_read_req_all, 5000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_read_all, 100);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_set_iku_default, 100);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_pwr_off, 1000);
 }
 
@@ -228,6 +241,7 @@ int8_t cyclogram_process_100ms(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr)
 	}
 }
 
+///*** ПН1.1 - атомараные функции  ***///
 int8_t pl_pn11A_init(type_PL* pl_ptr)
 {
 	pn_11_reset_state(&pl_ptr->_11A);
@@ -301,7 +315,7 @@ int8_t pl_pn11A_fpga_on(type_PL* pl_ptr)
 
 int8_t pl_pn11A_interface_sync(type_PL* pl_ptr)
 {
-	tr_lvl_send_sync_frames(&pl_ptr->_11A.interface.tr_lvl);
+	pn_11_interface_synch(&pl_ptr->_11A);
 	//debug
 	printf_time();
 	printf("--PL11A reset and sync interface\n");
@@ -321,19 +335,20 @@ int8_t pl_pn11A_interface_reset(type_PL* pl_ptr)
 
 int8_t pl_pn11A_write_mode(type_PL* pl_ptr)
 {
-	uint32_t u32_data = 0x02;
-	app_lvl_write(&pl_ptr->_11A.interface, APP_LVL_ADDR_MODE, &u32_data, 1);
+	uint32_t mode = 0x00000001;
+	pn_11_write_u32_data(&pl_ptr->_11A, PN_11_MEM_ADDR_MODE, &mode, 1);
 	
 	//debug
 	printf_time();
-	printf("--PL11A write mode\n");
+	printf("--PL11A write mode: %d\n", mode);
 	//
 	return 1;
 }
 
 int8_t pl_pn11A_read_req_mode(type_PL* pl_ptr)
 {
-	app_lvl_read_req(&pl_ptr->_11A.interface, APP_LVL_ADDR_MODE, 1);
+	//делаем запрос на чтение режима
+	pn_11_seq_read_start(&pl_ptr->_11A, PN_11_MEM_ADDR_MODE, 1);
 	//debug
 	printf_time();
 	printf("--PL11A mode read request\n");
@@ -343,16 +358,37 @@ int8_t pl_pn11A_read_req_mode(type_PL* pl_ptr)
 
 int8_t pl_pn11A_read_mode(type_PL* pl_ptr)
 {
-	int32_t mode = 0;
-	if (app_lvl_read_check(&pl_ptr->_11A.interface)){
-		mode = pl_ptr->_11A.interface.rd_frame.data[0];
-	}
-	else{
-		mode = -1;
-	}
+	uint32_t mode;
+	mode = pl_ptr->_11A.mem.field.mode;
 	//debug
 	printf_time();
-	printf("--PL11A read mode %d\n", mode);
+	printf("--PL11A mode read: %d\n", mode);
+	//
+	return 1;
+}
+
+int8_t pl_pn11A_read_req_all(type_PL* pl_ptr)
+{
+	//делаем запрос на чтение режима
+	pn_11_seq_read_start(&pl_ptr->_11A, PN_11_MEM_ADDR_START_MEM, sizeof(type_PN_11_MEM)/4);
+	//debug
+	printf_time();
+	printf("--PL11A read all request\n");
+	//
+	return 1;
+}
+
+int8_t pl_pn11A_read_all(type_PL* pl_ptr)
+{
+	//debug
+	printf_time();
+	printf("--PL11A read all:\n\t\tmode-%08X ptm_1-%08X ptm_2-%08X, ptm_3-%08X, error-%04X\n", 
+				pl_ptr->_11A.mem.field.mode,
+				pl_ptr->_11A.mem.field.ptm[0],
+				pl_ptr->_11A.mem.field.ptm[1],
+				pl_ptr->_11A.mem.field.ptm[2],
+				pl_ptr->_11A.error_flags
+				);
 	//
 	return 1;
 }
@@ -384,17 +420,6 @@ int8_t pl_pn11A_get_and_check_hw_telemetry(type_PL* pl_ptr)
 	//debug
 	printf_time();
 	printf("--PL11A hw tmi: I %d PE %d WD %d CE %d\n", ((gpio_state >> 0) & 0x1), ((gpio_state >> 1) & 0x1), ((gpio_state >> 2) & 0x1), ((gpio_state >> 3) & 0x1));
-	//
-	return 1;
-}
-
-int8_t pl_pn11A_check_INT(type_PL* pl_ptr)
-{
-	uint8_t gpio_state = 0;
-	gpio_state = pn_11_get_inputs_state(&pl_ptr->_11A);
-	//debug
-	printf_time();
-	printf("--PL11A check INT %d\n", gpio_state&0x1);
 	//
 	return 1;
 }

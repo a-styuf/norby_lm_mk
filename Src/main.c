@@ -180,17 +180,15 @@ int main(void)
       //обработка данных принятых от декор и последуещее заполнение памяти кадров ими
       pn_dcr_process_rx_frames_10ms(&lm.pl._dcr);
       fill_dcr_rx_frame(&lm);
+      //
       fill_pl_iss_last_frame(&lm);
 			//reset flag
 			time_slot_flag_10ms = 0;
 		}
     if (time_slot_flag_5ms){ // 5ms
-			//поддрежка транспортного уровня протокола ПН_ИСС
-			tr_lvl_process(&lm.pl._11A.interface.tr_lvl, 5);
-			tr_lvl_process(&lm.pl._11B.interface.tr_lvl, 5);
-      //поддрежка уровня приложения протокола ПН_ИСС
-			app_lvl_process(&lm.pl._11A.interface, 5);
-			app_lvl_process(&lm.pl._11B.interface, 5);
+      //поддрежка работы программной модели ПН_ИСС (включая уровень приложения и транспортный уровень, а также процедуры вычитывания больших объемов данных)
+			pn_11_process(&lm.pl._11A, 5);
+      pn_11_process(&lm.pl._11B, 5);
 			//reset flag
 			time_slot_flag_5ms = 0;
 		}

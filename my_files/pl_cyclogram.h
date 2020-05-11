@@ -78,8 +78,10 @@ int8_t pl_pn11A_fpga_on(type_PL* pl_ptr);
 int8_t pl_pn11A_pwr_off(type_PL* pl_ptr);
 int8_t pl_pn11A_fpga_mcu_on(type_PL* pl_ptr);
 int8_t pl_pn11A_get_and_check_hw_telemetry(type_PL* pl_ptr);
-int8_t pl_pn11A_check_INT(type_PL* pl_ptr);
 int8_t pl_pn11A_write_mode(type_PL* pl_ptr);
 int8_t pl_pn11A_read_req_mode(type_PL* pl_ptr);
 int8_t pl_pn11A_read_mode(type_PL* pl_ptr);
+int8_t pl_pn11A_read_req_all(type_PL* pl_ptr);
+int8_t pl_pn11A_read_all(type_PL* pl_ptr);
+
 #endif

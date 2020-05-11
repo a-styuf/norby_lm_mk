@@ -24,14 +24,15 @@
 #define PN11_PWR_MIN (1<<0)
 
 //Ошибки работы
-#define STATE_NO_ERROR			 	(0)
-#define STATE_TEMP_ERROR		 	(1<<0)
-#define STATE_CURRENT_ERROR  	(1<<1)
-#define STATE_VOLTAGE_ERROR		(1<<2)
-#define STATE_INTERFACE_ERROR	(1<<3)
-#define STATE_INT_ERROR 			(1<<4)
-#define STATE_CPU_ERROR 			(1<<5)
-#define STATE_FPGA_ERROR 			(1<<5)
+#define PN11_NO_ERROR			 		(0)
+#define PN11_TEMP_ERROR		 		(1<<0)
+#define PN11_CURRENT_ERROR  	(1<<1)
+#define PN11_VOLTAGE_ERROR		(1<<2)
+#define PN11_INTERFACE_ERROR	(1<<3)
+#define PN11_INT_ERROR 				(1<<4)
+#define PN11_CPU_ERROR 				(1<<5)
+#define PN11_FPGA_ERROR 			(1<<6)
+#define PN11_OTHER_ERROR 			(1<<15)
 
 // пороговые значения для определения ошибки питания: напряжение в В, ток в А, мощность в Вт
 
@@ -44,6 +45,13 @@
 
 // задержка для определения ошибки питания - устанавливается каждый ра, когда происходит изменение состояния питания
 #define PN_11_PWR_TIMEOUT_MS 	1000
+
+// шаг обработки чтения памяти ПН
+#define PN_11_READ_MEM_TIMEOUT_MS 	100
+
+// объем данных для полного вычитывания
+#define PN_11_MEM_ADDR_MODE       (APP_LVL_ADDR_OFFSET + 0x0)
+#define PN_11_MEM_ADDR_START_MEM  (APP_LVL_ADDR_OFFSET + 0x0)
 
 #pragma pack(2)
 /** 
@@ -63,6 +71,23 @@ typedef struct
 	uint16_t rsrv[2];		 			//+14
 } type_PN11_report; 			//18
 
+/** 
+  * @brief  структура памяти для взаимодействия с ПН_ИСС
+  */
+typedef union
+{
+	struct {
+		uint32_t mode;
+		uint32_t packet_1[60];
+		uint32_t packet_2[60];
+		uint32_t packet_3[60];
+		uint32_t ptm[3];
+	} field;
+	struct {
+		uint32_t data[184];
+	} array;
+} type_PN_11_MEM;
+
 #pragma pack(8)
 
 /** 
@@ -75,7 +100,15 @@ typedef struct
 	type_PWR_CHANNEL* pwr_ch;
 	type_TMP1075_DEVICE* tmp_ch;
 	uint16_t interrupt_timeout;
+	//
 	type_PN11_INTERFACE_APP_LVL interface;
+	//
+	uint32_t rd_seq_start_addr, rd_seq_stop_addr, rd_seq_leng;
+	uint32_t rd_seq_curr_addr, rd_seq_part_leng;
+	uint16_t rd_seq_timeout;
+	uint8_t rd_seq_mode;  // режим последовательного чтения данных: 0 - нет чтения, 1 - чтение в процессе
+	type_PN_11_MEM mem;
+	//
 	type_PN11_report report;
 	uint16_t status, error_flags;
 	uint8_t error_cnt;
@@ -83,18 +116,29 @@ typedef struct
 
 void pn_11_init(type_PN11_model* pn11_ptr, uint8_t num, type_PWR_CHANNEL* pwr_ch_ptr, type_TMP1075_DEVICE* tmp_ch_ptr, UART_HandleTypeDef* huart);
 void pn_11_reset_state(type_PN11_model* pn11_ptr);
+void pn_11_process(type_PN11_model* pn11_ptr, uint16_t period_ms);
+
 void pn_11_output_set(type_PN11_model* pn11_ptr, uint8_t output_state);
 void pn_11_report_create(type_PN11_model* pn11_ptr);
+void pn_11_report_reset(type_PN11_model* pn11_ptr);
 uint8_t pn_11_get_inputs_state(type_PN11_model* pn11_ptr);
 uint8_t pn_11_get_outputs_state(type_PN11_model* pn11_ptr);
 void pn_11_pwr_on(type_PN11_model* pn11_ptr);
 void pn_11_pwr_off(type_PN11_model* pn11_ptr);
 
+void pn_11_interface_init(type_PN11_model* pn11_ptr, UART_HandleTypeDef* huart);
+void pn_11_interface_reset(type_PN11_model* pn11_ptr);
+void pn_11_interface_synch(type_PN11_model* pn11_ptr);
+void pn_11_interface_process(type_PN11_model* pn11_ptr, uint16_t period_ms);
 uint8_t pn_11_get_last_frame(type_PN11_model* pn11_ptr, uint8_t *data);
 uint8_t pn_11_get_last_frame_in_128B_format(type_PN11_model* pn11_ptr, uint8_t *data);
 void pn_11_read_req_u32_data(type_PN11_model* pn11_ptr, uint32_t addr, uint8_t u32_len);
 void pn_11_write_u32_data(type_PN11_model* pn11_ptr, uint32_t addr, uint32_t *u32_data, uint8_t u32_len);
 uint8_t pn_11_can_instasend(type_PN11_model* pn11_ptr, uint8_t* insta_send_data);
+void pn_11_seq_read_start(type_PN11_model* pn11_ptr, uint32_t start_addr, uint32_t u32_leng);
+void _pn_11_seq_read_request(type_PN11_model* pn11_ptr);
+
+void  _pn11_error_collector(type_PN11_model* pn11_ptr, uint16_t error);
 
 void pn_11_dbg_test(type_PN11_model* pn11_ptr);
 void pn_11_dbg_tr_lvl_test(type_PN11_model* pn11_ptr);

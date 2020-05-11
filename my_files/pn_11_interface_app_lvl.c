@@ -16,8 +16,43 @@
   */
 void app_lvl_init(type_PN11_INTERFACE_APP_LVL* app_lvl_ptr, UART_HandleTypeDef* huart)
 {
+  //
+  app_lvl_parameters_default(app_lvl_ptr);
+  //
 	tr_lvl_init(&app_lvl_ptr->tr_lvl, huart);
-  app_lvl_ptr->rx_timeout = 0;
+  //
+}
+
+/**
+  * @brief  сброс всех параметров уровня транспортного протокола (и всех вложенных уровней: транспортного и т.д.)
+  * @param  app_lvl_ptr: указатель на структуру управления уровнем приложения
+  * @param  huart: указатель на структуру UART
+  */
+void app_lvl_reset(type_PN11_INTERFACE_APP_LVL* app_lvl_ptr)
+{
+  UART_HandleTypeDef *huart = app_lvl_ptr->tr_lvl.huart;
+  //
+  app_lvl_parameters_default(app_lvl_ptr);
+  //
+	tr_lvl_init(&app_lvl_ptr->tr_lvl, huart);
+}
+
+/**
+  * @brief  установка параметров в работы в значение по умолчанию
+  * @param  app_lvl_ptr: указатель на структуру управления уровнем приложения
+  */
+void app_lvl_parameters_default(type_PN11_INTERFACE_APP_LVL* app_lvl_ptr)
+{
+  //
+  app_lvl_ptr->error_flags = 0x00;
+  app_lvl_ptr->error_cnt = 0x00;
+  app_lvl_ptr->rx_timeout = 0x00;
+  app_lvl_ptr->rx_valid_flag = 0x00;
+  app_lvl_ptr->rx_ready_flag = 0x00;
+  app_lvl_ptr->rx_timeout_flag = 0x00;
+  //
+  memset((uint8_t*)&app_lvl_ptr->wr_frame, 0x00, sizeof(type_APP_LVL_PCT));
+  memset((uint8_t*)&app_lvl_ptr->rd_frame, 0x00, sizeof(type_APP_LVL_PCT));
 }
 
 /**
@@ -112,6 +147,7 @@ void app_lvl_process(type_PN11_INTERFACE_APP_LVL* app_lvl_ptr, uint16_t period_m
       app_lvl_ptr -> rx_ready_flag = 1;
       app_lvl_ptr -> rx_valid_flag = 1;
       app_lvl_ptr -> rx_timeout = 0;
+      // printf("addr %08X, ctrl %08X, data %08X\n", app_lvl_ptr->rd_frame.addr, app_lvl_ptr->rd_frame.ctrl_byte, app_lvl_ptr->rd_frame.data[0]);
     }
   }
   // обработка таймаута вохзможна неточность в period_ms
@@ -123,18 +159,6 @@ void app_lvl_process(type_PN11_INTERFACE_APP_LVL* app_lvl_ptr, uint16_t period_m
     }
     app_lvl_ptr->rx_timeout_flag = 0;
   }
-}
-
-/**
-  * @brief  команда вкобчающая обработку приема, а так же организующая 
-  * @param  app_lvl_ptr: указатель на структуру управления транспортным уровнем
-  * @param  period_ms: период, с которым вызавается данный обработчик
-  */
-void app_lvl_process_and_read_req(type_PN11_INTERFACE_APP_LVL* app_lvl_ptr, uint16_t period_ms)
-{
-  //тут вызываем обработку, приема для уровня приложения
-  app_lvl_process(app_lvl_ptr, period_ms);
-  //
 }
 
 /**
@@ -167,6 +191,21 @@ uint8_t app_lvl_get_last_rx_frame(type_PN11_INTERFACE_APP_LVL* app_lvl_ptr, uint
     memcpy(last_data, (uint8_t*)&app_lvl_ptr->rd_frame, 128);
     app_lvl_ptr->rx_ready_flag = 0;
     return 128;
+  }
+	return 0;
+}
+
+/**
+  * @brief  команда на чтение принятых данных (в отличии от app_lvl_get_last_rx_frame выдает данные сколько угодно раз до нового запроса)
+  * @param  app_lvl_ptr: указатель на структуру управления транспортным уровнем
+  * @param  frame: указатель на принятый пакет в формате type_APP_LVL_PCT
+  * @retval  status: >0 - длина свежих данных, 0 - данные уже были прочитаны или нетданных
+  */
+uint8_t app_lvl_get_rx_frame(type_PN11_INTERFACE_APP_LVL* app_lvl_ptr, type_APP_LVL_PCT *frame)
+{
+	*frame = app_lvl_ptr->rd_frame;
+  if (app_lvl_ptr->rx_valid_flag){
+    return sizeof(type_APP_LVL_PCT);
   }
 	return 0;
 }

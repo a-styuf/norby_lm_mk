@@ -451,7 +451,6 @@ void fill_dcr_rx_frame(type_LM_DEVICE* lm_ptr)
 void fill_pl_iss_last_frame(type_LM_DEVICE* lm_ptr)
 {
 	type_PL_ISS_INT_data last_frame[4]; //0-ПН1.1А, 1-ПН1.1Б, 2-ПН1.2, 3-ПН2.0
-	uint8_t* pl_ptr = NULL;
 	uint8_t data[256] = {0}, leng;
 	// pl1.1a
 	memset((uint8_t*)&last_frame[PL11A-1], 0x00, sizeof(type_PL_ISS_INT_data));

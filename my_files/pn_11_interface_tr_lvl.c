@@ -22,6 +22,34 @@ void tr_lvl_init(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, UART_HandleTypeDef* hua
 }
 
 /**
+  * @brief  сброс параметров интерфейса
+  * @param  tr_lvl_ptr: указатель на структуру управления транспортным уровнем
+  */
+uint8_t tr_lvl_reset(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
+{
+	UART_HandleTypeDef *huart = tr_lvl_ptr->huart;
+	// забываем все, что было до этого
+	memset(tr_lvl_ptr, 0x00, sizeof(type_PN11_INTERFACE_TR_LVL));
+	tr_lvl_ptr->huart = huart;
+	tr_lvl_ptr->rx_data_frame_num = 1;
+	//
+	HAL_UART_AbortReceive_IT(tr_lvl_ptr->huart);
+	HAL_UART_Receive_IT(tr_lvl_ptr->huart, &tr_lvl_ptr->rx_data[tr_lvl_ptr->rx_finish_ptr], 1);
+	return 1;
+}
+
+/**
+  * @brief  синхронизация транспортного уровня
+	* @note		для стнхронизации необходим работающуй протокол со стороны второго абонента (питание, сниятые ресеты и т.п.)
+  * @param  tr_lvl_ptr: указатель на структуру управления транспортным уровнем
+  */
+void tr_lvl_synch(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
+{
+	// отправляем одиночный пакет для корректной синхронизации (второй пакет пошлется через таймаут)
+	tx_create_frame(tr_lvl_ptr, FR_LAST_STATUS_REQ, NULL, NULL);
+}
+
+/**
   * @brief  запуск передачи данных
   * @param  tr_lvl_ptr: указатель на структуру управления транспортным уровнем
   * @param  data: указатель на массив данных для передачи
@@ -50,38 +78,6 @@ uint8_t tr_lvl_send(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 	return 1;
 }
 
-/**
-  * @brief  сброс параметров интерфейса и посылка двух пакетов для синхронизации протокола
-  * @param  tr_lvl_ptr: указатель на структуру управления транспортным уровнем
-  */
-uint8_t tr_lvl_send_sync_frames(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
-{
-	UART_HandleTypeDef *huart = tr_lvl_ptr->huart;
-	// забываем все, что было до этого
-	memset(tr_lvl_ptr, 0x00, sizeof(type_PN11_INTERFACE_TR_LVL));
-	tr_lvl_ptr->huart = huart;
-	tr_lvl_ptr->rx_data_frame_num = 1;
-	//
-	HAL_UART_AbortReceive_IT(tr_lvl_ptr->huart);
-	HAL_UART_Receive_IT(tr_lvl_ptr->huart, &tr_lvl_ptr->rx_data[tr_lvl_ptr->rx_finish_ptr], 1);
-	// отправляем одиночный пакет для корректной синхронизации (второй пакет пошлется через таймаут)
-	tx_create_frame(tr_lvl_ptr, FR_LAST_STATUS_REQ, NULL, NULL);
-	
-	return 1;
-}
-
-/**
-  * @brief  сброс параметров протокола для остановки бесконечной подачи пакетов по таймауту
-  * @param  tr_lvl_ptr: указатель на структуру управления транспортным уровнем
-  */
-uint8_t tr_lvl_reset(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
-{
-	UART_HandleTypeDef *huart = tr_lvl_ptr->huart;
-	// забываем все, что было до этого
-	memset(tr_lvl_ptr, 0x00, sizeof(type_PN11_INTERFACE_TR_LVL));
-	tr_lvl_ptr->huart = huart;
-	return 1;
-}
 
 /**
   * @brief  обработчик протокола
@@ -249,7 +245,6 @@ uint8_t tx_get_error_type(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 	else{
 		return tr_lvl_ptr->rx_error_type;
 	}
-	return 0;
 }
 
 /**
@@ -272,16 +267,18 @@ void tr_lvl_set_timeout(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
   */
 int8_t rx_check_frame(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 {
-	uint8_t data_state = 0, frame[256] = {0}, frame_len = 0;
+	uint8_t data_state = 0, frame_len = 0;
 	int8_t status;
 	if(rx_get_rx_data_len(tr_lvl_ptr) < 4){  //пакет не может быть меньше 4-х байт
 		status = NO_RECOGNISED_FRAME;
 	}
 	else{
-		if (tr_lvl_ptr->rx_data[tr_lvl_ptr->rx_start_ptr] != 0x55){ //пакет обязательно начинается с 0x55
-			for (uint8_t i=0; i<128; i++){
+		rx_frame_copy(tr_lvl_ptr, tr_lvl_ptr->rx_frame);
+		//
+		if (tr_lvl_ptr->rx_data[tr_lvl_ptr->rx_start_ptr] != 0x55){ //пакет может начаться не с 0x55
+			for (uint8_t i=0; i<256; i++){
 					if ((tr_lvl_ptr->rx_data[tr_lvl_ptr->rx_start_ptr] != 0x55) && (rx_get_rx_data_len(tr_lvl_ptr) > 4)){
-						printf("%02X", tr_lvl_ptr->rx_data[tr_lvl_ptr->rx_start_ptr]);
+						
 						tr_lvl_ptr->rx_start_ptr += 1;
 					}
 					else break;
@@ -291,54 +288,64 @@ int8_t rx_check_frame(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr)
 		}
 		else{
 			// копируем предполагаемый кадр из приемного буфера во временный массив
-			rx_frame_copy(tr_lvl_ptr, frame);
-			// printf_buff(frame, rx_get_rx_data_len(tr_lvl_ptr), '\n');
+			// printf_buff(tr_lvl_ptr->rx_frame, rx_get_rx_data_len(tr_lvl_ptr), '\n');
 			//
-			tr_lvl_ptr->rx_frame_type = (frame[1] >> 5) & 0x07;
-			tr_lvl_ptr->rx_req_frame_num = (frame[1] >> 0) & 0x1F;
+			tr_lvl_ptr->rx_frame_type = (tr_lvl_ptr->rx_frame[1] >> 5) & 0x07;
+			tr_lvl_ptr->rx_req_frame_num = (tr_lvl_ptr->rx_frame[1] >> 0) & 0x1F;
 			frame_len += 4;
-			if ((crc8_rmap_header(frame, 3) == frame[3])){
+			if ((crc8_rmap_header(tr_lvl_ptr->rx_frame, 3) == tr_lvl_ptr->rx_frame[3])){
+				//printf("TYPE: %02X\n", tr_lvl_ptr->rx_frame_type);
 				switch (tr_lvl_ptr->rx_frame_type){ // определяем статус пакета
 					case FR_SPACE_REQ:
 						status = FR_SPACE_REQ;
 						break;
 					case FR_SPACE_ANS:
-						tr_lvl_ptr->tx_space = frame[1];
+						tr_lvl_ptr->tx_space = tr_lvl_ptr->rx_frame[1];
 						status = FR_SPACE_ANS;
 						break;
 					case FR_LAST_STATUS_REQ:
 						status = FR_LAST_STATUS_REQ;
 						break;
 					case FR_LAST_STATUS_ANS:
-						rx_error_check(tr_lvl_ptr, frame[2]);
+						rx_error_check(tr_lvl_ptr, tr_lvl_ptr->rx_frame[2]);
 						status = FR_LAST_STATUS_ANS;
 						break;
 					case FR_RST_REQ:
 						status = FR_RST_REQ;
 						break;
 					case FR_DATA:
-						data_state = rx_data_check(tr_lvl_ptr, frame);
-						frame_len += tr_lvl_ptr->row_rx_len + 1;  // + 1 - из-за crc8
-						switch (data_state){
-							case NO_RECOGNISED_DATA:
-								status = NO_RECOGNISED_DATA;
-							break;
-							case INCORRECT_DATA_CRC8:
-								rx_error_set(tr_lvl_ptr, ERR_TYPE_DATA_CRC);
-								status = FR_DATA;
-							break;
-							case INCORRECT_DATA_NUM:
-								rx_error_set(tr_lvl_ptr, ERR_TYPE_NUM);
-								status = FR_DATA;
-							break;
-							case CORRECT_DATA:
-								rx_error_set(tr_lvl_ptr, ERR_TYPE_OK);
-							  tr_lvl_ptr->rx_data_frame_num += 1;
-								tr_lvl_ptr->rx_state = 1;
-								status = FR_DATA;
+						// проверяем на наличие всех необходимых данных
+						// printf("len: %d, %d\n", (4 + tr_lvl_ptr->rx_frame[2] + 1), rx_get_rx_data_len(tr_lvl_ptr));	
+						if ((tr_lvl_ptr->rx_frame[2] + 4) > rx_get_rx_data_len(tr_lvl_ptr)){
+							status = NO_RECOGNISED_FRAME;
 							break;
 						}
-						break;
+						else{
+							data_state = rx_data_check(tr_lvl_ptr, tr_lvl_ptr->rx_frame);
+							frame_len += tr_lvl_ptr->row_rx_len + 1;  // + 1 - из-за crc8
+							// printf("FR_DATA %02X\n", data_state);
+							switch (data_state){
+								case NO_RECOGNISED_DATA:
+									rx_error_set(tr_lvl_ptr, ERR_TYPE_SPACE & 0x02);
+									status = NO_RECOGNISED_DATA;
+									break;
+								case INCORRECT_DATA_CRC8:
+									rx_error_set(tr_lvl_ptr, ERR_TYPE_DATA_CRC & 0x02);
+									status = FR_DATA;
+									break;
+								case INCORRECT_DATA_NUM:
+									rx_error_set(tr_lvl_ptr, ERR_TYPE_NUM & 0x0F);
+									status = FR_DATA;
+									break;
+								case CORRECT_DATA:
+									rx_error_set(tr_lvl_ptr, ERR_TYPE_OK);
+									tr_lvl_ptr->rx_data_frame_num += 1;
+									tr_lvl_ptr->rx_state = 1;
+									status = FR_DATA;
+									break;
+							}
+							break;
+						}
 					default:
 						status = -2; // нераспознан статус пакета
 						break;
@@ -392,7 +399,10 @@ uint8_t rx_data_check(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t *frame)
 void rx_frame_copy(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t* frame)
 {
 	uint8_t part_1_len = 0, part_2_len = 0;
-	if(tr_lvl_ptr->rx_finish_ptr > tr_lvl_ptr->rx_start_ptr){
+	if(tr_lvl_ptr->rx_finish_ptr == tr_lvl_ptr->rx_start_ptr){
+		return;
+	}
+	else if(tr_lvl_ptr->rx_finish_ptr > tr_lvl_ptr->rx_start_ptr){
 		memcpy(frame, &tr_lvl_ptr->rx_data[tr_lvl_ptr->rx_start_ptr], rx_get_rx_data_len(tr_lvl_ptr));
 	}
 	else{
@@ -440,7 +450,7 @@ void rx_error_set(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint8_t type)
 			break;
 	}
 	//
-	tr_lvl_ptr->rx_error_type = ((type & 0x07) << 0) | ((tr_lvl_ptr->rx_last_correct_data_frame_num & 0x1F) << 3);
+	tr_lvl_ptr->rx_error_type = ((type & 0x07) << 0); // | ((tr_lvl_ptr->rx_last_correct_data_frame_num & 0x1F) << 3); //в версии протокола 2.6 отказались от заполнения этого поля
 	tr_lvl_ptr->rx_error_code = ((type & 0x07) << 0);
 	tr_lvl_ptr->rx_error_frame_num = (tr_lvl_ptr->rx_data_frame_num & 0x1F);
 	//
