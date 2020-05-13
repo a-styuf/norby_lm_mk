@@ -88,6 +88,23 @@ typedef struct{
   uint8_t current;
 } type_POWER; //2
 
+
+/**
+  * @brief  struct to store telemetry data slice
+  */
+typedef struct{
+  uint8_t number;       //+0
+  uint8_t mode;         //+1
+  uint8_t voltage;      //+2
+  uint8_t current;      //+3
+  uint8_t input;        //+4
+  uint8_t output;       //+5
+  uint8_t temp;         //+6
+  uint8_t pl_error_cnt; //+7
+  uint16_t pl_errors;   //+8
+  uint16_t pl_status;   //+10
+} type_PL_ISS_TMI_SLICE;//12  //SLICE - срез
+
 //***  Frame teamplates  ***//
 
 /**
@@ -180,6 +197,34 @@ typedef struct {
   //
   uint16_t crc16; //+126
 } type_PL_ISS_INT_data; //128
+
+
+/**
+  * @brief  pn1.1 cyclogram result header
+  * @note   format 
+  */
+typedef struct {
+  type_ArchHeadFrame_Header header;   //+0
+  uint16_t cyclograma_num;            //+12
+  uint8_t cyclograma_mode;            //+14
+  uint8_t cyclograma_status;          //+15
+  uint8_t pl_num;                     //+16
+  uint8_t gap;                        //+17
+  uint8_t reserved[12];               //+18
+  type_PL_ISS_TMI_SLICE tmi_slice[8]; //+30 //leng = 8*12=96
+  //
+  uint16_t crc16;                     //+126
+} type_PL_CYCLOGRAMA_RESULT_HEADER; //128
+
+/**
+  * @brief  pn1.1 cyclogram result body
+  * @note   format 
+  */
+typedef struct {
+  type_ArchBodyFrame_Header header;   //+0
+  uint8_t data[118];                  //+8
+  uint16_t crc16;                     //+126
+} type_PL_CYCLOGRAMA_RESULT_BODY; //128
 
 /**
   * @brief  Parameters data

@@ -24,6 +24,7 @@ typedef struct
 	float power_max, power_min;
 	uint8_t mode;
 	uint8_t error;
+	uint8_t error_check_inh;
 } type_PWR_CHANNEL;
 
 int8_t pwr_ch_init(type_PWR_CHANNEL* pwr_ch_ptr, I2C_HandleTypeDef* i2c_ptr, uint8_t i2c_addr, uint16_t power_lim_Wt, GPIO_TypeDef* ena1_bank, uint16_t ena1_pos, GPIO_TypeDef* ena2_bank, uint16_t ena2_pos, GPIO_TypeDef* ena3_bank, uint16_t ena3_pos);

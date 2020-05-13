@@ -5,6 +5,7 @@
 #include "pn12.h"
 #include "pn20.h"
 #include "pn_dcr.h"
+#include "lm_interfaces.h"
 #include <stdio.h>
 #include "debug.h"
 
@@ -69,7 +70,7 @@ int8_t cyclogram_process_100ms(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr);
 
 // pl_1.1A
 int8_t pl_pn11A_set_iku_default(type_PL* pl_ptr);
-int8_t pl_pn11A_check_temp(type_PL* pl_ptr);
+int8_t pl_pn11A_check_tmi(type_PL* pl_ptr);
 int8_t pl_pn11A_pwr_on(type_PL* pl_ptr);
 int8_t pl_pn11A_pwr_check(type_PL* pl_ptr);
 int8_t pl_pn11A_interface_sync(type_PL* pl_ptr);

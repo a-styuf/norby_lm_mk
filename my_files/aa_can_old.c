@@ -1,5 +1,5 @@
 #include <stm32f4xx.h>
-#include "aa_can.h"
+#include "aa_can_old.h"
 
 //extern const typeRegistrationRec RegistrationRec[];
 //__weak const typeRegistrationRec RegistrationRec[] = {{(void*)0, 0, (void*)0, 0, 1}};
