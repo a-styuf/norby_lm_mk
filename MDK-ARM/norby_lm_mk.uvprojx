@@ -387,7 +387,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>My Files</GroupName>
+          <GroupName>my files</GroupName>
           <Files>
             <File>
               <FileName>vcp_time_segmentation.c</FileName>
