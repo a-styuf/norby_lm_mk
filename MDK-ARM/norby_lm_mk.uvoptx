@@ -163,6 +163,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>\\norby_lm_mk\../Src/main.c\lm.mem.cy15b104[3].out_buff</ItemText>
         </Ww>
+        <Ww>
+          <count>3</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>\\norby_lm_mk\../Src/main.c\lm.interface</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>
@@ -179,6 +184,11 @@
           <count>2</count>
           <WinNumber>2</WinNumber>
           <ItemText>\\norby_lm_mk\../Src/main.c\lm.mem.cy15b104[3].in_buff</ItemText>
+        </Ww>
+        <Ww>
+          <count>3</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>RegistrationRec</ItemText>
         </Ww>
       </WatchWindow2>
       <MemoryWindow1>

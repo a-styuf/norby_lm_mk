@@ -237,7 +237,7 @@ typedef struct
   //
   type_IVar_DBG_Data brd_cast_data;
   //
-  typeRegistrationRec* reg_rec_ptr;
+  typeRegistrationRec *reg_rec_ptr;
   CAN_TypeDef *can1_ptr, *can2_ptr;
   uint16_t frame_num;
 } type_LM_INTERFACES;
