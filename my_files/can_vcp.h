@@ -2,7 +2,7 @@
 #define _CAN_VCP_H_
 
 #include "vcp_time_segmentation.h"
-#include "aa_can.h"
+#include "canv.h"
 
 //** error defines
 #define ERROR_NO_ERROR                0x00

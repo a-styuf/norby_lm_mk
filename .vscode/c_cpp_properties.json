@@ -23,6 +23,7 @@
                 "${workspaceFolder}/Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc",
                 "${workspaceFolder}/Middlewares/ST/STM32_USB_Device_Library/Core/Inc",
                 "${workspaceFolder}/my_files",
+                "${workspaceFolder}/aa_can",
                 "C:/Keil_v5/ARM/ARMCLANG/include"
             ],
             "forcedInclude": [

@@ -48,9 +48,13 @@ void pn_11_init(type_PN11_model* pn11_ptr, uint8_t num, type_PWR_CHANNEL* pwr_ch
 	pwr_ch_set_bound(pwr_ch_ptr, PN_11_VOLT_MAX, PN_11_VOLT_MIN, PN_11_PWR_MAX, PN_11_PWR_MIN);
 	// установка канала управления температурой
 	pn11_ptr->tmp_ch = tmp_ch_ptr;
+	tmp1075_set_bound(tmp_ch_ptr, PN_11_TEMP_HIGH, PN_11_TEMP_LOW);
 	//
 	pn11_ptr->status = 0;
-	_pn11_error_collector(pn11_ptr, PN11_NO_ERROR);
+	pn11_ptr->pwr_check_timeout_ms = 0;
+	pn11_ptr->tmp_check_timeout_ms = 0;
+	pn11_ptr->inhibit = 0;
+	_pn_11_error_collector(pn11_ptr, PN11_NO_ERROR, NULL);
 	pn_11_report_reset(pn11_ptr);
 	// инициализация интерфейса общения
 	pn_11_interface_init(pn11_ptr, huart);
@@ -64,21 +68,26 @@ void pn_11_reset_state(type_PN11_model* pn11_ptr)
 {
 	// сбрасываем переменные состояний
 	pn11_ptr->status = 0;
-	pn11_ptr->interrupt_timeout = 0;
-	_pn11_error_collector(pn11_ptr, PN11_NO_ERROR);
+	pn11_ptr->pwr_check_timeout_ms = 0;
+	pn11_ptr->tmp_check_timeout_ms = 0;
+	_pn_11_error_collector(pn11_ptr, PN11_NO_ERROR, NULL);
 	pn_11_report_reset(pn11_ptr);
 	pn_11_interface_reset(pn11_ptr);
 	pn_11_output_set(pn11_ptr, PN11_OUTPUT_DEFAULT);
 	//
 }
 
+
 /**
   * @brief  поддержка работы програмной модели ПН
-  * @param  app_lvl_ptr: указатель на структуру управления транспортным уровнем
+  * @param  pn11_ptr: указатель на структуру управления ПН
   * @param  period_ms: период, с которым вызавается данный обработчик
   */
 void pn_11_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
 {
+	//проверка питания
+	pn_11_pwr_process(pn11_ptr, period_ms);
+	// поддержка протокола общения
 	pn_11_interface_process(pn11_ptr, period_ms);
 }
 
@@ -92,6 +101,18 @@ void pn_11_output_set(type_PN11_model* pn11_ptr, uint8_t output_state)
 	gpio_set(&pn11_ptr->output[1], (output_state >> 1) & 0x01);
 	gpio_set(&pn11_ptr->output[2], (output_state >> 2) & 0x01);
 	gpio_set(&pn11_ptr->output[3], (output_state >> 3) & 0x01);
+}
+
+/**
+  * @brief  создание отчета о работе
+  * @param  pn11_ptr: указатель на структуру управления ПН1.1
+  */
+void pn_11_tmi_slice_create(type_PN11_model* pn11_ptr)
+{
+	//
+	memset((uint8_t*)&pn11_ptr->report, 0xFE, sizeof(type_PN11_report));
+	//
+
 }
 
 /**
@@ -158,6 +179,74 @@ uint8_t pn_11_get_outputs_state(type_PN11_model* pn11_ptr)
 	return state;
 }
 
+///*** функции поддержки проверок температуры ***///
+/**
+  * @brief  поддержка проверок температуры
+  * @param  pn11_ptr: указатель на структуру управления ПН
+  * @param  period_ms: период, с которым вызавается данный обработчик
+  */
+void pn_11_tmp_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
+{
+	uint8_t error = TMP_CH_ERR_NO_ERR;
+	if ((pn11_ptr->tmp_check_timeout_ms > 0) && (pn11_ptr->tmp_check_timeout_ms <= PN_11_TMP_TIMEOUT_MS)){
+		pn11_ptr->tmp_check_timeout_ms -= period_ms;
+	}
+	else{
+		pn11_ptr->tmp_check_timeout_ms = 0;
+		error = pn_11_tmp_check(pn11_ptr);
+	}
+	_pn_11_error_collector(pn11_ptr, PN11_TEMP_ERROR, error);
+}
+
+/**
+  * @brief  проверка параметров температуры
+  * @param  pn_dcr_ptr: указатель на структуру управления ПН
+  * @retval  ошибки каналов измерения температуры
+  */
+uint8_t pn_11_tmp_check(type_PN11_model* pn11_ptr)
+{
+	uint8_t report = 0;
+	pn11_ptr->tmp_check_timeout_ms = PN_11_TMP_TIMEOUT_MS; //нефиг долюбить эти ошибки постоянно, секунды вполне хватит
+	if (tmp1075_get_error(pn11_ptr->tmp_ch, &report)){
+		return report;
+	}
+	return 0;
+}
+
+///*** функции поддержки работы с питанием ***///
+/**
+  * @brief  поддержка проверок питания
+  * @param  pn11_ptr: указатель на структуру управления ПН
+  * @param  period_ms: период, с которым вызавается данный обработчик
+  */
+void pn_11_pwr_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
+{
+	uint8_t error = PWR_CH_ERR_NO_ERR;
+	if ((pn11_ptr->pwr_check_timeout_ms > 0) && (pn11_ptr->pwr_check_timeout_ms <= PN_11_PWR_TIMEOUT_MS)){
+		pn11_ptr->pwr_check_timeout_ms -= period_ms;
+	}
+	else{
+		pn11_ptr->pwr_check_timeout_ms = 0;
+		error = pn_11_pwr_check(pn11_ptr);
+	}
+	_pn_11_error_collector(pn11_ptr, PN11_ERR_PWR, error);
+}
+
+/**
+  * @brief  проверка параметров питания
+  * @param  pn_dcr_ptr: указатель на структуру управления ПН
+  * @retval  ошибки каналов питания
+  */
+uint8_t pn_11_pwr_check(type_PN11_model* pn11_ptr)
+{
+	uint8_t report = 0;
+	pn11_ptr->pwr_check_timeout_ms = PN_11_PWR_TIMEOUT_MS; //нефиг долюбить эти ошибки постоянно, секунды вполне хватит
+	if (pwr_ch_get_error(pn11_ptr->pwr_ch, &report)){
+		return report;
+	}
+	return 0;
+}
+
 /**
   * @brief  включение питания ПН1.1
   * @param  pn11_ptr: указатель на структуру управления ПН1.1
@@ -165,6 +254,7 @@ uint8_t pn_11_get_outputs_state(type_PN11_model* pn11_ptr)
 void pn_11_pwr_on(type_PN11_model* pn11_ptr)
 {
 	pwr_ch_on_off(pn11_ptr->pwr_ch, 0x01);
+	pn11_ptr->pwr_check_timeout_ms = PN_11_PWR_TIMEOUT_MS;
 }
 
 /**
@@ -174,16 +264,7 @@ void pn_11_pwr_on(type_PN11_model* pn11_ptr)
 void pn_11_pwr_off(type_PN11_model* pn11_ptr)
 {
 	pwr_ch_on_off(pn11_ptr->pwr_ch, 0x00);
-}
-
-void pn_11_get_pwr_val(type_PN11_model* pn11_ptr)
-{
-
-}
-
-void pn_11_get_interrupt(type_PN11_model* pn11_ptr)
-{
-
+	pn11_ptr->pwr_check_timeout_ms = PN_11_PWR_TIMEOUT_MS;
 }
 
 ///*** функции поддержки интерфейса ***///
@@ -245,9 +326,9 @@ void pn_11_interface_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
 	type_APP_LVL_PCT rx_frame;
 	uint32_t mem_addr, mem_leng;
 	//поддрежка работы транспортного уровня
-  tr_lvl_process(&pn11_ptr->interface.tr_lvl, period_ms);
+  tr_lvl_process(&pn11_ptr->interface.tr_lvl, period_ms); //todo: доделать проверку ошибок из транспортного уровня
   //поддрежка работы уровня приложения
-  app_lvl_process(&pn11_ptr->interface, period_ms);
+  app_lvl_process(&pn11_ptr->interface, period_ms); //todo: доделать проверку ошибок из уровня приложения
   //поддержка работы с памятью ПН
 	if(pn11_ptr->rd_seq_mode == 0){
 			//
@@ -266,12 +347,12 @@ void pn_11_interface_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
 					memcpy((uint8_t*)&pn11_ptr->mem.array.data[mem_addr], (uint8_t*)&rx_frame.data[0], mem_leng*4);
 				}
 				else{ // вылазим за допустиму робласть данных
-					_pn11_error_collector(pn11_ptr, PN11_INTERFACE_ERROR);
+					_pn_11_error_collector(pn11_ptr, PN11_INTERFACE_ERROR, NULL);
 				}
 				pn11_ptr->rd_seq_mode = 0;
 			}
 			else{
-				_pn11_error_collector(pn11_ptr, PN11_INTERFACE_ERROR);
+				_pn_11_error_collector(pn11_ptr, PN11_INTERFACE_ERROR, NULL);
 			}
 			// делаем новый запрос на чтение данных
 			_pn_11_seq_read_request(pn11_ptr);
@@ -416,22 +497,43 @@ void _pn_11_seq_read_request(type_PN11_model* pn11_ptr)
 /**
   * @brief сохранение и обработка ошибок в зависимости от их типа
   * @param  app_lvl_ptr: указатель на структуру управления УРОВНЕМ ПРИЛОЖЕНИЯ
-  * @param  error: ошибка, согласно define-ам APP_LVL_... в .h
+  * @param  error: ошибка, согласно define-ам PN_11_... в .h
+  * @param  data: ошибки из других источников
+	* 
   */
-void  _pn11_error_collector(type_PN11_model* pn11_ptr, uint16_t error)
+void  _pn_11_error_collector(type_PN11_model* pn11_ptr, uint16_t error, int16_t data)
 {
   switch(error){
     case PN11_NO_ERROR:
-      pn11_ptr->error_flags = APP_LVL_NO_ERR;
+      pn11_ptr->error_flags = PN11_NO_ERROR;
       pn11_ptr->error_cnt = 0;
       break;
-    case PN11_TEMP_ERROR:
-    case PN11_CURRENT_ERROR:
-    case PN11_VOLTAGE_ERROR:
+		case PN11_CPU_ERROR:
+		case PN11_FPGA_ERROR:
+		case PN11_INT_ERROR:
+		case PN11_NU_ERROR:
+			pn11_ptr->error_flags |= error;
+      pn11_ptr->error_cnt += 1;
+      break;
+    case PN11_ERR_PWR:
+			if (data){
+				if (data != ((pn11_ptr->error_flags >> 4) & 0xF)){
+					pn11_ptr->error_cnt += 1;
+				}
+				pn11_ptr->error_flags |= ((data&0xF) << 4);
+			}
+			break;
+		case PN11_TEMP_ERROR:
+			if (data){
+				if (data != ((pn11_ptr->error_flags >> 8) & 0xF)){
+					pn11_ptr->error_cnt += 1;
+				}
+				pn11_ptr->error_flags |= ((data&0xF) << 8);
+			}
+			break;
     case PN11_INTERFACE_ERROR:
-    case PN11_INT_ERROR:
-    case PN11_CPU_ERROR:
-    case PN11_FPGA_ERROR:
+    case PN11_APP_LVL_ERROR:
+    case PN11_TR_LVL_ERROR:
 			pn11_ptr->error_flags |= error;
       pn11_ptr->error_cnt += 1;
       break;

@@ -52,7 +52,7 @@ void pwr_ch_set_bound(type_PWR_CHANNEL* pwr_ch_ptr, float u_max, float u_min, fl
 /**
   * @brief  проверка параметров питания
   * @param  pwr_ch_ptr: структура управления каналом питания
-  * @param  pwr_ch_ptr: тип ошибки питания
+  * @param  error: тип ошибки питания
   * @retval 1 - изменилось состояние питания, 0 - ошибки остались, какие и были
   */
 uint8_t pwr_ch_get_error(type_PWR_CHANNEL* pwr_ch_ptr, uint8_t *error)

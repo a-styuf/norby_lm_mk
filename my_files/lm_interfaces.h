@@ -3,7 +3,8 @@
 
 //*** include files ***//
 #include "lm_interfaces_data.h"
-#include "aa_can.h"
+#include "canv.h"
+#include "flash_lib.h"
 #include "main.h"
 
 //*** defines ***//
@@ -23,8 +24,9 @@
 #define ID_IVAR_ISS_INTERFACE 9
 #define ID_IVAR_DBG           12
 #define ID_IVAR_BRD           13
-//
-#define ID_IVAR_POOL_LEN      14
+#define ID_IVAR_FLASH_LOAD    14  //для прошивки через CAN
+
+#define ID_IVAR_POOL_LEN      13
 //***Cmds defines
 #define CMD_INIT_LM                     0x00
 #define CMD_INIT_ISS_MEM                0x01
@@ -82,7 +84,26 @@
 #define PL_ISS_INTERFACE_CMD_POOL_LEN           (4*128)
 //
 
+//***CAN_setup
+/***   bit time   ***/
+
+#define APB_PEREPHERIAL_CLOCK   36000000
+#define CAN_BAUDRATE            1000000
+#define CAN_SETUP_BTR           (0x01210000 | (APB_PEREPHERIAL_CLOCK/CAN_BAUDRATE/6 - 1))  //6=1+3+2, 1-SYNC_SEQ, 3-BS, 2-BS2
+
+#define CAN_AFLG_READ_WRITE      0
 //*** structures ***//
+
+
+/*-----------Additional struct----------*/
+
+/**
+  * @brief  single_cyclograma_result
+  */
+typedef struct {
+  type_PL_CYCLOGRAMA_RESULT_HEADER header;      //+0
+  type_PL_CYCLOGRAMA_RESULT_BODY   body[16];    //+128  //здесь с запасом на любую из циклограмм, возможно нужно меньше
+} type_PL_CYCLOGRAMA_RESULT;                    //2176
 
 /*------ Interface variables --------*/
 
@@ -114,14 +135,20 @@ typedef struct {
 typedef struct {
   type_LM_Beacon_Frame beacon;          //+0
   type_LM_TMI_Data_Frame tmi;           //+128
+  //
   type_LM_GEN_TMI_Frame gen_tmi;        //+256
+  //
   type_DCR_STATUS_Frame dcr_status;     //+384
   type_DCR_LONG_Frame dcr_frame;        //+512
+  //
   type_PL_ISS_INT_data pl11a_frame;   //+640
   type_PL_ISS_INT_data pl11b_frame;   //+768
   type_PL_ISS_INT_data pl12_frame;    //+896
   type_PL_ISS_INT_data pl20_frame;    //+1024
-} type_IVar_TMI;                        //1152
+  //
+  type_PL_CYCLOGRAMA_RESULT cyclograma_result; //+1152
+  //
+} type_IVar_TMI;                        //3328
 
 /**
   * @brief  Parameteres data
@@ -138,8 +165,6 @@ typedef struct {
   uint8_t External_Mem_ISS_Frame[128];  //+128
   uint8_t External_Mem_DCR_Frame[128];  //+256
 } type_IVar_ExtMem; //384
-
-
 
 /**
   * @brief  IVar for DCR-interface
@@ -163,7 +188,24 @@ typedef struct {
   uint8_t debug_data[128];  //+0
 } type_IVar_DBG_Data; //128
 
+typedef union {
+  uint8_t bb[8];
+  struct {
+    uint32_t size : 24;
+    uint32_t cmd : 8;
+    uint32_t crc;
+  } Ctrl;
+  struct {
+    int8_t Status;
+    uint8_t CurrentBlock;
+    uint8_t PrefBlock;
+    uint8_t ResetSrc;
+  } Info;
+}typeUniVarCANFlashFragment;
+
 #pragma pack(8) //default
+
+
 /*----------------------------------------*/
 typedef struct
 {
@@ -193,7 +235,9 @@ typedef struct
   //
   type_IVar_DBG_Data dbg_data;
   //
-  typeRegistrationRec* reg_rec_ptr;
+  type_IVar_DBG_Data brd_cast_data;
+  //
+  typeRegistrationRec *reg_rec_ptr;
   CAN_TypeDef *can1_ptr, *can2_ptr;
   uint16_t frame_num;
 } type_LM_INTERFACES;

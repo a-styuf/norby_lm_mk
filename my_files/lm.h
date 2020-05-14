@@ -22,6 +22,7 @@
 #define max(A, B) ((A) > (B) ? (A) : (B))
 #define min(A, B) ((A) < (B) ? (A) : (B))
 
+
 typedef unsigned short uint16_t;
 
 // настройки прибора

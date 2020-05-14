@@ -69,7 +69,7 @@ uint8_t timer_slot_5ms_counter = 0;
 uint8_t uint8_val = 0, uint8_buff[128] = {0};
 uint16_t uint16_val = 0;
 int16_t int16_val = 0;
-int8_t int8_val = 0l;
+int8_t int8_val = 0;
 char str[128];
 /* USER CODE END PV */
 
@@ -155,6 +155,20 @@ int main(void)
     if (time_slot_flag_1s){ // 1s
       // сохраняем рабочие параметры
       lm_save_parameters(&lm);
+			//
+      /* typeIdxMask mask;
+      mask.u32 = 0;
+      uint8_t filter_num=2;
+      CAN1->FA1R &= ~((1<<(filter_num+14)) | (1<<filter_num));
+      mask.std.IDE = 1;  //to extendet mode
+      CAN1->sFilterRegister[filter_num].FR2 = CAN1->sFilterRegister[filter_num+14].FR2  =  *((uint32_t*)&mask);
+      CAN1->FA1R |= (1<<(filter_num+14)) | (1<<filter_num);
+      //
+			typeIdxMask id_mask;
+			id_mask.u32 = 0x65000000;
+			memset (tx_data, 0xA5, 8);
+			CAN_Tx(CAN1, id_mask, tx_data, 8);			
+			CAN_Tx(CAN2, id_mask, tx_data, 8);	*/
       //reset flag
 			time_slot_flag_1s = 0;
     }

@@ -25,17 +25,24 @@
 
 //Ошибки работы
 #define PN11_NO_ERROR			 		(0)
-#define PN11_TEMP_ERROR		 		(1<<0)
-#define PN11_CURRENT_ERROR  	(1<<1)
-#define PN11_VOLTAGE_ERROR		(1<<2)
-#define PN11_INTERFACE_ERROR	(1<<3)
-#define PN11_INT_ERROR 				(1<<4)
-#define PN11_CPU_ERROR 				(1<<5)
-#define PN11_FPGA_ERROR 			(1<<6)
+#define PN11_CPU_ERROR 				(1<<0)
+#define PN11_FPGA_ERROR 			(1<<1)
+#define PN11_INT_ERROR	 			(1<<2)
+#define PN11_NU_ERROR		 			(1<<3)
+#define PN11_ERR_PWR					(1<<4) //длина 4 бита
+#define PN11_TEMP_ERROR		 		(1<<8) //длина 4 бита
+#define PN11_INTERFACE_ERROR	(1<<12)
+#define PN11_APP_LVL_ERROR		(1<<13)
+#define PN11_TR_LVL_ERROR			(1<<14)
 #define PN11_OTHER_ERROR 			(1<<15)
 
-// пороговые значения для определения ошибки питания: напряжение в В, ток в А, мощность в Вт
 
+// пороговые значения для определения ошибки температуры: в 1/256°C
+// пороги напряжения В	
+#define PN_11_TEMP_HIGH 	(85*256)
+#define PN_11_TEMP_LOW 		(-30*256)
+
+// пороговые значения для определения ошибки питания: напряжение в В, ток в А, мощность в Вт
 // пороги напряжения В	
 #define PN_11_VOLT_MAX 		5.5
 #define PN_11_VOLT_MIN 		4.5
@@ -43,8 +50,11 @@
 #define PN_11_PWR_MAX 		12.0
 #define PN_11_PWR_MIN 		1.0
 
-// задержка для определения ошибки питания - устанавливается каждый ра, когда происходит изменение состояния питания
+// задержка для определения ошибки питания - устанавливается каждый раз, когда происходит изменение состояния питания
 #define PN_11_PWR_TIMEOUT_MS 	1000
+
+// задержка для для проверок температуры, что бы не долбить модуль температуры очень часто
+#define PN_11_TMP_TIMEOUT_MS 	1000
 
 // шаг обработки чтения памяти ПН
 #define PN_11_READ_MEM_TIMEOUT_MS 	100
@@ -99,7 +109,8 @@ typedef struct
 	type_GPIO_setting output[4]; // 0-RST_FPGA, 1-RST_LEON, 2-KU_2, 3-KU_3
 	type_PWR_CHANNEL* pwr_ch;
 	type_TMP1075_DEVICE* tmp_ch;
-	uint16_t interrupt_timeout;
+	uint16_t pwr_check_timeout_ms, tmp_check_timeout_ms;
+	uint8_t	inhibit; 	//флаги для запрета: 0 - включения ПН, 1 - отключения по питанию, 2 - отключению по температуре.
 	//
 	type_PN11_INTERFACE_APP_LVL interface;
 	//
@@ -123,8 +134,14 @@ void pn_11_report_create(type_PN11_model* pn11_ptr);
 void pn_11_report_reset(type_PN11_model* pn11_ptr);
 uint8_t pn_11_get_inputs_state(type_PN11_model* pn11_ptr);
 uint8_t pn_11_get_outputs_state(type_PN11_model* pn11_ptr);
+
+void pn_11_pwr_process(type_PN11_model* pn11_ptr, uint16_t period_ms);
+uint8_t pn_11_pwr_check(type_PN11_model* pn11_ptr);
 void pn_11_pwr_on(type_PN11_model* pn11_ptr);
 void pn_11_pwr_off(type_PN11_model* pn11_ptr);
+
+void pn_11_tmp_process(type_PN11_model* pn11_ptr, uint16_t period_ms);
+uint8_t pn_11_tmp_check(type_PN11_model* pn11_ptr);
 
 void pn_11_interface_init(type_PN11_model* pn11_ptr, UART_HandleTypeDef* huart);
 void pn_11_interface_reset(type_PN11_model* pn11_ptr);
@@ -138,7 +155,7 @@ uint8_t pn_11_can_instasend(type_PN11_model* pn11_ptr, uint8_t* insta_send_data)
 void pn_11_seq_read_start(type_PN11_model* pn11_ptr, uint32_t start_addr, uint32_t u32_leng);
 void _pn_11_seq_read_request(type_PN11_model* pn11_ptr);
 
-void  _pn11_error_collector(type_PN11_model* pn11_ptr, uint16_t error);
+void  _pn_11_error_collector(type_PN11_model* pn11_ptr, uint16_t error, int16_t data);
 
 void pn_11_dbg_test(type_PN11_model* pn11_ptr);
 void pn_11_dbg_tr_lvl_test(type_PN11_model* pn11_ptr);

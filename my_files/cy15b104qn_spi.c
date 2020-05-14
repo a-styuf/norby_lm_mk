@@ -51,9 +51,11 @@ int8_t cy15_init(type_CY15B104QN_CONTROL* cy15_ptr, SPI_HandleTypeDef* spi_ptr, 
   memset(cy15_ptr->out_buff, 0x00, 256);
   cy15_ptr->out_buff[0] = CY15_RDSN_OPCODE;
   gpio_set(&cy15_ptr->cs, 0);
-  HAL_SPI_TransmitReceive(spi_ptr, cy15_ptr->out_buff, cy15_ptr->in_buff, 1+sizeof(serial_number), 1);
+  HAL_SPI_TransmitReceive(spi_ptr, cy15_ptr->out_buff, cy15_ptr->in_buff, 1+sizeof(serial_number), 2);
   gpio_set(&cy15_ptr->cs, 1);
   //
+  // printf_buff(serial_number, 8, '\t');
+  // printf_buff(cy15_ptr->in_buff+1, 8, '\n');
   if (memcmp(serial_number, cy15_ptr->in_buff+1, sizeof(serial_number)) == 0){
     report += 1;
   }

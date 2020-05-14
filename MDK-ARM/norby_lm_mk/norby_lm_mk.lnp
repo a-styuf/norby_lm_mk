@@ -12,7 +12,6 @@
 "norby_lm_mk\pl_cyclogram.o"
 "norby_lm_mk\pn_11_interface_tr_lvl.o"
 "norby_lm_mk\pn_11_interface_app_lvl.o"
-"norby_lm_mk\aa_can.o"
 "norby_lm_mk\lm_interfaces.o"
 "norby_lm_mk\lm_int_cb.o"
 "norby_lm_mk\lm_interfaces_data.o"
@@ -66,6 +65,8 @@
 "norby_lm_mk\usbd_ctlreq.o"
 "norby_lm_mk\usbd_ioreq.o"
 "norby_lm_mk\usbd_cdc.o"
+"..\aa_can\flash_lib.lib"
+"..\aa_can\canv_lib.lib"
 "norby_lm_mk\retarget_io.o"
 --library_type=microlib --strict --scatter "norby_lm_mk\norby_lm_mk.sct"
 --summary_stderr --info summarysizes --map --xref --callgraph --symbols

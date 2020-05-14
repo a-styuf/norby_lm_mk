@@ -9,7 +9,8 @@
 
 #include "lm_interfaces.h"
 
-extern typeRegistrationRec RegistrationRec[ID_IVAR_POOL_LEN];
+typeRegistrationRec RegistrationRec[ID_IVAR_POOL_LEN] = {0};
+//extern typeRegistrationRec RegistrationRec[ID_IVAR_POOL_LEN];
 
 /**
   * @brief  инициализация интерфейсов общения с МС (функции-обработчики регистрируются отдельно)
@@ -20,62 +21,79 @@ uint16_t interfaces_init(type_LM_INTERFACES* lm_in_ptr, uint8_t id_dev)
   uint8_t i;
   int8_t report = 0;
   uint16_t ret_val = 0;
+  uint8_t var_array[ID_IVAR_POOL_LEN] = { ID_IVAR_PRG_MEM, 
+                                          ID_IVAR_RAM_MEM, 
+                                          ID_IVAR_CMD, 
+                                          ID_IVAR_CMD_STAT, 
+                                          ID_IVAR_CMDREG, 
+                                          ID_IVAR_TMI,
+                                          ID_IVAR_PARAM,
+                                          ID_IVAR_EXTMEM,
+                                          ID_IVAR_DCR_INTERFACE,
+                                          ID_IVAR_ISS_INTERFACE,
+                                          ID_IVAR_DBG,
+                                          ID_IVAR_BRD, 
+                                          ID_IVAR_FLASH_LOAD};
   lm_in_ptr->can1_ptr = CAN1;
   lm_in_ptr->can2_ptr = CAN2;
   lm_in_ptr->frame_num = 0x00;
   lm_in_ptr->reg_rec_ptr = RegistrationRec;
+  //
+  report = CAN_Init(lm_in_ptr->can1_ptr, CAN_SETUP_BTR);
+  if (report) ret_val |= (1 << 14);
+	report = CAN_Init(lm_in_ptr->can2_ptr, CAN_SETUP_BTR);
+  if (report) ret_val |= (1 << 14);
   // variable registration teamplate
   for (i=0; i<ID_IVAR_POOL_LEN; i++)
   {
-    switch(i){
+    switch(var_array[i]){
       case ID_IVAR_PRG_MEM:
-        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup((void*)0x8000000, 0, (void*)0, ID_IVAR_PRG_MEM, 1);
+        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup((void*)0x8000000, 0, (void*)0, ID_IVAR_PRG_MEM, CAN_AFLG_READONLY);
         break;
       case ID_IVAR_RAM_MEM:
-        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup((void*)0x2000000, 0, (void*)0, ID_IVAR_RAM_MEM, 1);
+        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup((void*)0x2000000, 0, (void*)0, ID_IVAR_RAM_MEM, CAN_AFLG_READONLY);
         break;
       case ID_IVAR_CMD:
-        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->cmd, sizeof(type_IVar_Cmds), (void*)0, ID_IVAR_CMD, 0);
+        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->cmd, sizeof(type_IVar_Cmds), (void*)0, ID_IVAR_CMD, CAN_AFLG_READ_WRITE);
         break;
       case ID_IVAR_CMD_STAT:
-        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->cmd_status, sizeof(type_IVar_Cmds_Statuses), (void*)0, ID_IVAR_CMD_STAT, 1);
+        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->cmd_status, sizeof(type_IVar_Cmds_Statuses), (void*)0, ID_IVAR_CMD_STAT, CAN_AFLG_READONLY);
         break;
       case ID_IVAR_CMDREG:
-        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->cmdreg, sizeof(type_IVar_CmdRegisters), (void*)0, ID_IVAR_CMDREG, 0);
+        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->cmdreg, sizeof(type_IVar_CmdRegisters), (void*)0, ID_IVAR_CMDREG, CAN_AFLG_READ_WRITE);
         break;
       case ID_IVAR_TMI:
-        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->tmi_data, sizeof(type_IVar_TMI), (void*)0, ID_IVAR_TMI, 1);
+        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->tmi_data, sizeof(type_IVar_TMI), (void*)0, ID_IVAR_TMI, CAN_AFLG_READONLY);
         break;
       case ID_IVAR_PARAM:
-        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->parameters, sizeof(type_IVar_Param), (void*)0, ID_IVAR_PARAM, 1);
+        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->parameters, sizeof(type_IVar_Param), (void*)0, ID_IVAR_PARAM, CAN_AFLG_READONLY);
         break;
       case ID_IVAR_EXTMEM:
-        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->ext_mem, sizeof(type_IVar_ExtMem), (void*)0, ID_IVAR_EXTMEM, 1);
+        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->ext_mem, sizeof(type_IVar_ExtMem), (void*)0, ID_IVAR_EXTMEM, CAN_AFLG_READONLY);
         break;
       case ID_IVAR_DCR_INTERFACE:
-        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->dcr_interface, sizeof(type_IVar_DCR_Interface), (void*)0, ID_IVAR_DCR_INTERFACE, 0);
+        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->dcr_interface, sizeof(type_IVar_DCR_Interface), (void*)0, ID_IVAR_DCR_INTERFACE, CAN_AFLG_READ_WRITE);
         break;
       case ID_IVAR_ISS_INTERFACE:
-        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->pl_iss_interface, sizeof(type_IVar_PL_ISS_Interface), (void*)0, ID_IVAR_ISS_INTERFACE, 0);
+        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->pl_iss_interface, sizeof(type_IVar_PL_ISS_Interface), (void*)0, ID_IVAR_ISS_INTERFACE, CAN_AFLG_READ_WRITE);
         break;
       case ID_IVAR_DBG:
-        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->dbg_data, sizeof(type_IVar_DBG_Data), (void*)0, ID_IVAR_DBG, 1);
+        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->dbg_data, sizeof(type_IVar_DBG_Data), (void*)0, ID_IVAR_DBG, CAN_AFLG_READONLY);
         break;
       case ID_IVAR_BRD:
+        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->dbg_data, sizeof(type_IVar_DBG_Data), (void*)0, ID_IVAR_BRD, CAN_AFLG_READONLY); //todo
+        break;
+      case ID_IVAR_FLASH_LOAD:
+        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&VarCAN_FlashFragment, sizeof(0x80008), CallbackCAN_Flash, ID_IVAR_FLASH_LOAD, CAN_AFLG_NOOFFSET);
         break;
       default:
-        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup((void*)0, 0, (void*)0, 0, 1);
+        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup((void*)0, 0, (void*)0, 0, CAN_AFLG_READONLY);
         break;
     }
   }
   //
   ret_val = RegisterAllVars(lm_in_ptr, id_dev);
   if (ret_val) return ret_val;
-  //
-  report = CAN_Init(lm_in_ptr->can1_ptr);
-  if (report) return report;
-	report = CAN_Init(lm_in_ptr->can2_ptr);
-  if (report) return report;
   return 0;
 }
 
@@ -103,8 +121,8 @@ uint16_t RegisterAllVars(type_LM_INTERFACES* lm_in_ptr, uint8_t id_dev)
 {
   int n;
   int err = 0;
-  for(n=0; n < 16; n++) {
-    err |= (1 << n) ? CAN_RegisterVar(n, id_dev) : err; 
+  for(n=0; n < ID_IVAR_POOL_LEN; n++) {
+    err |= CAN_RegisterVar(n, id_dev) ? (1 << n) : err; 
   }
   return err;
 }

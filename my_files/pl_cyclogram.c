@@ -87,7 +87,7 @@ void cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr)
 	ccl_ptr->time_ms = 0;
 	// Циклограмма 0: 0x01 - ПН1.1А
 	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_set_iku_default, 100);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_check_temp, 100);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_check_tmi, 1000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_pwr_on, 5000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_pwr_check, 100);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_fpga_on, 2000);
@@ -105,7 +105,7 @@ void cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr)
 	
 	// Циклограмма 1: 0x02 - ПН1.1B
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_set_iku_default, 2000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_check_temp, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_check_tmi, 1000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_pwr_on, 5000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_pwr_check, 1000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_fpga_on, 2000);
@@ -242,33 +242,44 @@ int8_t cyclogram_process_100ms(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr)
 }
 
 ///*** ПН1.1 - атомараные функции  ***///
+
+/**
+  * @brief  Сброс всех параметров ПН1.1 для очистки от старых данных
+  */
 int8_t pl_pn11A_init(type_PL* pl_ptr)
 {
 	pn_11_reset_state(&pl_ptr->_11A);
-	//debug
-	printf_time();
-	printf("--PL11A reset\n");
+	//
+	#ifdef DEBUG
+		printf_time();
+		printf("--PL11A reset\n");
+	#endif
 	//
 	return 1;
 }
 
+/**
+  * @brief  установка ИКУ в значение по умолчанию
+  */
 int8_t pl_pn11A_set_iku_default(type_PL* pl_ptr)
 {
 	pn_11_output_set(&pl_ptr->_11A, PN11_OUTPUT_DEFAULT);
-	//debug
-	printf_time();
-	printf("--PL11A outpt set default\n");
+	//
+	#ifdef DEBUG
+		printf_time();
+		printf("--PL11A outpt set default\n");
+	#endif
 	//
 	return 1;
 }
 
-int8_t pl_pn11A_check_temp(type_PL* pl_ptr)
+/**
+  * @brief  проверка телеметрии ПН и сохранения среза телеметрии в данные циклограммы
+  */
+int8_t pl_pn11A_check_tmi(type_PL* pl_ptr)
 {
 	int8_t retval;
-	if ((pl_ptr->_11A.tmp_ch->temp > PN11_TEMP_MAX) || (pl_ptr->_11A.tmp_ch->temp < PN11_TEMP_MIN)){
-		retval = 0;
-	}
-	else	retval = 1;
+	
 	//debug
 	printf_time();
 	printf("--PL11A temp %.f; status:%d\n", (pl_ptr->_11A.tmp_ch->temp / 256.), retval);
