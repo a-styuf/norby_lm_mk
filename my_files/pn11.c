@@ -54,6 +54,9 @@ void pn_11_init(type_PN11_model* pn11_ptr, uint8_t num, type_PWR_CHANNEL* pwr_ch
 	pn11_ptr->pwr_check_timeout_ms = 0;
 	pn11_ptr->tmp_check_timeout_ms = 0;
 	pn11_ptr->inhibit = 0;
+	pn11_ptr->self_num = num;
+	pn11_ptr->tmi_slice_number = 0;
+	//
 	_pn_11_error_collector(pn11_ptr, PN11_NO_ERROR, NULL);
 	pn_11_report_reset(pn11_ptr);
 	// инициализация интерфейса общения
@@ -67,9 +70,13 @@ void pn_11_init(type_PN11_model* pn11_ptr, uint8_t num, type_PWR_CHANNEL* pwr_ch
 void pn_11_reset_state(type_PN11_model* pn11_ptr)
 {
 	// сбрасываем переменные состояний
+	//
 	pn11_ptr->status = 0;
 	pn11_ptr->pwr_check_timeout_ms = 0;
 	pn11_ptr->tmp_check_timeout_ms = 0;
+	pn11_ptr->inhibit = 0;
+	pn11_ptr->tmi_slice_number = 0;
+	//
 	_pn_11_error_collector(pn11_ptr, PN11_NO_ERROR, NULL);
 	pn_11_report_reset(pn11_ptr);
 	pn_11_interface_reset(pn11_ptr);
@@ -92,27 +99,53 @@ void pn_11_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
 }
 
 /**
-  * @brief  установка выходов управления ПН по битовой маске
-  * @param  pn11_ptr: указатель на структуру управления ПН1.1
-  */
-void pn_11_output_set(type_PN11_model* pn11_ptr, uint8_t output_state)
-{
-	gpio_set(&pn11_ptr->output[0], (output_state >> 0) & 0x01);
-	gpio_set(&pn11_ptr->output[1], (output_state >> 1) & 0x01);
-	gpio_set(&pn11_ptr->output[2], (output_state >> 2) & 0x01);
-	gpio_set(&pn11_ptr->output[3], (output_state >> 3) & 0x01);
-}
-
-/**
   * @brief  создание отчета о работе
   * @param  pn11_ptr: указатель на структуру управления ПН1.1
   */
 void pn_11_tmi_slice_create(type_PN11_model* pn11_ptr)
 {
 	//
-	memset((uint8_t*)&pn11_ptr->report, 0xFE, sizeof(type_PN11_report));
+	memset((uint8_t*)&pn11_ptr->tmi_slice, 0xFE, sizeof(type_PN11_TMI_slice));
 	//
+	pn11_ptr->tmi_slice.number  			= (pn11_ptr->tmi_slice_number++);
+	pn11_ptr->tmi_slice.pl_type 			= pn11_ptr->self_num;
+	pn11_ptr->tmi_slice.voltage 			= (pn11_ptr->pwr_ch->ina226.voltage >> 8) & 0xFF;
+	pn11_ptr->tmi_slice.current 			= (pn11_ptr->pwr_ch->ina226.current >> 8) & 0xFF;
+	pn11_ptr->tmi_slice.outputs 			= pn_11_get_outputs_state(pn11_ptr);
+	pn11_ptr->tmi_slice.inputs 				= pn_11_get_inputs_state(pn11_ptr);
+	pn11_ptr->tmi_slice.temp 					= (pn11_ptr->tmp_ch->temp >> 8) & 0xFF;
+	pn11_ptr->tmi_slice.pl_error_cnt 	= (pn11_ptr->tmp_ch->temp >> 8) & 0xFF;
+	pn11_ptr->tmi_slice.pl_errors 		= pn11_ptr->error_flags;
+	pn11_ptr->tmi_slice.pl_status 		= pn11_ptr->status;
+}
 
+/**
+  * @brief  получение среза телеметрии и проверка на необходимость отключения ПН
+  * @param  pn11_ptr: указатель на структуру управления ПН1.1
+	* @param  slice: указатель на данные со срезом телеметрии
+	* @retval 0 - нет необходимости отключать ПН, >0 - необходимо отключить ПН
+  */
+int8_t pn_11_tmi_slice_get_and_check(type_PN11_model* pn11_ptr, uint8_t *slice)
+{
+	int8_t ret_val = 0;
+	// проверяем наличие ситуации при которой необходимо отключить циклограмму
+	uint8_t tmp_error = pn_11_tmp_check(pn11_ptr);
+	uint8_t pwr_rror = pn_11_pwr_check(pn11_ptr);
+	if (pn11_ptr->inhibit & PN_11_INH_TMP){
+		if (tmp_error){
+			ret_val += 1;
+		}
+	}
+	if (pn11_ptr->inhibit & PN_11_INH_PWR){
+		if (pwr_rror){
+			ret_val += 1;
+		}
+	}
+	// создаем и копируем срез телеметрии
+	pn_11_tmi_slice_create(pn11_ptr);
+	memcpy(slice, (uint8_t*)&pn11_ptr->tmi_slice, sizeof(type_PN11_TMI_slice));
+	//
+	return ret_val;
 }
 
 /**
@@ -144,6 +177,18 @@ void pn_11_report_create(type_PN11_model* pn11_ptr)
 void pn_11_report_reset(type_PN11_model* pn11_ptr)
 {
 	memset((uint8_t*)&pn11_ptr->report, 0x00, sizeof(type_PN11_report));
+}
+
+/**
+  * @brief  установка выходов управления ПН по битовой маске
+  * @param  pn11_ptr: указатель на структуру управления ПН1.1
+  */
+void pn_11_output_set(type_PN11_model* pn11_ptr, uint8_t output_state)
+{
+	gpio_set(&pn11_ptr->output[0], (output_state >> 0) & 0x01);
+	gpio_set(&pn11_ptr->output[1], (output_state >> 1) & 0x01);
+	gpio_set(&pn11_ptr->output[2], (output_state >> 2) & 0x01);
+	gpio_set(&pn11_ptr->output[3], (output_state >> 3) & 0x01);
 }
 
 /**
@@ -187,15 +232,14 @@ uint8_t pn_11_get_outputs_state(type_PN11_model* pn11_ptr)
   */
 void pn_11_tmp_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
 {
-	uint8_t error = TMP_CH_ERR_NO_ERR;
 	if ((pn11_ptr->tmp_check_timeout_ms > 0) && (pn11_ptr->tmp_check_timeout_ms <= PN_11_TMP_TIMEOUT_MS)){
 		pn11_ptr->tmp_check_timeout_ms -= period_ms;
 	}
 	else{
-		pn11_ptr->tmp_check_timeout_ms = 0;
-		error = pn_11_tmp_check(pn11_ptr);
+		pn11_ptr->pwr_check_timeout_ms = PN_11_TMP_TIMEOUT_MS;
+		pn_11_tmp_check(pn11_ptr);
 	}
-	_pn_11_error_collector(pn11_ptr, PN11_TEMP_ERROR, error);
+	
 }
 
 /**
@@ -208,6 +252,7 @@ uint8_t pn_11_tmp_check(type_PN11_model* pn11_ptr)
 	uint8_t report = 0;
 	pn11_ptr->tmp_check_timeout_ms = PN_11_TMP_TIMEOUT_MS; //нефиг долюбить эти ошибки постоянно, секунды вполне хватит
 	if (tmp1075_get_error(pn11_ptr->tmp_ch, &report)){
+		_pn_11_error_collector(pn11_ptr, PN11_TEMP_ERROR, report);
 		return report;
 	}
 	return 0;
@@ -221,15 +266,13 @@ uint8_t pn_11_tmp_check(type_PN11_model* pn11_ptr)
   */
 void pn_11_pwr_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
 {
-	uint8_t error = PWR_CH_ERR_NO_ERR;
 	if ((pn11_ptr->pwr_check_timeout_ms > 0) && (pn11_ptr->pwr_check_timeout_ms <= PN_11_PWR_TIMEOUT_MS)){
 		pn11_ptr->pwr_check_timeout_ms -= period_ms;
 	}
 	else{
-		pn11_ptr->pwr_check_timeout_ms = 0;
-		error = pn_11_pwr_check(pn11_ptr);
+		pn11_ptr->pwr_check_timeout_ms = PN_11_PWR_TIMEOUT_MS;
+		pn_11_pwr_check(pn11_ptr);
 	}
-	_pn_11_error_collector(pn11_ptr, PN11_ERR_PWR, error);
 }
 
 /**
@@ -242,6 +285,7 @@ uint8_t pn_11_pwr_check(type_PN11_model* pn11_ptr)
 	uint8_t report = 0;
 	pn11_ptr->pwr_check_timeout_ms = PN_11_PWR_TIMEOUT_MS; //нефиг долюбить эти ошибки постоянно, секунды вполне хватит
 	if (pwr_ch_get_error(pn11_ptr->pwr_ch, &report)){
+		_pn_11_error_collector(pn11_ptr, PN11_ERR_PWR, report);
 		return report;
 	}
 	return 0;

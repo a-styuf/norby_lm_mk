@@ -6,6 +6,7 @@
 #include "pn20.h"
 #include "pn_dcr.h"
 #include "lm_interfaces.h"
+#include "ext_mem.h"
 #include <stdio.h>
 #include "debug.h"
 
@@ -13,6 +14,7 @@
 #define min(A, B) ((A) < (B) ? (A) : (B))
 
 // настройка циклограмм
+#define LM	 		(0)
 #define PL11A	 	(1)
 #define PL11B	 	(2)
 #define PL12		(3)
@@ -54,6 +56,7 @@ typedef struct
 typedef struct
 { 
 	type_CYCLOGRAM_control array[16];
+	type_PL_CYCLOGRAMA_RESULT result;
 	uint32_t time_ms;
 	uint8_t num;
 	uint8_t mode;
@@ -70,7 +73,7 @@ int8_t cyclogram_process_100ms(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr);
 
 // pl_1.1A
 int8_t pl_pn11A_set_iku_default(type_PL* pl_ptr);
-int8_t pl_pn11A_check_tmi(type_PL* pl_ptr);
+int8_t pl_pn11A_get_and_check_tmi(type_PL* pl_ptr);
 int8_t pl_pn11A_pwr_on(type_PL* pl_ptr);
 int8_t pl_pn11A_pwr_check(type_PL* pl_ptr);
 int8_t pl_pn11A_interface_sync(type_PL* pl_ptr);

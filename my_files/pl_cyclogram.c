@@ -87,7 +87,7 @@ void cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr)
 	ccl_ptr->time_ms = 0;
 	// Циклограмма 0: 0x01 - ПН1.1А
 	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_set_iku_default, 100);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_check_tmi, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_get_and_check_tmi, 1000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_pwr_on, 5000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_pwr_check, 100);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_fpga_on, 2000);
@@ -105,7 +105,7 @@ void cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr)
 	
 	// Циклограмма 1: 0x02 - ПН1.1B
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_set_iku_default, 2000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_check_tmi, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_get_and_check_tmi, 1000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_pwr_on, 5000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_pwr_check, 1000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_fpga_on, 2000);
@@ -276,10 +276,12 @@ int8_t pl_pn11A_set_iku_default(type_PL* pl_ptr)
 /**
   * @brief  проверка телеметрии ПН и сохранения среза телеметрии в данные циклограммы
   */
-int8_t pl_pn11A_check_tmi(type_PL* pl_ptr)
+int8_t pl_pn11A_get_and_check_tmi(type_PL* pl_ptr)
 {
 	int8_t retval;
+	uint8_t tmi_slise[12];
 	
+	pn_11_tmi_slice_get_and_check(&pl_ptr->_11A, tmi_slise);
 	//debug
 	printf_time();
 	printf("--PL11A temp %.f; status:%d\n", (pl_ptr->_11A.tmp_ch->temp / 256.), retval);

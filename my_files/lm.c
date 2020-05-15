@@ -4,8 +4,8 @@
 void lm_init(type_LM_DEVICE* lm_ptr)
 {
 	int8_t report = 0;
-	printf("Version :%s\n", SOFT_VERSION);
-	printf("DevId:%d\n", DEV_ID);
+	printf("Version: %s\n", SOFT_VERSION);
+	printf("DevId: %d\n", DEV_ID);
 	printf("Start init: %d\n", report);
 	lm_ctrl_init(lm_ptr);
 	printf("\tLM-struct init init: %d\n", report);
