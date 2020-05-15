@@ -137,6 +137,8 @@ int main(void)
   led_init(&con_state_led, GPIOD, 7);
   led_setup(&con_state_led, LED_OFF, 0, 0);
   led_setup(&mcu_state_led, LED_HEART_BEAT, 1000, 0);
+  led_alt_setup(&con_state_led, LED_BLINK, 50, 127, 2000);
+  led_alt_setup(&mcu_state_led, LED_BLINK, 50, 127, 2000);
   //
   HAL_TIM_Base_Start_IT(&htim6); //LED and 10ms_slot timer
   HAL_TIM_Base_Start_IT(&htim2); //global clock timer

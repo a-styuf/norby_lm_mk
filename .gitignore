@@ -56,4 +56,6 @@ dkms.conf
 !*.uvprojx
 /MDK-ARM/*
 *.crf
+*.bin
+
 

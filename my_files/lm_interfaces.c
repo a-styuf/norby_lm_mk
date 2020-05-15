@@ -84,7 +84,7 @@ uint16_t interfaces_init(type_LM_INTERFACES* lm_in_ptr, uint8_t id_dev)
         lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&lm_in_ptr->dbg_data, sizeof(type_IVar_DBG_Data), (void*)0, ID_IVAR_BRD, CAN_AFLG_READONLY); //todo
         break;
       case ID_IVAR_FLASH_LOAD:
-        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&VarCAN_FlashFragment, sizeof(0x80008), CallbackCAN_Flash, ID_IVAR_FLASH_LOAD, CAN_AFLG_NOOFFSET);
+        lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup(&VarCAN_FlashFragment, 0x80008, (void*)0, ID_IVAR_FLASH_LOAD, CAN_AFLG_NOOFFSET);
         break;
       default:
         lm_in_ptr->reg_rec_ptr[i] = _reg_rec_setup((void*)0, 0, (void*)0, 0, CAN_AFLG_READONLY);
@@ -133,7 +133,27 @@ uint16_t RegisterAllVars(type_LM_INTERFACES* lm_in_ptr, uint8_t id_dev)
   */
 void interface_cb_registration(type_LM_INTERFACES* lm_in_ptr, uint8_t mode, void (*CallBackProc)(CAN_TypeDef *can_ref, typeIdxMask id, uint16_t leng, int state))
 {
-  lm_in_ptr->reg_rec_ptr[mode].CallBackProc = CallBackProc;
+  uint8_t number = 0;
+  uint8_t var_array[ID_IVAR_POOL_LEN] = { ID_IVAR_PRG_MEM, 
+                                          ID_IVAR_RAM_MEM, 
+                                          ID_IVAR_CMD, 
+                                          ID_IVAR_CMD_STAT, 
+                                          ID_IVAR_CMDREG, 
+                                          ID_IVAR_TMI,
+                                          ID_IVAR_PARAM,
+                                          ID_IVAR_EXTMEM,
+                                          ID_IVAR_DCR_INTERFACE,
+                                          ID_IVAR_ISS_INTERFACE,
+                                          ID_IVAR_DBG,
+                                          ID_IVAR_BRD, 
+                                          ID_IVAR_FLASH_LOAD};
+  //
+  for(number=0; number<sizeof(var_array); number++){
+    if (mode == var_array[number]){
+      break;
+    }
+  }
+  lm_in_ptr->reg_rec_ptr[number].CallBackProc = CallBackProc;
 }
 
 ///*** Commands ***///
