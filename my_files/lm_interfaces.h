@@ -49,27 +49,35 @@
 //***CmdsReg setup
 #define CMDREG_LM_MODE            0x00
 #define CMDREG_PL_PWR_SW          0x01
+//
 #define CMDREG_PL_INH_0           0x02
 #define CMDREG_PL_INH_1           0x03
+#define CMDREG_PL_INH_2           0x04
+#define CMDREG_PL_INH_3           0x05
+#define CMDREG_PL_INH_4           0x06
+#define CMDREG_PL_INH_5           0x07
+#define CMDREG_PL_INH_6           0x08
+#define CMDREG_PL_INH_7           0x09
 //
-#define CMDREG_ALL_MEM_RD_PTR_0   0x04
-#define CMDREG_ALL_MEM_RD_PTR_1   0x05
-#define CMDREG_ALL_MEM_RD_PTR_2   0x06
-#define CMDREG_ALL_MEM_RD_PTR_3   0x07
+#define CMDREG_ALL_MEM_RD_PTR_0   0x0A
+#define CMDREG_ALL_MEM_RD_PTR_1   0x0B
+#define CMDREG_ALL_MEM_RD_PTR_2   0x0C
+#define CMDREG_ALL_MEM_RD_PTR_3   0x0D
 //
-#define CMDREG_DCR_MODE_SET       0x08
+#define CMDREG_DCR_MODE_SET       0x0E
 //
-#define CMDREG_PL11A_OUT_SET      0x09
-#define CMDREG_PL11B_OUT_SET      0x0A  //10
-#define CMDREG_PL12_OUT_SET       0x0B  //11
-#define CMDREG_PL20_OUT_SET       0x0C  //12
+#define CMDREG_PL11A_OUT_SET      0x0F
+#define CMDREG_PL11B_OUT_SET      0x10
+#define CMDREG_PL12_OUT_SET       0x11
+#define CMDREG_PL20_OUT_SET       0x12
+//
+#define CMDREG_CYCLOGRAMS_0       0x13
+#define CMDREG_CYCLOGRAMS_1       0x14
 
 //
-#define CMDREG_DBG_LED            0x10
-#define CMDREG_DBG_CYCLOGRAMS_0   0x11
-#define CMDREG_DBG_CYCLOGRAMS_1   0x12
+#define CMDREG_DBG_LED            0x20
 //
-#define CMDREG_POOL_LEN   32
+#define CMDREG_POOL_LEN            64
 //***DCR_Interface setup
 #define DCR_INTERFACE_INSTASEND_LENG_OFFSET   127
 

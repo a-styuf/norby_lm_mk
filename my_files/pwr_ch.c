@@ -64,17 +64,29 @@ uint8_t pwr_ch_get_error(type_PWR_CHANNEL* pwr_ch_ptr, uint8_t *error)
 	power = voltage*current;
 	if (pwr_ch_ptr->mode == PWR_CH_OFF){
 		if (voltage > pwr_ch_ptr->voltage_min){
+			// #ifdef DEBUG
+			// 	printf("switch_error voltage %.1f\n", power);
+			// #endif
 			report|= PWR_CH_ERR_SWITCH;
 		}
 		if (power > pwr_ch_ptr->power_min){
+			// #ifdef DEBUG
+			// 	printf("switch_error power %.1f\n", power);
+			// #endif
 			report|=  PWR_CH_ERR_SWITCH;
 		}
 	}
 	else if(pwr_ch_ptr->mode == PWR_CH_ON){
 		if ((voltage <= pwr_ch_ptr->voltage_min) ||(voltage > pwr_ch_ptr->voltage_max) ){
+			// #ifdef DEBUG
+			// 	printf("voltage_error %.1f\n", voltage);
+			// #endif
 			report|= PWR_CH_ERR_VOLTAGE;
 		}
-		if ((power <= pwr_ch_ptr->power_min) || (power <= pwr_ch_ptr->power_max)){
+		if ((power <= pwr_ch_ptr->power_min) || (power > pwr_ch_ptr->power_max)){
+			// #ifdef DEBUG
+			// 	printf("power_error %.1f\n", power);
+			// #endif
 			report|=  PWR_CH_ERR_PWR;
 		}
 	}

@@ -38,9 +38,9 @@
 
 
 // пороговые значения для определения ошибки температуры: в 1/256°C
-// пороги напряжения В	
-#define PN_11_TEMP_HIGH 	(85*256)
+#define PN_11_TEMP_HIGH 	(30*256)
 #define PN_11_TEMP_LOW 		(-30*256)
+#define PN_11_TEMP_HYST		(1*256)
 
 // пороговые значения для определения ошибки питания: напряжение в В, ток в А, мощность в Вт
 // пороги напряжения В	
@@ -48,13 +48,14 @@
 #define PN_11_VOLT_MIN 		4.5
 // границы мощности Вт
 #define PN_11_PWR_MAX 		12.0
-#define PN_11_PWR_MIN 		1.0
+#define PN_11_PWR_MIN 		0.5
 
 // задержка для определения ошибки питания - устанавливается каждый раз, когда происходит изменение состояния питания
-#define PN_11_PWR_TIMEOUT_MS 	1000
+#define PN_11_PWR_PERIODICAL_TIMEOUT_MS 	1000
+#define PN_11_PWR_ON_OFF_TIMEOUT_MS 			5000
 
 // задержка для для проверок температуры, что бы не долбить модуль температуры очень часто
-#define PN_11_TMP_TIMEOUT_MS 	1000
+#define PN_11_TMP_PERIODICAL_TIMEOUT_MS 	1000
 
 // шаг обработки чтения памяти ПН
 #define PN_11_READ_MEM_TIMEOUT_MS 	100
@@ -77,7 +78,7 @@ typedef struct
 	uint16_t status; 				//+0
 	uint16_t error_flags; 	//+2
 	uint8_t err_cnt;	 			//+4
-	uint8_t gap;			 			//+5
+	uint8_t inh;			 			//+5
 	uint16_t voltage; 			//+6
 	uint16_t current; 			//+8
 	uint16_t temp;		 			//+10
@@ -160,6 +161,7 @@ void pn_11_tmi_slice_create(type_PN11_model* pn11_ptr);
 int8_t pn_11_tmi_slice_get_and_check(type_PN11_model* pn11_ptr, uint8_t *slice);
 void pn_11_report_create(type_PN11_model* pn11_ptr);
 void pn_11_report_reset(type_PN11_model* pn11_ptr);
+void pn_11_set_inh(type_PN11_model* pn11_ptr, uint8_t inh);
 
 void pn_11_output_set(type_PN11_model* pn11_ptr, uint8_t output_state);
 uint8_t pn_11_get_inputs_state(type_PN11_model* pn11_ptr);

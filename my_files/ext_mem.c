@@ -340,7 +340,7 @@ uint8_t part_wr_rd_ptr_calc(type_MEM_PART_CONTROL* part_ptr, uint8_t mode)
       }
       else if (mode == MODE_READ){
         if ((part_ptr->read_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->read_ptr = 0;
-        else if(part_ptr->read_ptr == part_ptr->write_ptr) NULL;
+        else if(part_ptr->read_ptr == part_ptr->write_ptr) {} //NULL;
         else part_ptr->read_ptr += 1;
         report = 1;
       }

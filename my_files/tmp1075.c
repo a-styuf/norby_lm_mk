@@ -24,8 +24,11 @@ uint8_t tmp1075_init(type_TMP1075_DEVICE* tmp1075_ptr, I2C_HandleTypeDef* i2c_pt
 	tmp1075_ptr->addr = addr;
 	tmp1075_ptr->i2c_ptr = i2c_ptr;
 	tmp1075_ptr->temp = 0;
-	tmp1075_ptr->temp_high = HLIM_DEFAULT;
-	tmp1075_ptr->temp_low = LLIM_DEFAULT;
+	tmp1075_ptr->temp_high = ERROR_TEMP_HIGH;
+	tmp1075_ptr->temp_low = ERROR_TEMP_LOW;
+	tmp1075_ptr->temp_hyst = ERROR_TEMP_HYST;
+	tmp1075_ptr->temp_high_hyst_state = 0;
+	tmp1075_ptr->temp_low_hyst_state = 0;
 	tmp1075_ptr->error = 0;
 	memset(tmp1075_ptr->validate_data, 0x00, 16);
 	// устанавливаем режим работы
@@ -37,7 +40,7 @@ uint8_t tmp1075_init(type_TMP1075_DEVICE* tmp1075_ptr, I2C_HandleTypeDef* i2c_pt
 	HAL_I2C_Master_Transmit(i2c_ptr, addr << 1, i2c_tr_data, 3, 1000);
 	HAL_I2C_Master_Receive(i2c_ptr, addr << 1, i2c_rx_data, 2, 1000);
 	// устанавливаем верхний уровень срабатывания alert
-	i2c_reg_val = HLIM_DEFAULT;
+	i2c_reg_val = ALARM_HLIM_DEFAULT;
 	i2c_tr_data[0] = HLIM_REGISTER_ADDR;
 	i2c_tr_data[1] = (i2c_reg_val>>8) & 0xFF;
 	i2c_tr_data[2] = (i2c_reg_val>>0) & 0xFF;
@@ -45,7 +48,7 @@ uint8_t tmp1075_init(type_TMP1075_DEVICE* tmp1075_ptr, I2C_HandleTypeDef* i2c_pt
 	HAL_I2C_Master_Transmit(i2c_ptr, addr << 1, i2c_tr_data, 3, 1000);
 	HAL_I2C_Master_Receive(i2c_ptr, addr << 1, i2c_rx_data+2, 2, 1000);
 	// устанавливаем нижний уровень срабатывания alert
-	i2c_reg_val = LLIM_DEFAULT;
+	i2c_reg_val = ALARM_LLIM_DEFAULT;
 	i2c_tr_data[0] = LLIM_REGISTER_ADDR;
 	i2c_tr_data[1] = (i2c_reg_val>>8) & 0xFF;
 	i2c_tr_data[2] = (i2c_reg_val>>0) & 0xFF;
@@ -103,11 +106,13 @@ uint8_t tmp1075_alert_lvl_set(type_TMP1075_DEVICE* tmp1075_ptr, int16_t temp_hig
   * @param  tmp1075_ptr: структура управления каналом измерения температуры
   * @param  temp_high: верхняя граница допустимой температуры
   * @param  temp_low: нижняя граница допустимой температуры
+  * @param  temp_hyst: гистерезис срабатывания ошибки по температуре
   */
-void tmp1075_set_bound(type_TMP1075_DEVICE* tmp1075_ptr, int16_t temp_high,  int16_t temp_low)
+void tmp1075_set_bound(type_TMP1075_DEVICE* tmp1075_ptr, int16_t temp_high,  int16_t temp_low, int16_t temp_hyst)
 {
 	tmp1075_ptr->temp_high = temp_high;
 	tmp1075_ptr->temp_low = temp_low;
+	tmp1075_ptr->temp_hyst = temp_hyst;
 }
 
 /**
@@ -206,12 +211,23 @@ void tmp1075_body_read_queue(type_TMP1075_DEVICE* tmp1075_ptr)
 uint8_t tmp1075_get_error(type_TMP1075_DEVICE* tmp1075_ptr, uint8_t *error)
 {
 	uint8_t report = 0, retval = 0;
+	int16_t h_lim = 0, l_lim = 0;
 	//
-	if (tmp1075_ptr->temp > tmp1075_ptr->temp_high){
+	h_lim = tmp1075_ptr->temp_high - (tmp1075_ptr->temp_high_hyst_state)*tmp1075_ptr->temp_hyst;
+	l_lim = tmp1075_ptr->temp_low + (tmp1075_ptr->temp_low_hyst_state)*tmp1075_ptr->temp_hyst;
+	if (tmp1075_ptr->temp >= h_lim){
+		tmp1075_ptr->temp_high_hyst_state = 1;
 		report|= TMP_CH_ERR_TOO_HIGH;
 	}
-	else if (tmp1075_ptr->temp < tmp1075_ptr->temp_low){
+	else{
+		tmp1075_ptr->temp_high_hyst_state = 0;
+	}
+	if (tmp1075_ptr->temp < l_lim){
+		tmp1075_ptr->temp_low_hyst_state = 1;
 		report|=  TMP_CH_ERR_TOO_LOW;
+	}
+	else{
+		tmp1075_ptr->temp_low_hyst_state = 0;
 	}
 	 //для определения изменения значения с нуля на 1 используется для old и new: (old^new)&new
 	if ((((tmp1075_ptr->error ^ report) & report)) & 0x0F){

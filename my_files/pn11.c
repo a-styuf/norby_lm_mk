@@ -48,7 +48,7 @@ void pn_11_init(type_PN11_model* pn11_ptr, uint8_t num, type_PWR_CHANNEL* pwr_ch
 	pwr_ch_set_bound(pwr_ch_ptr, PN_11_VOLT_MAX, PN_11_VOLT_MIN, PN_11_PWR_MAX, PN_11_PWR_MIN);
 	// установка канала управления температурой
 	pn11_ptr->tmp_ch = tmp_ch_ptr;
-	tmp1075_set_bound(tmp_ch_ptr, PN_11_TEMP_HIGH, PN_11_TEMP_LOW);
+	tmp1075_set_bound(tmp_ch_ptr, PN_11_TEMP_HIGH, PN_11_TEMP_LOW, PN_11_TEMP_HYST);
 	//
 	pn11_ptr->status = 0;
 	pn11_ptr->pwr_check_timeout_ms = 0;
@@ -74,7 +74,6 @@ void pn_11_reset_state(type_PN11_model* pn11_ptr)
 	pn11_ptr->status = 0;
 	pn11_ptr->pwr_check_timeout_ms = 0;
 	pn11_ptr->tmp_check_timeout_ms = 0;
-	pn11_ptr->inhibit = 0;
 	pn11_ptr->tmi_slice_number = 0;
 	//
 	_pn_11_error_collector(pn11_ptr, PN11_NO_ERROR, NULL);
@@ -109,8 +108,8 @@ void pn_11_tmi_slice_create(type_PN11_model* pn11_ptr)
 	//
 	pn11_ptr->tmi_slice.number  			= (pn11_ptr->tmi_slice_number++);
 	pn11_ptr->tmi_slice.pl_type 			= pn11_ptr->self_num;
-	pn11_ptr->tmi_slice.voltage 			= (pn11_ptr->pwr_ch->ina226.voltage >> 8) & 0xFF;
-	pn11_ptr->tmi_slice.current 			= (pn11_ptr->pwr_ch->ina226.current >> 8) & 0xFF;
+	pn11_ptr->tmi_slice.voltage 			= (pn11_ptr->pwr_ch->ina226.voltage >> 4) & 0xFF;
+	pn11_ptr->tmi_slice.current 			= (pn11_ptr->pwr_ch->ina226.current >> 4) & 0xFF;
 	pn11_ptr->tmi_slice.outputs 			= pn_11_get_outputs_state(pn11_ptr);
 	pn11_ptr->tmi_slice.inputs 				= pn_11_get_inputs_state(pn11_ptr);
 	pn11_ptr->tmi_slice.temp 					= (pn11_ptr->tmp_ch->temp >> 8) & 0xFF;
@@ -131,12 +130,12 @@ int8_t pn_11_tmi_slice_get_and_check(type_PN11_model* pn11_ptr, uint8_t *slice)
 	// проверяем наличие ситуации при которой необходимо отключить циклограмму
 	uint8_t tmp_error = pn_11_tmp_check(pn11_ptr);
 	uint8_t pwr_rror = pn_11_pwr_check(pn11_ptr);
-	if (pn11_ptr->inhibit & PN_11_INH_TMP){
+	if ((pn11_ptr->inhibit & PN_11_INH_TMP) == 0){
 		if (tmp_error){
 			ret_val += 1;
 		}
 	}
-	if (pn11_ptr->inhibit & PN_11_INH_PWR){
+	if ((pn11_ptr->inhibit & PN_11_INH_PWR) == 0){
 		if (pwr_rror){
 			ret_val += 1;
 		}
@@ -160,7 +159,7 @@ void pn_11_report_create(type_PN11_model* pn11_ptr)
 	pn11_ptr->report.status 			= pn11_ptr->status;
 	pn11_ptr->report.error_flags 	= pn11_ptr->error_flags;
 	pn11_ptr->report.err_cnt 			= pn11_ptr->error_cnt;
-	pn11_ptr->report.gap 					= 0xFE;
+	pn11_ptr->report.inh 					= pn11_ptr->inhibit;
 	pn11_ptr->report.voltage 			= pn11_ptr->pwr_ch->ina226.voltage;
 	pn11_ptr->report.current 			= pn11_ptr->pwr_ch->ina226.current;
 	pn11_ptr->report.temp 				= pn11_ptr->tmp_ch->temp;
@@ -177,6 +176,16 @@ void pn_11_report_create(type_PN11_model* pn11_ptr)
 void pn_11_report_reset(type_PN11_model* pn11_ptr)
 {
 	memset((uint8_t*)&pn11_ptr->report, 0x00, sizeof(type_PN11_report));
+}
+
+/**
+  * @brief  установка выходов управления ПН в значение по умолчанию
+  * @param  pn11_ptr: указатель на структуру управления ПН1.1
+	* @param  inh: флаги отключения функционала ПН
+  */
+void pn_11_set_inh(type_PN11_model* pn11_ptr, uint8_t inh)
+{
+	pn11_ptr->inhibit = inh;
 }
 
 /**
@@ -232,11 +241,11 @@ uint8_t pn_11_get_outputs_state(type_PN11_model* pn11_ptr)
   */
 void pn_11_tmp_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
 {
-	if ((pn11_ptr->tmp_check_timeout_ms > 0) && (pn11_ptr->tmp_check_timeout_ms <= PN_11_TMP_TIMEOUT_MS)){
+	if ((pn11_ptr->tmp_check_timeout_ms > 0) && (pn11_ptr->tmp_check_timeout_ms <= (0xFFFF - PN_11_TMP_PERIODICAL_TIMEOUT_MS))){
 		pn11_ptr->tmp_check_timeout_ms -= period_ms;
 	}
 	else{
-		pn11_ptr->pwr_check_timeout_ms = PN_11_TMP_TIMEOUT_MS;
+		pn11_ptr->tmp_check_timeout_ms = PN_11_TMP_PERIODICAL_TIMEOUT_MS; //нефиг долюбить эти ошибки постоянно, секунды вполне хватит
 		pn_11_tmp_check(pn11_ptr);
 	}
 	
@@ -245,17 +254,17 @@ void pn_11_tmp_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
 /**
   * @brief  проверка параметров температуры
   * @param  pn_dcr_ptr: указатель на структуру управления ПН
-  * @retval  ошибки каналов измерения температуры
+  * @retval ошибки каналов измерения температуры
   */
 uint8_t pn_11_tmp_check(type_PN11_model* pn11_ptr)
 {
 	uint8_t report = 0;
-	pn11_ptr->tmp_check_timeout_ms = PN_11_TMP_TIMEOUT_MS; //нефиг долюбить эти ошибки постоянно, секунды вполне хватит
+	pn11_ptr->tmp_check_timeout_ms = PN_11_TMP_PERIODICAL_TIMEOUT_MS; //на случай асинхронного вызова
 	if (tmp1075_get_error(pn11_ptr->tmp_ch, &report)){
 		_pn_11_error_collector(pn11_ptr, PN11_TEMP_ERROR, report);
-		return report;
+		// printf("\ttmp_error = 0x%02X\n", report);
 	}
-	return 0;
+	return report;
 }
 
 ///*** функции поддержки работы с питанием ***///
@@ -266,11 +275,11 @@ uint8_t pn_11_tmp_check(type_PN11_model* pn11_ptr)
   */
 void pn_11_pwr_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
 {
-	if ((pn11_ptr->pwr_check_timeout_ms > 0) && (pn11_ptr->pwr_check_timeout_ms <= PN_11_PWR_TIMEOUT_MS)){
+	if ((pn11_ptr->pwr_check_timeout_ms > 0) && (pn11_ptr->pwr_check_timeout_ms <= (0xFFFF - PN_11_TMP_PERIODICAL_TIMEOUT_MS))){
 		pn11_ptr->pwr_check_timeout_ms -= period_ms;
 	}
 	else{
-		pn11_ptr->pwr_check_timeout_ms = PN_11_PWR_TIMEOUT_MS;
+		pn11_ptr->pwr_check_timeout_ms = PN_11_PWR_PERIODICAL_TIMEOUT_MS; //нефиг долюбить эти ошибки постоянно, секунды вполне хватит
 		pn_11_pwr_check(pn11_ptr);
 	}
 }
@@ -283,12 +292,12 @@ void pn_11_pwr_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
 uint8_t pn_11_pwr_check(type_PN11_model* pn11_ptr)
 {
 	uint8_t report = 0;
-	pn11_ptr->pwr_check_timeout_ms = PN_11_PWR_TIMEOUT_MS; //нефиг долюбить эти ошибки постоянно, секунды вполне хватит
+	pn11_ptr->pwr_check_timeout_ms = PN_11_PWR_PERIODICAL_TIMEOUT_MS; //на случай асинхронного вызова
 	if (pwr_ch_get_error(pn11_ptr->pwr_ch, &report)){
 		_pn_11_error_collector(pn11_ptr, PN11_ERR_PWR, report);
-		return report;
+		// printf("\tpwr_error = 0x%02X\n", report);
 	}
-	return 0;
+	return report;
 }
 
 /**
@@ -298,7 +307,7 @@ uint8_t pn_11_pwr_check(type_PN11_model* pn11_ptr)
 void pn_11_pwr_on(type_PN11_model* pn11_ptr)
 {
 	pwr_ch_on_off(pn11_ptr->pwr_ch, 0x01);
-	pn11_ptr->pwr_check_timeout_ms = PN_11_PWR_TIMEOUT_MS;
+	pn11_ptr->pwr_check_timeout_ms = PN_11_PWR_ON_OFF_TIMEOUT_MS;
 }
 
 /**
@@ -308,7 +317,7 @@ void pn_11_pwr_on(type_PN11_model* pn11_ptr)
 void pn_11_pwr_off(type_PN11_model* pn11_ptr)
 {
 	pwr_ch_on_off(pn11_ptr->pwr_ch, 0x00);
-	pn11_ptr->pwr_check_timeout_ms = PN_11_PWR_TIMEOUT_MS;
+	pn11_ptr->pwr_check_timeout_ms = PN_11_PWR_ON_OFF_TIMEOUT_MS;
 }
 
 ///*** функции поддержки интерфейса ***///

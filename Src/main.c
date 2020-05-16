@@ -183,7 +183,7 @@ int main(void)
 			//опрос тремодатчиков
 			tmp_process_100ms(&lm.tmp);
 			//работа с циклограммой
-			cyclogram_process_100ms(&lm.cyclogram, &lm.pl);
+			cyclogram_process(&lm.cyclogram, &lm.pl, 100);
       // работа с продолжительными функциями запускаемые через переменную команд (0x02)
       cmd_process_test_led(MODE_WORK, 100);
       cmd_process_dcr_write_flight_task(MODE_WORK, 100);
@@ -251,7 +251,14 @@ int main(void)
         break;
       case CMDREG_PL_INH_0:
       case CMDREG_PL_INH_1:
-        printf("cmdreg: PL inhibit 0x%04X\n", *((uint16_t*)&lm.interface.cmdreg.array[CMDREG_PL_INH_0]));
+      case CMDREG_PL_INH_2:
+      case CMDREG_PL_INH_3:
+      case CMDREG_PL_INH_4:
+      case CMDREG_PL_INH_5:
+      case CMDREG_PL_INH_6:
+      case CMDREG_PL_INH_7:
+        printf("cmdreg: PL inhibit %d: 0x%02X\n", (int16_val - CMDREG_PL_INH_0), lm.interface.cmdreg.array[int16_val]);
+        lm_inhibit_set(&lm, (int16_val - CMDREG_PL_INH_0), lm.interface.cmdreg.array[int16_val]);
         break;
       case CMDREG_ALL_MEM_RD_PTR_0:
       case CMDREG_ALL_MEM_RD_PTR_1:
@@ -280,15 +287,16 @@ int main(void)
         pn_20_output_set(&lm.pl._20, lm.interface.cmdreg.array[int16_val]);
         printf("cmdreg: PL20 set output 0x%02X\n", lm.interface.cmdreg.array[int16_val]);
         break;  
+			case CMDREG_CYCLOGRAMS_0:
+			// case CMDREG_DBG_CYCLOGRAMS_1:
+        cyclogram_start(&lm.cyclogram, lm.interface.cmdreg.array[CMDREG_CYCLOGRAMS_0], lm.interface.cmdreg.array[CMDREG_CYCLOGRAMS_1]);
+        printf("cmdreg: cyclograms 0x%04X\n", *(uint16_t*)&lm.interface.cmdreg.array[CMDREG_CYCLOGRAMS_0]);
+        break;
       case CMDREG_DBG_LED:
         led_alt_setup(&mcu_state_led, LED_BLINK, 1000, lm.interface.cmdreg.array[CMDREG_DBG_LED], 3000);
         printf("cmdreg: (dbg) led test 0x%02X\n", lm.interface.cmdreg.array[CMDREG_DBG_LED]);
         break;
-			case CMDREG_DBG_CYCLOGRAMS_0:
-			// case CMDREG_DBG_CYCLOGRAMS_1:
-        cyclogram_start(&lm.cyclogram, lm.interface.cmdreg.array[CMDREG_DBG_CYCLOGRAMS_0], lm.interface.cmdreg.array[CMDREG_DBG_CYCLOGRAMS_1]);
-        printf("cmdreg: (dbg) cyclograms 0x%04X\n", *(uint16_t*)&lm.interface.cmdreg.array[CMDREG_DBG_CYCLOGRAMS_0]);
-        break;
+			
       case CMD_NO_ONE:
       default:
         // NULL;
@@ -398,7 +406,7 @@ void blocking_test(void)
 {
   // test
   printf_time();
-  printf("Start test\n\n");
+  printf("Start blocking test\n");
 	///*** test mem
 	// printf("Full mem vol frame %d\n", FULL_MEM_VOL_FRAMES);
 	// for(uint8_t i=0; i<PART_NUM; i++){
@@ -420,6 +428,7 @@ void blocking_test(void)
   //
   // pn_11_dbg_tr_lvl_test(&lm.pl._11A);
   //
+  printf_time();
   printf("Finish test\n\n");
 }
 

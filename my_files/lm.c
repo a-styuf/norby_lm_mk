@@ -6,9 +6,10 @@ void lm_init(type_LM_DEVICE* lm_ptr)
 	int8_t report = 0;
 	printf("Version: %s\n", SOFT_VERSION);
 	printf("DevId: %d\n", DEV_ID);
-	printf("Start init: %d\n", report);
+	printf_time();
+	printf("Start init\n");
 	lm_ctrl_init(lm_ptr);
-	printf("\tLM-struct init init: %d\n", report);
+	printf("\tLM-struct init\n");
 	//инициализируем питание
 	report = pwr_init(&lm_ptr->pwr, &hi2c3);
 	printf("\tPwr monitors init: %d\n", report);
@@ -31,7 +32,8 @@ void lm_init(type_LM_DEVICE* lm_ptr)
 	report =  lm_load_parameters(lm_ptr);
 	printf("\tLoad parameters from mem: %d\n", report);
 	//
-	printf("Finish init at %d\n", lm_ptr->ctrl.global_time_s);
+	printf_time();
+	printf("Finish init at %d s\n\n", lm_ptr->ctrl.global_time_s);
 }
 
 /**
@@ -111,6 +113,38 @@ int8_t lm_save_parameters(type_LM_DEVICE* lm_ptr)
 	//
 	return ret_val;
 }
+
+
+/**
+  * @brief  получение короткого отчета по ПН
+  * @param  lm_ptr: указатель на структуру управления МС
+  * @param  pl_num: номер ПН согласно #define в pl_cuclogram.h
+  * @param  inh: cостояниt inh для ПН
+  */
+void lm_inhibit_set(type_LM_DEVICE* lm_ptr, uint8_t pl_num, uint8_t inh)
+{
+	switch(pl_num){
+		case LM:
+			break;
+		case PL11A:
+			pn_11_set_inh(&lm_ptr->pl._11A, inh);
+			break;
+		case PL11B:
+			pn_11_set_inh(&lm_ptr->pl._11B, inh);
+			break;
+		case PL12:
+			break;
+		case PL20:
+			break;
+		case PL_DCR1:
+		case PL_DCR2:
+			break;	
+		default:
+			break;
+	}
+
+}
+
 
 //*** управление питанием ***//
 /**

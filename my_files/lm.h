@@ -27,7 +27,7 @@ typedef unsigned short uint16_t;
 
 // настройки прибора
 #define DEV_ID (0x06)
-#define SOFT_VERSION "0.22.2"
+#define SOFT_VERSION "0.23.0"
 // свойства микроконтроллера
 
 // раскрашивание переменных
@@ -132,6 +132,7 @@ int8_t lm_ctrl_init(type_LM_DEVICE* lm_ptr);
 void lm_report_create(type_LM_DEVICE* lm_ptr);
 int8_t lm_load_parameters(type_LM_DEVICE* lm_ptr);
 int8_t lm_save_parameters(type_LM_DEVICE* lm_ptr);
+void lm_inhibit_set(type_LM_DEVICE* lm_ptr, uint8_t pl_num, uint8_t inh);
 
 int8_t pwr_init(type_PWR_CONTROL* pwr_ptr, I2C_HandleTypeDef* hi2c_ptr);
 void pwr_on_off(type_PWR_CONTROL* pwr_ptr, uint8_t pwr_switches);

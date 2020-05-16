@@ -46,6 +46,7 @@ typedef struct
 typedef struct
 { 
 	type_CYCLOGRAM_single_step step[32];
+	type_CYCLOGRAM_single_step stop_step;
 	uint32_t state;
 	int32_t step_timeout;
 	uint8_t step_num;
@@ -67,13 +68,14 @@ void pl_report_get(type_PL* pl_ptr, uint8_t pl_num, uint8_t* report, uint8_t* le
 
 void cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr);
 void cyclogram_step_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t cyclogramm, int8_t (*function)(type_PL*), uint32_t delay);
+void cyclogram_stop_step_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t cyclogramm, int8_t (*function)(type_PL*), uint32_t delay);
 int8_t cyclogram_start(type_CYCLOGRAM* ccl_ptr, uint8_t mode, uint8_t cyclogram_num);
 void cyclogram_single_init(type_CYCLOGRAM* ccl_ptr, uint8_t cyclogram_num);
-int8_t cyclogram_process_100ms(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr);
+int8_t cyclogram_process(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint16_t period_ms);
 
 // pl_1.1A
 int8_t pl_pn11A_set_iku_default(type_PL* pl_ptr);
-int8_t pl_pn11A_get_and_check_tmi(type_PL* pl_ptr);
+int8_t pl_pn11A_check_and_save_tmi(type_PL* pl_ptr);
 int8_t pl_pn11A_pwr_on(type_PL* pl_ptr);
 int8_t pl_pn11A_pwr_check(type_PL* pl_ptr);
 int8_t pl_pn11A_interface_sync(type_PL* pl_ptr);

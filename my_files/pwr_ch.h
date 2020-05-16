@@ -3,6 +3,7 @@
 
 #include "ina226.h"
 #include "my_gpio.h"
+#include "debug.h"
 
 //режим канала
 #define PWR_CH_OFF					0x00
