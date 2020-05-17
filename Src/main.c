@@ -60,7 +60,6 @@ type_VCP_UART vcp;
 type_CAN_VCP can_vcp;
 type_LM_DEVICE lm;
 type_LED_INDICATOR mcu_state_led, con_state_led;
-RTC_TimeTypeDef time;
 
 uint8_t tx_data[256], tx_data_len=0; //масив для формирования данных для отправки через VCP
 uint8_t rx_data[256], rx_data_len=0;
@@ -157,24 +156,12 @@ int main(void)
     if (time_slot_flag_1s){ // 1s
       // сохраняем рабочие параметры
       lm_save_parameters(&lm);
-			//
-      /* typeIdxMask mask;
-      mask.u32 = 0;
-      uint8_t filter_num=2;
-      CAN1->FA1R &= ~((1<<(filter_num+14)) | (1<<filter_num));
-      mask.std.IDE = 1;  //to extendet mode
-      CAN1->sFilterRegister[filter_num].FR2 = CAN1->sFilterRegister[filter_num+14].FR2  =  *((uint32_t*)&mask);
-      CAN1->FA1R |= (1<<(filter_num+14)) | (1<<filter_num);
-      //
-			typeIdxMask id_mask;
-			id_mask.u32 = 0x65000000;
-			memset (tx_data, 0xA5, 8);
-			CAN_Tx(CAN1, id_mask, tx_data, 8);			
-			CAN_Tx(CAN2, id_mask, tx_data, 8);	*/
       //reset flag
 			time_slot_flag_1s = 0;
     }
 		if (time_slot_flag_100ms){ // 100ms
+      // сохраняем время в управляющую струткуру
+      lm.ctrl.global_time_s = clock_get_time_s();
 			//формирование кадров телеметрии
       fill_tmi_and_beacon(&lm);
       fill_gen_tmi(&lm);
@@ -184,6 +171,7 @@ int main(void)
 			tmp_process_100ms(&lm.tmp);
 			//работа с циклограммой
 			cyclogram_process(&lm.cyclogram, &lm.pl, 100);
+      fill_pl_cyclogramm_result(&lm);
       // работа с продолжительными функциями запускаемые через переменную команд (0x02)
       cmd_process_test_led(MODE_WORK, 100);
       cmd_process_dcr_write_flight_task(MODE_WORK, 100);
@@ -202,7 +190,7 @@ int main(void)
 			time_slot_flag_10ms = 0;
 		}
     if (time_slot_flag_5ms){ // 5ms
-      //поддрежка работы программной модели ПН_ИСС (включая уровень приложения и транспортный уровень, а также процедуры вычитывания больших объемов данных)
+      //поддрежка работы программной модели ПН_�?СС (включая уровень приложения и транспортный уровень, а также процедуры вычитывания больших объемов данных)
 			pn_11_process(&lm.pl._11A, 5);
       pn_11_process(&lm.pl._11B, 5);
 			//reset flag
@@ -285,12 +273,16 @@ int main(void)
         break;  
       case CMDREG_PL20_OUT_SET:
         pn_20_output_set(&lm.pl._20, lm.interface.cmdreg.array[int16_val]);
-        printf("cmdreg: PL20 set output 0x%02X\n", lm.interface.cmdreg.array[int16_val]);
+        #ifdef DEBUG
+          printf_time(); printf("cmdreg: PL20 set output 0x%02X\n", lm.interface.cmdreg.array[int16_val]);
+        #endif
         break;  
-			case CMDREG_CYCLOGRAMS_0:
-			// case CMDREG_DBG_CYCLOGRAMS_1:
-        cyclogram_start(&lm.cyclogram, lm.interface.cmdreg.array[CMDREG_CYCLOGRAMS_0], lm.interface.cmdreg.array[CMDREG_CYCLOGRAMS_1]);
-        printf("cmdreg: cyclograms 0x%04X\n", *(uint16_t*)&lm.interface.cmdreg.array[CMDREG_CYCLOGRAMS_0]);
+			// case CMDREG_CYCLOGRAMS_0:
+      case CMDREG_CYCLOGRAMS_1:
+        #ifdef DEBUG
+          printf_time(); printf("cmdreg: cyclograms 0x%04X\n", *(uint16_t*)&lm.interface.cmdreg.array[CMDREG_CYCLOGRAMS_0]);
+        #endif
+        cyclogram_start(&lm.cyclogram, &lm.pl, lm.interface.cmdreg.array[CMDREG_CYCLOGRAMS_0], lm.interface.cmdreg.array[CMDREG_CYCLOGRAMS_1]);
         break;
       case CMDREG_DBG_LED:
         led_alt_setup(&mcu_state_led, LED_BLINK, 1000, lm.interface.cmdreg.array[CMDREG_DBG_LED], 3000);
@@ -317,7 +309,7 @@ int main(void)
         // NULL;
         break;
     }
-    //* обработка команды для интерфейса к ПН_ИСС *//
+    //* обработка команды для интерфейса к ПН_�?СС *//
     int16_val = pl_iss_inerface_check_to_process(&lm.interface);
     switch(int16_val){
       case PL11A_INTERFACE_INSTASEND_LENG_OFFSET:
@@ -545,7 +537,7 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
-
+	printf("HAL error\n");
   /* USER CODE END Error_Handler_Debug */
 }
 

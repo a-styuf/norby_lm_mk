@@ -6,8 +6,14 @@ void lm_init(type_LM_DEVICE* lm_ptr)
 	int8_t report = 0;
 	printf("Version: %s\n", SOFT_VERSION);
 	printf("DevId: %d\n", DEV_ID);
+		//инициализация времени
+	clock_init();
+	printf_time();
+	printf("Clock init %d s\n", clock_get_time_s());
+	//
 	printf_time();
 	printf("Start init\n");
+	//
 	lm_ctrl_init(lm_ptr);
 	printf("\tLM-struct init\n");
 	//инициализируем питание
@@ -18,10 +24,10 @@ void lm_init(type_LM_DEVICE* lm_ptr)
 	printf("\tTemperature monitors init: %d\n", report);
 	//PL
 	pl_init(&lm_ptr->pl, lm_ptr->pwr.ch, lm_ptr->tmp.tmp1075, &huart2, &huart4, &huart1, &huart3, &huart6);
-	printf("\tPL init %d\n", report);
+	printf("\tPL init\n");
 	//Cyclogram
-	cyclogram_init(&lm_ptr->cyclogram, &lm_ptr->pl);
-	printf("\tCyclogramms init: %d\n", report);
+	cyclogram_init(&lm_ptr->cyclogram, &lm_ptr->pl, DEV_ID);
+	printf("\tCyclogramms init\n");
 	//interfaces init
 	report = interfaces_init(&lm_ptr->interface, DEV_ID);
 	printf("\tCAN init: %d\n", report);
@@ -33,7 +39,7 @@ void lm_init(type_LM_DEVICE* lm_ptr)
 	printf("\tLoad parameters from mem: %d\n", report);
 	//
 	printf_time();
-	printf("Finish init at %d s\n\n", lm_ptr->ctrl.global_time_s);
+	printf("Finish init at %d s\n\n", clock_get_time_s());
 }
 
 /**
@@ -107,7 +113,7 @@ int8_t lm_save_parameters(type_LM_DEVICE* lm_ptr)
 	// запрашиваем конфигурации всех устройст
 	pn_dcr_get_cfg(&lm_ptr->pl._dcr, (uint8_t *)&lm_ptr->cfg_to_save.pldcr_cfg);
 	// прилипляем заголовок
-	frame_create_header((uint8_t *)&lm_ptr->cfg_to_save.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_LM_CONFIG, 0x00, 0x00, lm_ptr->ctrl.global_time_s);
+	frame_create_header((uint8_t *)&lm_ptr->cfg_to_save.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_LM_CONFIG, 0x00, 0x00);
 	// записываем в память
 	ext_mem_wr_param(&lm_ptr->mem, (uint8_t *)&lm_ptr->cfg_to_save);
 	//
@@ -383,7 +389,7 @@ void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr)
 	uint8_t i=0;
 	// beacon
 	type_LM_Beacon_Frame beacon_fr;
-	frame_create_header((uint8_t*)&beacon_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_BEACON ,lm_ptr->interface.frame_num, 0x00, lm_ptr->ctrl.global_time_s);
+	frame_create_header((uint8_t*)&beacon_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_BEACON ,lm_ptr->interface.frame_num, 0x00);
 	beacon_fr.lm_status = lm_ptr->ctrl.status;
 	beacon_fr.pl_status = lm_ptr->ctrl.pl_status;
   beacon_fr.lm_temp = (lm_ptr->tmp.tmp1075[0].temp >> 8) & 0xFF;
@@ -392,7 +398,7 @@ void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr)
 	memcpy((uint8_t*)&lm_ptr->interface.tmi_data.beacon, (uint8_t*)&beacon_fr, sizeof(beacon_fr));
 	// tmi
 	type_LM_TMI_Data_Frame tmi_fr;
-	frame_create_header((uint8_t*)&tmi_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_TMI ,lm_ptr->interface.frame_num, 0x00, lm_ptr->ctrl.global_time_s);
+	frame_create_header((uint8_t*)&tmi_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_TMI ,lm_ptr->interface.frame_num, 0x00);
  // 0-МС, 1-ПН1.1A, 2-ПН1.1В, 3-ПН1.2, 4-ПН2.0, 5-ПН_ДКР1, 6-ПН_ДКР2
 	for(i=0; i<6; i++){
 		tmi_fr.pl_status[i] = lm_ptr->ctrl.pl_status;
@@ -431,7 +437,7 @@ void fill_gen_tmi(type_LM_DEVICE* lm_ptr)
 	pn_dcr_report_create(&lm_ptr->pl._dcr);
 	// 
 	memset((uint8_t*)&gen_fr, 0xFEFE, sizeof(type_LM_GEN_TMI_Frame));
-	frame_create_header((uint8_t*)&gen_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_GEN_TMI ,lm_ptr->interface.frame_num, 0x00, lm_ptr->ctrl.global_time_s);
+	frame_create_header((uint8_t*)&gen_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_GEN_TMI ,lm_ptr->interface.frame_num, 0x00);
 	memcpy(gen_fr.lm_report, (uint8_t*)&lm_ptr->report, sizeof(type_LM_REPORT));
 	memcpy(gen_fr.pl11a_report, (uint8_t*)&lm_ptr->pl._11A.report, sizeof(type_PN11_report));
 	memcpy(gen_fr.pl11b_report, (uint8_t*)&lm_ptr->pl._11B.report, sizeof(type_PN11_report));
@@ -457,7 +463,7 @@ void fill_dcr_rx_frame(type_LM_DEVICE* lm_ptr)
 	leng = pn_dcr_get_last_status(&lm_ptr->pl._dcr, data);
 	if (leng) {
 		// формируем заголовок для кадра
-		frame_create_header((uint8_t*)&status_dcr_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_DCR_LAST_RX_STATUS, lm_ptr->pl._dcr.rx_status_cnt, 0x00, lm_ptr->ctrl.global_time_s);
+		frame_create_header((uint8_t*)&status_dcr_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_DCR_LAST_RX_STATUS, lm_ptr->pl._dcr.rx_status_cnt, 0x00);
 		// сохраняем в сформированный кадр данные, полученные из модели DCR
 		memcpy((uint8_t*)status_dcr_fr.status_dcr_data, data, sizeof(leng));
 		// сохраняем сформированный кадр в расшаренную can-память
@@ -468,7 +474,7 @@ void fill_dcr_rx_frame(type_LM_DEVICE* lm_ptr)
 	leng = pn_dcr_get_last_frame(&lm_ptr->pl._dcr, data);
 	if (leng) {
 		// формируем заголовок для кадра
-		frame_create_header((uint8_t*)&long_dcr_fr.header, DEV_ID, DCR_FRAME_TYPE, DATA_TYPE_DCR_LAST_RX_FRAME, lm_ptr->pl._dcr.rx_frames_cnt, 0x00, lm_ptr->ctrl.global_time_s);
+		frame_create_header((uint8_t*)&long_dcr_fr.header, DEV_ID, DCR_FRAME_TYPE, DATA_TYPE_DCR_LAST_RX_FRAME, lm_ptr->pl._dcr.rx_frames_cnt, 0x00);
 		// сохраняем в сформированный кадр данные, полученные из модели DCR
 		memcpy((uint8_t*)long_dcr_fr.long_dcr_frame, data, 124);
 		// сохраняем сформированный кадр в расшаренную can-память
@@ -492,7 +498,7 @@ void fill_pl_iss_last_frame(type_LM_DEVICE* lm_ptr)
 	leng = pn_11_get_last_frame_in_128B_format(&lm_ptr->pl._11A, data);
 	if (leng) {
 		// формируем заголовок для кадра
-		frame_create_header((uint8_t*)&last_frame[PL11A-1].header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_PL11A_INT_DATA, lm_ptr->pl._dcr.rx_status_cnt, 0x00, lm_ptr->ctrl.global_time_s);
+		frame_create_header((uint8_t*)&last_frame[PL11A-1].header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_PL11A_INT_DATA, lm_ptr->pl._dcr.rx_status_cnt, 0x00);
 		// сохраняем в сформированный кадр данные, полученные из модели ПН1.1
 		memcpy((uint8_t*)&last_frame[PL11A-1].data, data, 116);
 		// сохраняем данные дополнительно в переменную с запросом
@@ -506,7 +512,7 @@ void fill_pl_iss_last_frame(type_LM_DEVICE* lm_ptr)
 	leng = pn_11_get_last_frame_in_128B_format(&lm_ptr->pl._11B, data);
 	if (leng) {
 		// формируем заголовок для кадра
-		frame_create_header((uint8_t*)&last_frame[PL11B-1].header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_PL11B_INT_DATA, lm_ptr->pl._dcr.rx_status_cnt, 0x00, lm_ptr->ctrl.global_time_s);
+		frame_create_header((uint8_t*)&last_frame[PL11B-1].header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_PL11B_INT_DATA, lm_ptr->pl._dcr.rx_status_cnt, 0x00);
 		// сохраняем в сформированный кадр данные, полученные из модели ПН1.1
 		memcpy((uint8_t*)&last_frame[PL11B-1].data, data, 116);
 		// сохраняем данные дополнительно в переменную с запросом
@@ -516,6 +522,25 @@ void fill_pl_iss_last_frame(type_LM_DEVICE* lm_ptr)
 		memcpy((uint8_t*)&lm_ptr->interface.tmi_data.pl11a_frame, (uint8_t*)&last_frame[PL11B-1], sizeof(type_PL_ISS_INT_data));
 	}
 	//
+}
+
+/**
+  * @brief  заполнение подадреса для резльтатов циклограммы + выкладывание в память
+  * @param  lm_ptr: структура управления для МС
+  */
+void fill_pl_cyclogramm_result(type_LM_DEVICE* lm_ptr)
+{
+	if (lm_ptr->cyclogram.result.cyclogram_result_ready_flag){
+		//сбрасываем флаг
+		lm_ptr->cyclogram.result.cyclogram_result_ready_flag = 0;
+		//выкладываем на подадрес
+		memcpy((uint8_t*)&lm_ptr->interface.tmi_data.cyclograma_result, (uint8_t*)&lm_ptr->cyclogram.result.box, sizeof(type_PL_CYCLOGRAMA_RESULT));
+		//сохраняем данные в память для результатов циклограммы
+		ext_mem_wr_frame_to_part(&lm_ptr->mem, (uint8_t*)&lm_ptr->cyclogram.result.box.header, PART_ISS);
+		for(uint8_t i=0; i<(lm_ptr->cyclogram.result.box.header.header.arch_len); i++){
+			ext_mem_wr_frame_to_part(&lm_ptr->mem, (uint8_t*)&lm_ptr->cyclogram.result.box.body[i], PART_ISS);
+		}
+	}
 }
 
 

@@ -3,6 +3,7 @@
 
 //*** Includes ***//
 #include "crc16.h"
+#include "clock.h"
 
 //*** Defines ***//
 // определитель кадров (метка для визуального или автоматического поиска кадров)
@@ -22,6 +23,7 @@
 #define DATA_TYPE_PL11B_INT_DATA      0x86
 #define DATA_TYPE_PL12_INT_DATA       0x87
 #define DATA_TYPE_PL20_INT_DATA       0x88
+#define DATA_TYPE_CYCLOGRAM_RESULT    0x89
 
 #define DATA_TYPE_LM_CONFIG           0x8F
 
@@ -188,12 +190,10 @@ typedef struct {
   */
 typedef struct {
   type_ArchHeadFrame_Header header;   //+0
-  uint16_t cyclograma_num;            //+12
+  uint16_t result_num;                //+12
   uint8_t cyclograma_mode;            //+14
   uint8_t cyclograma_status;          //+15
-  uint8_t pl_num;                     //+16
-  uint8_t gap;                        //+17
-  uint8_t reserved[12];               //+18
+  uint8_t reserved[14];               //+16
   uint8_t tmi_slice[8][12];           //+30 //leng = 8*12=96
   //
   uint16_t crc16;                     //+126
@@ -239,7 +239,7 @@ typedef struct {
 
 #pragma pack(8)
 //*** Function prototypes ***//
-uint8_t frame_create_header(uint8_t* header_ptr, uint8_t dev_id, uint8_t type, uint8_t d_code, uint16_t fr_num, uint16_t num, uint32_t time_s);
+uint8_t frame_create_header(uint8_t* header_ptr, uint8_t dev_id, uint8_t type, uint8_t d_code, uint16_t fr_num, uint16_t num);
 void frame_crc16_calc(uint8_t* header_ptr);
 
 #endif

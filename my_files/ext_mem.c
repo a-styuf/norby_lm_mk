@@ -26,7 +26,7 @@ int8_t ext_mem_init(type_MEM_CONTROL* mem_ptr, SPI_HandleTypeDef* spi_ptr)
   report += cy15_init(&mem_ptr->cy15b104[2], spi_ptr, GPIOD, 12);
 	report += cy15_init(&mem_ptr->cy15b104[3], spi_ptr, GPIOD, 13);
   // инициализируем блоки памяти для переферии
-  start_addr = part_rel_init(&mem_ptr->part[PART_ISS], PART_MODE_WRITE_BLOCK, PART_FULL_VOL_REL, PART_ISS_VOL_REL, start_addr);
+  start_addr = part_rel_init(&mem_ptr->part[PART_ISS], PART_MODE_REWRITE, PART_FULL_VOL_REL, PART_ISS_VOL_REL, start_addr);
   start_addr = part_rel_init(&mem_ptr->part[PART_DCR], PART_MODE_REWRITE, PART_FULL_VOL_REL, PART_DCR_VOL_REL, start_addr);
   start_addr = part_const_init(&mem_ptr->part[PART_DCR_FLIGHT_TASK], PART_MODE_REWRITE, PART_DCR_FLIGHT_TASK_CONST, start_addr);
   //
@@ -186,8 +186,8 @@ void ext_mem_rd_data_frame(type_MEM_CONTROL* mem_ptr, uint32_t addr, uint8_t *fr
   */
 void ext_mem_wr_frame_to_part(type_MEM_CONTROL* mem_ptr, uint8_t *frame, uint8_t part_num)
 {
-  ext_mem_wr_data_frame(mem_ptr, mem_ptr->part[part_num].write_ptr + mem_ptr->part[part_num].start_frame_num, frame);
   part_wr_rd_ptr_calc(&mem_ptr->part[part_num], MODE_WRITE);
+  ext_mem_wr_data_frame(mem_ptr, mem_ptr->part[part_num].write_ptr + mem_ptr->part[part_num].start_frame_num, frame);
 }
 
 /**
@@ -198,8 +198,8 @@ void ext_mem_wr_frame_to_part(type_MEM_CONTROL* mem_ptr, uint8_t *frame, uint8_t
   */
 void ext_mem_rd_frame_from_part(type_MEM_CONTROL* mem_ptr, uint8_t *frame, uint8_t part_num)
 {
-  ext_mem_rd_data_frame(mem_ptr, mem_ptr->part[part_num].read_ptr + mem_ptr->part[part_num].start_frame_num, frame);
   part_wr_rd_ptr_calc(&mem_ptr->part[part_num], MODE_READ);
+  ext_mem_rd_data_frame(mem_ptr, mem_ptr->part[part_num].read_ptr + mem_ptr->part[part_num].start_frame_num, frame);
 }
 
 /**
@@ -334,27 +334,27 @@ uint8_t part_wr_rd_ptr_calc(type_MEM_PART_CONTROL* part_ptr, uint8_t mode)
   switch(part_ptr->mode){
     case PART_MODE_READ_BLOCK:  // указатель чтения доганяет указатель записи и блокается
       if (mode == MODE_WRITE){
+        part_ptr->write_ptr += 1;
         if ((part_ptr->write_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->write_ptr = 0;
-        else part_ptr->write_ptr += 1;
         report = 1;
       }
       else if (mode == MODE_READ){
-        if ((part_ptr->read_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->read_ptr = 0;
-        else if(part_ptr->read_ptr == part_ptr->write_ptr) {} //NULL;
-        else part_ptr->read_ptr += 1;
         report = 1;
+        if(part_ptr->read_ptr == part_ptr->write_ptr) report = 0;
+        else part_ptr->read_ptr += 1;
+        if ((part_ptr->read_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->read_ptr = 0;
       }
     break;
     case PART_MODE_WRITE_BLOCK:  // указатель записи доганяет указатель чтения и блокается
       if (mode == MODE_WRITE){
         report = 1;
-        if ((part_ptr->write_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->write_ptr = 0;
-        else if(part_ptr->write_ptr == part_ptr->read_ptr) report = 0;
+        if(part_ptr->write_ptr == part_ptr->read_ptr) report = 0;
         else part_ptr->write_ptr += 1;
+        if ((part_ptr->write_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->write_ptr = 0;
       }
       else if (mode == MODE_READ){
+        part_ptr->read_ptr += 1;
         if ((part_ptr->read_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->read_ptr = 0;
-        else part_ptr->read_ptr += 1;
         report = 1;
       }
     break;

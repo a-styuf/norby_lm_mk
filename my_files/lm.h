@@ -17,7 +17,9 @@
 #include "usart.h"
 #include "lm_interfaces.h"
 #include "ext_mem.h"
+#include "clock.h"
 #include "debug.h"
+
 
 #define max(A, B) ((A) > (B) ? (A) : (B))
 #define min(A, B) ((A) < (B) ? (A) : (B))
@@ -150,6 +152,7 @@ void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr);
 void fill_gen_tmi(type_LM_DEVICE* lm_ptr);
 void fill_dcr_rx_frame(type_LM_DEVICE* lm_ptr);
 void fill_pl_iss_last_frame(type_LM_DEVICE* lm_ptr);
+void fill_pl_cyclogramm_result(type_LM_DEVICE* lm_ptr);
 
 uint16_t com_ans_form(uint8_t req_id, uint8_t self_id, uint8_t* seq_num, uint8_t type, uint8_t leng, uint8_t* com_data, uint8_t* ans_com);
 uint32_t get_uint32_val_from_bound(uint32_t val, uint32_t min, uint32_t max); //если число внутри границ - используется оно, если нет, то ближайшая граница

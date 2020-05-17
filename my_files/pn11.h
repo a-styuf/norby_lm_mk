@@ -38,7 +38,7 @@
 
 
 // пороговые значения для определения ошибки температуры: в 1/256°C
-#define PN_11_TEMP_HIGH 	(30*256)
+#define PN_11_TEMP_HIGH 	(80*256)
 #define PN_11_TEMP_LOW 		(-30*256)
 #define PN_11_TEMP_HYST		(1*256)
 
