@@ -151,7 +151,12 @@
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>hrtc</ItemText>
+          <ItemText>\\norby_lm_mk\../Src/main.c\lm.interface.tmi_data.cyclograma_result</ItemText>
+        </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>\\norby_lm_mk\../Src/main.c\lm.mem</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -159,11 +164,6 @@
           <count>0</count>
           <WinNumber>2</WinNumber>
           <ItemText>lm</ItemText>
-        </Ww>
-        <Ww>
-          <count>1</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>sDate</ItemText>
         </Ww>
       </WatchWindow2>
       <MemoryWindow1>
@@ -212,12 +212,6 @@
       <pszMrule></pszMrule>
       <pSingCmds></pSingCmds>
       <pMultCmds></pMultCmds>
-      <SystemViewers>
-        <Entry>
-          <Name>System Viewer\RTC</Name>
-          <WinId>35905</WinId>
-        </Entry>
-      </SystemViewers>
       <DebugDescription>
         <Enable>1</Enable>
         <EnableLog>0</EnableLog>

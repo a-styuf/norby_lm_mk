@@ -26,8 +26,8 @@ void lm_init(type_LM_DEVICE* lm_ptr)
 	pl_init(&lm_ptr->pl, lm_ptr->pwr.ch, lm_ptr->tmp.tmp1075, &huart2, &huart4, &huart1, &huart3, &huart6);
 	printf("\tPL init\n");
 	//Cyclogram
-	cyclogram_init(&lm_ptr->cyclogram, &lm_ptr->pl, DEV_ID);
-	printf("\tCyclogramms init\n");
+	report = cyclogram_init(&lm_ptr->cyclogram, &lm_ptr->pl, DEV_ID);
+	printf("\tCyclogramms init: %d\n", report);
 	//interfaces init
 	report = interfaces_init(&lm_ptr->interface, DEV_ID);
 	printf("\tCAN init: %d\n", report);

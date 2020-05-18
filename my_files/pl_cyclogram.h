@@ -85,7 +85,7 @@ typedef struct
 void pl_init(type_PL* pl_ptr, type_PWR_CHANNEL* pwr_arr, type_TMP1075_DEVICE* tmp_arr, UART_HandleTypeDef* huart11A, UART_HandleTypeDef* huart11B, UART_HandleTypeDef* huart12, UART_HandleTypeDef* huart20, UART_HandleTypeDef* huartDCR);
 void pl_report_get(type_PL* pl_ptr, uint8_t pl_num, uint8_t* report, uint8_t* len);
 
-void cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t dev_id);
+int8_t cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t dev_id);
 void cyclogram_step_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t cyclogramm, int8_t (*function)(type_CYCLOGRAM_RESULT*, type_PL*), uint32_t delay);
 void cyclogram_stop_step_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t cyclogramm, int8_t (*function)(type_CYCLOGRAM_RESULT*, type_PL*), uint32_t delay);
 void cyclogram_stop_step_run(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr);
@@ -131,6 +131,7 @@ int8_t pl_pn11B_stop(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 
 // pl1.1А & B
 int8_t pl_pn11_A_B_write_mode(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn11_A_B_stop(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 
 // pl_1.2
 int8_t pl_pn12_pwr_on(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);

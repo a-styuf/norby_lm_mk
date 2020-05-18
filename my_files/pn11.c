@@ -401,8 +401,8 @@ void pn_11_interface_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
 				}
 				else{ // вылазим за допустиму робласть данных
 					_pn_11_error_collector(pn11_ptr, PN11_INTERFACE_ERROR, NULL);
+					pn11_ptr->rd_seq_mode = 0;
 				}
-				pn11_ptr->rd_seq_mode = 0;
 			}
 			else{
 				_pn_11_error_collector(pn11_ptr, PN11_INTERFACE_ERROR, NULL);
@@ -422,7 +422,7 @@ void pn_11_interface_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
   * @brief  старт последовательного вычитывания данных из памяти ПН
   * @param  pn11_ptr: указатель на структуру управления полезной нагрузкой
 	* @param  start_addr: адрес для записи данных (байтовый адрес)
-	* @param  u32_leng: адрес для записи данных
+	* @param  u32_leng: длина данных
   */
 void pn_11_seq_read_start(type_PN11_model* pn11_ptr, uint32_t start_addr, uint32_t u32_leng)
 {
@@ -437,6 +437,37 @@ void pn_11_seq_read_start(type_PN11_model* pn11_ptr, uint32_t start_addr, uint32
 	//делаем первый запрос в серии
 	pn11_ptr->rd_seq_curr_addr = pn11_ptr->rd_seq_start_addr;
   _pn_11_seq_read_request(pn11_ptr);
+}
+
+/**
+  * @brief  старт последовательного вычитывания данных из памяти ПН
+  * @param  pn11_ptr: указатель на структуру управления полезной нагрузкой
+  */
+void _pn_11_seq_read_request(type_PN11_model* pn11_ptr)
+{
+		if ((pn11_ptr->rd_seq_stop_addr - pn11_ptr->rd_seq_curr_addr) > APP_LVL_MAX_U32_DATA){ //если данные не влезут в минимальный пакет - будем запрашивать максимально возможную длину
+			pn11_ptr->rd_seq_part_leng = APP_LVL_MAX_U32_DATA;
+		}
+		else{ // если влазят, запрашиваем все данные сразу
+			pn11_ptr->rd_seq_part_leng = (pn11_ptr->rd_seq_stop_addr - pn11_ptr->rd_seq_curr_addr);
+		}
+		//
+		if ((pn11_ptr->rd_seq_part_leng > 0) && (pn11_ptr->rd_seq_curr_addr < pn11_ptr->rd_seq_stop_addr)){
+			pn_11_read_req_u32_data(pn11_ptr, (pn11_ptr->rd_seq_curr_addr << 2), pn11_ptr->rd_seq_part_leng);
+			pn11_ptr->rd_seq_curr_addr += pn11_ptr->rd_seq_part_leng;
+			#ifdef DEBUG
+			printf("start_addr=%04X, stop_addr=%04X, curr_addr=%04X, curr_leng=%04X, leng=%04X\n", 
+																																		pn11_ptr->rd_seq_start_addr,
+																																		pn11_ptr->rd_seq_stop_addr,
+																																		pn11_ptr->rd_seq_curr_addr,
+																																		pn11_ptr->rd_seq_part_leng,
+																																		pn11_ptr->rd_seq_leng
+																																		);
+			#endif
+		}
+		else{
+			pn11_ptr->rd_seq_mode = 0;
+		}
 }
 
 /**
@@ -523,28 +554,6 @@ uint8_t pn_11_can_instasend(type_PN11_model* pn11_ptr, uint8_t* insta_send_data)
 	}
 	return 0;
 }
-
-/**
-  * @brief  старт последовательного вычитывания данных из памяти ПН
-  * @param  pn11_ptr: указатель на структуру управления полезной нагрузкой
-  */
-void _pn_11_seq_read_request(type_PN11_model* pn11_ptr)
-{
-		if ((pn11_ptr->rd_seq_stop_addr - pn11_ptr->rd_seq_curr_addr) > APP_LVL_MAX_U32_DATA){
-			pn11_ptr->rd_seq_part_leng = APP_LVL_MAX_U32_DATA;
-		}
-		else{
-			pn11_ptr->rd_seq_part_leng = (pn11_ptr->rd_seq_stop_addr - pn11_ptr->rd_seq_curr_addr);
-		}
-		if ((pn11_ptr->rd_seq_part_leng > 0) && (pn11_ptr->rd_seq_curr_addr < pn11_ptr->rd_seq_stop_addr)){
-			pn_11_read_req_u32_data(pn11_ptr, (pn11_ptr->rd_seq_curr_addr << 2), pn11_ptr->rd_seq_part_leng);
-			pn11_ptr->rd_seq_curr_addr += pn11_ptr->rd_seq_part_leng;
-		}
-		else{
-			pn11_ptr->rd_seq_mode = 0;
-		}
-}
-
 
 ///*** функции внутреннего назаначения ***///
 /**
