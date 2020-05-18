@@ -491,11 +491,11 @@ int8_t result_refresh(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
 	// обнавляем заголовок для старого тела и создаем для нового
 	// обновляем crc для старого тела и создаем для нового
 	if (body_num > 0){
-		frame_create_header((uint8_t*)&rs_box->body[result_ptr->body_num].header, result_ptr->lm_id, ARCH_BODY_FRAME_TYPE, DATA_TYPE_CYCLOGRAM_RESULT, result_ptr->result_num, result_ptr->body_num);
-		frame_crc16_calc((uint8_t*)&rs_box->body[result_ptr->body_num]);
+		frame_create_header((uint8_t*)&rs_box->body[body_num-1].header, result_ptr->lm_id, ARCH_BODY_FRAME_TYPE, DATA_TYPE_CYCLOGRAM_RESULT, result_ptr->result_num, body_num-1);
+		frame_crc16_calc((uint8_t*)&rs_box->body[body_num-1]);
 		if (body_num > 1){
-			frame_create_header((uint8_t*)&rs_box->body[result_ptr->body_num-1].header, result_ptr->lm_id, ARCH_BODY_FRAME_TYPE, DATA_TYPE_CYCLOGRAM_RESULT, result_ptr->result_num, result_ptr->body_num-1);
-			frame_crc16_calc((uint8_t*)&rs_box->body[result_ptr->body_num-1]);
+			frame_create_header((uint8_t*)&rs_box->body[body_num-2].header, result_ptr->lm_id, ARCH_BODY_FRAME_TYPE, DATA_TYPE_CYCLOGRAM_RESULT, result_ptr->result_num, body_num-2);
+			frame_crc16_calc((uint8_t*)&rs_box->body[body_num-2]);
 		}
 	}
 	return 0;
