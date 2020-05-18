@@ -384,6 +384,10 @@ void tmp_cb_it_process(type_TMP_CONTROL* tmp_ptr, uint8_t error)
 }
 
 //*** заполенние тми и маяка ***//
+/**
+  * @brief  заполнение маяка и ТМИ
+  * @param  lm_ptr: структура управления для МС
+  */
 void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr)
 {
 	uint8_t i=0;
@@ -392,32 +396,41 @@ void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr)
 	frame_create_header((uint8_t*)&beacon_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_BEACON ,lm_ptr->interface.frame_num, 0x00);
 	beacon_fr.lm_status = lm_ptr->ctrl.status;
 	beacon_fr.pl_status = lm_ptr->ctrl.pl_status;
-  beacon_fr.lm_temp = (lm_ptr->tmp.tmp1075[0].temp >> 8) & 0xFF;
-  beacon_fr.pl_power_switches = pwr_get_pwr_switch_key(&lm_ptr->pwr);
+	beacon_fr.lm_temp = (lm_ptr->tmp.tmp1075[0].temp >> 8) & 0xFF;
+	beacon_fr.pl_power_switches = pwr_get_pwr_switch_key(&lm_ptr->pwr);
+	//
+	frame_crc16_calc((uint8_t *)&beacon_fr);
+	//
 	memset(beacon_fr.filler, 0x00, sizeof(beacon_fr.filler));
 	memcpy((uint8_t*)&lm_ptr->interface.tmi_data.beacon, (uint8_t*)&beacon_fr, sizeof(beacon_fr));
 	// tmi
 	type_LM_TMI_Data_Frame tmi_fr;
 	frame_create_header((uint8_t*)&tmi_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_TMI ,lm_ptr->interface.frame_num, 0x00);
- // 0-МС, 1-ПН1.1A, 2-ПН1.1В, 3-ПН1.2, 4-ПН2.0, 5-ПН_ДКР1, 6-ПН_ДКР2
-	for(i=0; i<6; i++){
-		tmi_fr.pl_status[i] = lm_ptr->ctrl.pl_status;
+	if (lm_ptr->ctrl.constant_mode){
+		fill_tmi_const_mode(&tmi_fr);
 	}
-  for(i=0; i<7; i++){
-		tmi_fr.pwr_inf[i].voltage = (lm_ptr->pwr.ch[i].ina226.voltage >> 4) & 0xFF;
-		tmi_fr.pwr_inf[i].current = (lm_ptr->pwr.ch[i].ina226.current >> 4) & 0xFF;
+	else{
+		// 0-МС, 1-ПН1.1A, 2-ПН1.1В, 3-ПН1.2, 4-ПН2.0, 5-ПН_ДКР1, 6-ПН_ДКР2
+		for(i=0; i<6; i++){
+			tmi_fr.pl_status[i] = lm_ptr->ctrl.pl_status;
+		}
+		for(i=0; i<7; i++){
+			tmi_fr.pwr_inf[i].voltage = (lm_ptr->pwr.ch[i].ina226.voltage >> 4) & 0xFF;
+			tmi_fr.pwr_inf[i].current = (lm_ptr->pwr.ch[i].ina226.current >> 4) & 0xFF;
+		}
+		for(i=0; i<5; i++){
+			tmi_fr.temp[i] = (lm_ptr->tmp.tmp1075[i].temp >> 8) & 0xFF;
+		}
+		//
+		tmi_fr.pl_power_switches = pwr_get_pwr_switch_key(&lm_ptr->pwr);
+		tmi_fr.iss_mem_status = lm_ptr->mem.part[PART_ISS].part_fill_volume_prc;
+		tmi_fr.dcr_mem_status = lm_ptr->mem.part[PART_DCR].part_fill_volume_prc;
+		tmi_fr.pl_rst_count = lm_ptr->ctrl.rst_cnt;
+		tmi_fr.com_reg_lm_mode = lm_ptr->interface.cmdreg.array[1];
+		tmi_fr.com_reg_pwr_on_off = *(uint16_t*)&lm_ptr->interface.cmdreg.array[2];
 	}
-	for(i=0; i<5; i++){
-		tmi_fr.temp[i] = (lm_ptr->tmp.tmp1075[i].temp >> 8) & 0xFF;
-	}
-  //
-  tmi_fr.pl_power_switches = pwr_get_pwr_switch_key(&lm_ptr->pwr);
-  tmi_fr.iss_mem_status = lm_ptr->mem.part[PART_ISS].part_fill_volume_prc;
-  tmi_fr.dcr_mem_status = lm_ptr->mem.part[PART_DCR].part_fill_volume_prc;
-  tmi_fr.pl_rst_count = lm_ptr->ctrl.rst_cnt;
-  tmi_fr.com_reg_lm_mode = lm_ptr->interface.cmdreg.array[1];
-  tmi_fr.com_reg_pwr_on_off = *(uint16_t*)&lm_ptr->interface.cmdreg.array[2];
-
+	frame_crc16_calc((uint8_t *)&tmi_fr);
+	//
 	memset(tmi_fr.filler, 0x00, sizeof(tmi_fr.filler));
 	memcpy((uint8_t*)&lm_ptr->interface.tmi_data.tmi, (uint8_t*)&tmi_fr, sizeof(tmi_fr));
 }
@@ -445,6 +458,8 @@ void fill_gen_tmi(type_LM_DEVICE* lm_ptr)
 	memcpy(gen_fr.pl20_report, (uint8_t*)&lm_ptr->pl._20.report, sizeof(type_PN20_report));
 	memcpy(gen_fr.pldcr_report, (uint8_t*)&lm_ptr->pl._dcr.report, sizeof(type_PNDCR_report));
 	//
+	frame_crc16_calc((uint8_t *)&gen_fr);
+	//
 	memcpy((uint8_t*)&lm_ptr->interface.tmi_data.gen_tmi, (uint8_t*)&gen_fr, sizeof(gen_fr));
 }
 
@@ -466,6 +481,8 @@ void fill_dcr_rx_frame(type_LM_DEVICE* lm_ptr)
 		frame_create_header((uint8_t*)&status_dcr_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_DCR_LAST_RX_STATUS, lm_ptr->pl._dcr.rx_status_cnt, 0x00);
 		// сохраняем в сформированный кадр данные, полученные из модели DCR
 		memcpy((uint8_t*)status_dcr_fr.status_dcr_data, data, sizeof(leng));
+		//
+		frame_crc16_calc((uint8_t *)&status_dcr_fr);
 		// сохраняем сформированный кадр в расшаренную can-память
 		memcpy((uint8_t*)&lm_ptr->interface.tmi_data.dcr_status, (uint8_t*)&status_dcr_fr, sizeof(status_dcr_fr));
 	}
@@ -477,6 +494,8 @@ void fill_dcr_rx_frame(type_LM_DEVICE* lm_ptr)
 		frame_create_header((uint8_t*)&long_dcr_fr.header, DEV_ID, DCR_FRAME_TYPE, DATA_TYPE_DCR_LAST_RX_FRAME, lm_ptr->pl._dcr.rx_frames_cnt, 0x00);
 		// сохраняем в сформированный кадр данные, полученные из модели DCR
 		memcpy((uint8_t*)long_dcr_fr.long_dcr_frame, data, 124);
+		//
+		frame_crc16_calc((uint8_t *)&long_dcr_fr);
 		// сохраняем сформированный кадр в расшаренную can-память
 		memcpy((uint8_t*)&lm_ptr->interface.tmi_data.dcr_frame, (uint8_t*)&long_dcr_fr, sizeof(long_dcr_fr));
 		// дополнительно заполняем память Декор кадрами
@@ -501,9 +520,12 @@ void fill_pl_iss_last_frame(type_LM_DEVICE* lm_ptr)
 		frame_create_header((uint8_t*)&last_frame[PL11A-1].header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_PL11A_INT_DATA, lm_ptr->pl._dcr.rx_status_cnt, 0x00);
 		// сохраняем в сформированный кадр данные, полученные из модели ПН1.1
 		memcpy((uint8_t*)&last_frame[PL11A-1].data, data, 116);
+		//
+		frame_crc16_calc((uint8_t*)&last_frame[PL11A-1]);
 		// сохраняем данные дополнительно в переменную с запросом
 		data[124] = 3;
 		memcpy((uint8_t*)&lm_ptr->interface.pl_iss_interface.InstaMessage[PL11A-1][0], data, 128);
+		//
 		// сохраняем сформированный кадр в расшаренную can-память
 		memcpy((uint8_t*)&lm_ptr->interface.tmi_data.pl11a_frame, (uint8_t*)&last_frame[PL11A-1], sizeof(type_PL_ISS_INT_data));
 	}
@@ -515,6 +537,8 @@ void fill_pl_iss_last_frame(type_LM_DEVICE* lm_ptr)
 		frame_create_header((uint8_t*)&last_frame[PL11B-1].header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_PL11B_INT_DATA, lm_ptr->pl._dcr.rx_status_cnt, 0x00);
 		// сохраняем в сформированный кадр данные, полученные из модели ПН1.1
 		memcpy((uint8_t*)&last_frame[PL11B-1].data, data, 116);
+		//
+		frame_crc16_calc((uint8_t*)&last_frame[PL11A-1]);
 		// сохраняем данные дополнительно в переменную с запросом
 		data[124] = 3;
 		memcpy((uint8_t*)&lm_ptr->interface.pl_iss_interface.InstaMessage[PL11B-1][0], data, 128);

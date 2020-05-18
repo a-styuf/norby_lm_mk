@@ -106,6 +106,7 @@ typedef struct
 	uint8_t err_cnt;
 	uint8_t rst_cnt;
 	uint16_t pl_status;
+	uint16_t constant_mode;  //1 - режим констант включен, 0 - режим констант отключен
 } type_LM_CTRL;
 
 // lm //

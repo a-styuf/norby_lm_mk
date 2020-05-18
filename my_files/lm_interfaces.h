@@ -73,7 +73,8 @@
 //
 #define CMDREG_CYCLOGRAMS_0       0x13
 #define CMDREG_CYCLOGRAMS_1       0x14
-
+//
+#define CMDREG_CONST_MODE_0       0x15
 //
 #define CMDREG_DBG_LED            0x20
 //

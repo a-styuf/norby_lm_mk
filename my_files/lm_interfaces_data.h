@@ -242,4 +242,6 @@ typedef struct {
 uint8_t frame_create_header(uint8_t* header_ptr, uint8_t dev_id, uint8_t type, uint8_t d_code, uint16_t fr_num, uint16_t num);
 void frame_crc16_calc(uint8_t* header_ptr);
 
+void fill_beacon_const_mode(type_LM_Beacon_Frame* frame_ptr);
+void fill_tmi_const_mode(type_LM_TMI_Data_Frame* frame_ptr);
 #endif

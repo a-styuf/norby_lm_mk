@@ -68,7 +68,7 @@ uint8_t frame_create_header(uint8_t* header_ptr, uint8_t dev_id, uint8_t type, u
 }
 
 /**
-  * @brief  прлсчеи и подстановка crc16 в гот овый кадр из 128 байт
+  * @brief  подсчет и подстановка crc16 в гот овый кадр из 128 байт
   * @param  frame_ptr: указатель на кадр
   */
 void frame_crc16_calc(uint8_t* frame_ptr)
@@ -77,4 +77,43 @@ void frame_crc16_calc(uint8_t* frame_ptr)
   crc16 = norby_crc16_calc(frame_ptr, 126);
   frame_ptr[126] = (crc16 >> 8) & 0xFF;
   frame_ptr[127] = (crc16 >> 0) & 0xFF;
+}
+
+/**
+  * @brief  получение маяка в режиме констант
+  * @param  frame_ptr: указатель на кадр
+  */
+void fill_beacon_const_mode(type_LM_Beacon_Frame* frame_ptr)
+{
+  frame_ptr->lm_status = 0x3D3E;
+  frame_ptr->pl_status = 0x00;
+  frame_ptr->lm_temp = 0x57;
+  frame_ptr->pl_power_switches = 0x5C;
+}
+
+/**
+  * @brief  получение тми в режиме констант
+  * @param  frame_ptr: указатель на кадр
+  */
+void fill_tmi_const_mode(type_LM_TMI_Data_Frame* frame_ptr)
+{
+  uint8_t i=0;
+  // 0-МС, 1-ПН1.1A, 2-ПН1.1В, 3-ПН1.2, 4-ПН2.0, 5-ПН_ДКР1, 6-ПН_ДКР2
+  for(i=0; i<6; i++){
+    frame_ptr->pl_status[i] = ((0x3D + (2*i+0)) << 8) + (0x3D + (2*i+1));
+  }
+  for(i=0; i<7; i++){
+    frame_ptr->pwr_inf[i].voltage = 0x49 + (2*i+0);
+    frame_ptr->pwr_inf[i].current = 0x49 + (2*i+1);
+  }
+  for(i=0; i<5; i++){
+    frame_ptr->temp[i] = 0x57 + i;
+  }
+  //
+  frame_ptr->pl_power_switches = 0x5C;
+  frame_ptr->iss_mem_status = 0x5D;
+  frame_ptr->dcr_mem_status = 0x5E;
+  frame_ptr->pl_rst_count = 0x5F;
+  frame_ptr->com_reg_lm_mode = 0x60;
+  frame_ptr->com_reg_pwr_on_off = 0x6162;
 }

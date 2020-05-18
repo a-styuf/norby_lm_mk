@@ -284,6 +284,13 @@ int main(void)
         #endif
         cyclogram_start(&lm.cyclogram, &lm.pl, lm.interface.cmdreg.array[CMDREG_CYCLOGRAMS_0], lm.interface.cmdreg.array[CMDREG_CYCLOGRAMS_1]);
         break;
+      case CMDREG_CONST_MODE_0:
+        lm.ctrl.constant_mode = lm.interface.cmdreg.array[CMDREG_CONST_MODE_0] & 0x01;
+        #ifdef DEBUG
+          printf_time(); printf("cmdreg: const_mode 0x%02X\n", lm.interface.cmdreg.array[CMDREG_CONST_MODE_0]);
+        #endif
+        cyclogram_start(&lm.cyclogram, &lm.pl, lm.interface.cmdreg.array[CMDREG_CYCLOGRAMS_0], lm.interface.cmdreg.array[CMDREG_CYCLOGRAMS_1]);
+        break;
       case CMDREG_DBG_LED:
         led_alt_setup(&mcu_state_led, LED_BLINK, 1000, lm.interface.cmdreg.array[CMDREG_DBG_LED], 3000);
         printf("cmdreg: (dbg) led test 0x%02X\n", lm.interface.cmdreg.array[CMDREG_DBG_LED]);

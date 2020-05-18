@@ -105,6 +105,7 @@ int8_t cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t dev_id)
 	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_read_mode, 500);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_fpga_mcu_on, 500);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_check_and_save_tmi, 5000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_fpga_on, 500);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_read_req_all, 5000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_read_all, 100);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_set_iku_default, 500);
@@ -127,6 +128,7 @@ int8_t cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t dev_id)
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_read_mode, 1000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_fpga_mcu_on, 2000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_check_and_save_tmi, 240000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_fpga_on, 500);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_read_req_all, 5000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_read_all, 100);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_set_iku_default, 1000);
@@ -148,6 +150,7 @@ int8_t cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t dev_id)
 	cyclogram_step_init(ccl_ptr, pl_ptr, 2, pl_pn11B_read_req_mode, 1000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 2, pl_pn11B_read_mode, 1000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 2, pl_pn11B_fpga_mcu_on, 2000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11B_fpga_on, 500);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 2, pl_pn11B_check_and_save_tmi, 240000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 2, pl_pn11B_read_req_all, 5000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 2, pl_pn11B_read_all, 100);
@@ -199,6 +202,8 @@ int8_t cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t dev_id)
 	cyclogram_step_init(ccl_ptr, pl_ptr, 5, pl_pn11B_fpga_mcu_on, 2000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 5, pl_pn11A_check_and_save_tmi, 100);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 5, pl_pn11B_check_and_save_tmi, 240000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11A_fpga_on, 500);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn11B_fpga_on, 500);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 5, pl_pn11A_read_req_all, 5000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 5, pl_pn11A_read_all, 100);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 5, pl_pn11B_read_req_all, 5000);
