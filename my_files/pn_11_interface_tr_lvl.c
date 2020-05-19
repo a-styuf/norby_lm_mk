@@ -157,7 +157,7 @@ void tr_lvl_process(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint16_t period_ms)
 	}
 	// обработка таймаутов
 	if ((tr_lvl_ptr->timeout_ms > 0) && (tr_lvl_ptr->timeout_flag == 2)) {
-		if ((tr_lvl_ptr->timeout_ms > TR_LVL_DEFAULT_TIMEOUT_MS) || (tr_lvl_ptr->timeout_ms ==0 )) {
+		if ((tr_lvl_ptr->timeout_ms > (0xFFFF - TR_LVL_DEFAULT_TIMEOUT_MS)) || (tr_lvl_ptr->timeout_ms == 0 )) {
 			tr_lvl_ptr->timeout_ms = 0;
 		}
 		else{
@@ -165,8 +165,8 @@ void tr_lvl_process(type_PN11_INTERFACE_TR_LVL* tr_lvl_ptr, uint16_t period_ms)
 		}
 	}
 	else if ((tr_lvl_ptr->timeout_ms == 0) && (tr_lvl_ptr->timeout_flag == 2)){
+		tr_lvl_ptr->timeout_flag = 0;
 		tx_create_frame(tr_lvl_ptr, FR_LAST_STATUS_REQ, NULL, NULL);
-		tx_uart_data(tr_lvl_ptr);
 		// printf("t\n");
 	}
 }

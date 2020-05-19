@@ -515,7 +515,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart_req)
 		tr_lvl_set_timeout(&lm.pl._11A.interface.tr_lvl);
 	}
 	if(huart_req == &huart4){ // PL1.1B
-		tr_lvl_set_timeout(&lm.pl._11A.interface.tr_lvl);
+		tr_lvl_set_timeout(&lm.pl._11B.interface.tr_lvl);
 	}
   if(huart_req == &huart1){ // PL1.2
 		tr_lvl_set_timeout(&lm.pl._12.interface.tr_lvl);
