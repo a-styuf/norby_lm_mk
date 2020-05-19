@@ -327,6 +327,7 @@ int main(void)
       case PL11B_INTERFACE_INSTASEND_LENG_OFFSET:
         pl_iss_get_app_lvl_reprot(PL11B, lm.interface.pl_iss_interface.InstaMessage[PL11B-1], str);
         printf("%s", str);
+        pn_11_can_instasend(&lm.pl._11B, lm.interface.pl_iss_interface.InstaMessage[PL11B-1]);
         break;
       case PL12_INTERFACE_INSTASEND_LENG_OFFSET:
         pl_iss_get_app_lvl_reprot(PL12, lm.interface.pl_iss_interface.InstaMessage[PL12-1], str);
@@ -415,9 +416,9 @@ void blocking_test(void)
   // pn_11_a
   // printf("\tPL_11A\n");
   // pn_11_dbg_reset_state(&lm.pl._11A);
-  // pn_11_a
+  // pn_11_b
   // printf("\tPL_11B\n");
-  // pn_11_dbg_reset_state(&lm.pl._11B);
+  // pn_11_dbg_tr_lvl_test(&lm.pl._11B);
   // pn_12
   // printf("\tPL_12\n");
   // pn_12_dbg_reset_state(&lm.pl._12);
