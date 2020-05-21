@@ -275,7 +275,7 @@ uint8_t pn_11_tmp_check(type_PN11_model* pn11_ptr)
   */
 void pn_11_pwr_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
 {
-	if ((pn11_ptr->pwr_check_timeout_ms > 0) && (pn11_ptr->pwr_check_timeout_ms <= (0xFFFF - PN_11_TMP_PERIODICAL_TIMEOUT_MS))){
+	if ((pn11_ptr->pwr_check_timeout_ms > 0) && (pn11_ptr->pwr_check_timeout_ms <= (0xFFFF - PN_11_PWR_PERIODICAL_TIMEOUT_MS))){
 		pn11_ptr->pwr_check_timeout_ms -= period_ms;
 	}
 	else{
