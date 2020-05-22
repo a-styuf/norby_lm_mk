@@ -73,6 +73,8 @@ void lm_report_create(type_LM_DEVICE* lm_ptr)
 	lm_ptr->report.voltage 				= lm_ptr->pwr.ch[0].ina226.voltage;
 	lm_ptr->report.current 				= lm_ptr->pwr.ch[0].ina226.current;
 	lm_ptr->report.temperature 		= lm_ptr->tmp.tmp1075[0].temp;
+	lm_ptr->report.iss_vol 				= (lm_ptr->mem.part[PART_ISS].full_frame_num) & 0xFFFF;
+	lm_ptr->report.dcr_vol		 		= (lm_ptr->mem.part[PART_DCR].full_frame_num) & 0xFFFF;
 }
 
 /**
@@ -423,8 +425,8 @@ void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr)
 		}
 		//
 		tmi_fr.pl_power_switches = pwr_get_pwr_switch_key(&lm_ptr->pwr);
-		tmi_fr.iss_mem_status = lm_ptr->mem.part[PART_ISS].part_fill_volume_prc;
-		tmi_fr.dcr_mem_status = lm_ptr->mem.part[PART_DCR].part_fill_volume_prc;
+		tmi_fr.iss_mem_status = part_get_free_volume_in_percantage(&lm_ptr->mem.part[PART_ISS]);
+		tmi_fr.dcr_mem_status = part_get_free_volume_in_percantage(&lm_ptr->mem.part[PART_DCR]);
 		tmi_fr.pl_rst_count = lm_ptr->ctrl.rst_cnt;
 		tmi_fr.com_reg_lm_mode = lm_ptr->interface.cmdreg.array[1];
 		tmi_fr.com_reg_pwr_on_off = *(uint16_t*)&lm_ptr->interface.cmdreg.array[2];
@@ -457,6 +459,9 @@ void fill_gen_tmi(type_LM_DEVICE* lm_ptr)
 	memcpy(gen_fr.pl12_report, (uint8_t*)&lm_ptr->pl._12.report, sizeof(type_PN12_report));
 	memcpy(gen_fr.pl20_report, (uint8_t*)&lm_ptr->pl._20.report, sizeof(type_PN20_report));
 	memcpy(gen_fr.pldcr_report, (uint8_t*)&lm_ptr->pl._dcr.report, sizeof(type_PNDCR_report));
+	//
+	gen_fr.iss_wr_ptr = lm_ptr->mem.part[PART_ISS].write_ptr;
+	gen_fr.dcr_wr_ptr = lm_ptr->mem.part[PART_DCR].write_ptr;
 	//
 	frame_crc16_calc((uint8_t *)&gen_fr);
 	//

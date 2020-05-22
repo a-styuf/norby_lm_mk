@@ -208,9 +208,11 @@ int main(void)
         break;
       case CMD_INIT_ISS_MEM:
         printf("cmd: init iss memory\n");
+        ext_mem_format_part(&lm.mem, PART_ISS);
         break;
       case CMD_INIT_DCR_MEM:
         printf("cmd: init decor memory\n");
+        ext_mem_format_part(&lm.mem, PART_DCR);
         break;
       case CMD_DCR_WRITE_FLIGHT_TASK:
         printf("cmd: write dcr flight task from_can to dcr-model\n");
@@ -308,16 +310,19 @@ int main(void)
         cyclogram_start(&lm.cyclogram, &lm.pl, lm.interface.cmdreg.array[CMDREG_CYCLOGRAMS_0], lm.interface.cmdreg.array[CMDREG_CYCLOGRAMS_1]);
         break;
       case CMDREG_TIME_3:
-        clock_set_time_s(*(uint32_t*)&lm.interface.cmdreg.array[CMDREG_TIME_3]);
+        clock_set_time_s(*(uint32_t*)&lm.interface.cmdreg.array[CMDREG_TIME_0]);
         #ifdef DEBUG
-          printf_time(); printf("cmdreg: synch time %d\n", *(uint32_t*)&lm.interface.cmdreg.array[CMDREG_TIME_3]);
+          printf_time(); printf("cmdreg: synch time %d\n", *(uint32_t*)&lm.interface.cmdreg.array[CMDREG_TIME_0]);
         #endif
         break;
       case CMDREG_PART_MEM_RD_PTR_2:
         #ifdef DEBUG
-          printf_time(); printf("cmdreg: set part %d rd_ptr to %d\n", &lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR], 
-                                                                      *(uint32_t*)&lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR_2] & 0xFFFFFF);
-        #endif
+          printf_time(); printf("cmdreg: set part %d rd_ptr to %d\n", lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR], 
+                                                                      *(uint32_t*)&lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR_0] & 0xFFFFFF);
+				#endif
+				ext_mem_set_rd_ptr_for_part(&lm.mem, lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR], 
+                                      *(uint32_t*)&lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR_0] & 0xFFFFFF);
+        
         break;
       case CMDREG_DBG_LED:
         led_alt_setup(&mcu_state_led, LED_BLINK, 1000, lm.interface.cmdreg.array[CMDREG_DBG_LED], 3000);

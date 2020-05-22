@@ -143,7 +143,8 @@ typedef struct {
   uint8_t pl12_report[18]; //+64
   uint8_t pl20_report[18]; //+82
   uint8_t pldcr_report[18]; //+100
-  uint8_t rsrv[8]; //+118
+  uint32_t iss_wr_ptr; //+118
+  uint32_t dcr_wr_ptr; //+122
   //
   uint16_t crc16; //+126
 } type_LM_GEN_TMI_Frame; //128

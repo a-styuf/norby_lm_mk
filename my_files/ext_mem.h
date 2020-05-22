@@ -32,6 +32,7 @@
 #define PART_MODE_READ_BLOCK   0x00  // указатель чтения доганяет указатель записи и блокается
 #define PART_MODE_WRITE_BLOCK  0x01  // указатель записи доганяет указатель чтения и блокается
 #define PART_MODE_REWRITE      0x02  // указатель записи независит от указателя чтения
+#define PART_MODE_COIL_WRITE   0x03  // указатель записи независит от указателя чтения
 
 #define MODE_READ              0x01
 #define MODE_WRITE             0x02
@@ -41,7 +42,6 @@
   */
 typedef struct
 {
-	uint16_t part_fill_volume_prc;
   uint32_t write_ptr, read_ptr;
   uint32_t full_frame_num;
   uint32_t start_frame_num, finish_frame_num;
@@ -74,10 +74,11 @@ void ext_mem_rd_frame_from_part_by_addr(type_MEM_CONTROL* mem_ptr, uint8_t *fram
 void ext_mem_wr_frame_from_part_by_addr(type_MEM_CONTROL* mem_ptr, uint8_t *frame, uint8_t fr_addr, uint8_t part_num);
 void ext_mem_full_erase(type_MEM_CONTROL* mem_ptr, uint8_t symbol);
 void ext_mem_format_part(type_MEM_CONTROL* mem_ptr, uint8_t part_num);
+uint32_t ext_mem_set_rd_ptr_for_part(type_MEM_CONTROL* mem_ptr, uint8_t part_num, uint32_t rd_ptr);
 //
 uint32_t part_rel_init(type_MEM_PART_CONTROL* part_ptr, uint8_t mode, uint16_t full_rel_vol, uint16_t rel_vol, uint32_t start_frame_addr);
 uint32_t part_const_init(type_MEM_PART_CONTROL* part_ptr, uint8_t mode, uint16_t const_vol, uint32_t start_frame_addr);
-uint8_t part_fill_volume(type_MEM_PART_CONTROL* part_ptr);
+uint8_t part_get_free_volume_in_percantage(type_MEM_PART_CONTROL* part_ptr);
 uint8_t part_wr_rd_ptr_calc(type_MEM_PART_CONTROL* part_ptr, uint8_t mode);
 
 #endif

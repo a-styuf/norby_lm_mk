@@ -313,19 +313,25 @@ uint8_t pn_dcr_run_step_function(type_PN_DCR_model* pn_dcr_ptr)
 					report = 1;
 				}
 				break;
+			case DCR_PN_FLT_TYPE_PRST_CMD:
+				if (cmd == DCR_PN_PRST_CMD_SNC_TIME){
+					pn_dcr_send_cmd(pn_dcr_ptr, PN_DCR_CMD_SYNCH_TIME, NULL);
+					report = 1;
+				}
+				break;
 			case DCR_PN_FLT_PASS:
 				report = 1;
 				break;
 		}
 		//
-		// #ifdef DEBUG
-		// 	printf_time(); printf("DCR: FlTask %d; Step %02d num %02d: type=%d, cmd=%d, pause_ms=%d\n",	pn_dcr_ptr->status & 0x0F,
-		// 																																									pn_dcr_ptr->fl_task.step_num,
-		// 																																									pn_dcr_ptr->fl_task.step_repeat_cnt,
-		// 																																									type,
-		// 																																									cmd,
-		// 																																									pause_ms);
-		// #endif
+		#ifdef DEBUG_DCR
+			printf_time(); printf("DCR: FlTask %d; Step %02d num %02d: type=%d, cmd=%d, pause_ms=%d\n",	pn_dcr_ptr->status & 0x0F,
+																																											pn_dcr_ptr->fl_task.step_num,
+																																											pn_dcr_ptr->fl_task.step_repeat_cnt,
+																																											type,
+																																											cmd,
+																																											pause_ms);
+		#endif
 		// обработка перехода на новый шаг задания или повторение последнего задания
 		if (pn_dcr_ptr->fl_task.step_repeat_cnt > 0){
 			pn_dcr_ptr->fl_task.step_repeat_cnt -= 1;
@@ -368,6 +374,28 @@ uint8_t _pn_dcr_form_frame(uint8_t frame_type, type_PN_DCR_frame *frame, uint8_t
 }
 
 /**
+  * @brief  формирование шаблона команды на синхронизацие времени
+	* @param  frame_type: тип кадара (короткий/длинный) на отправку #define PN_DCR_UART_FRAME_... в .h файле
+  * @param  frame: указатель на структуру кадра в зависимости от frame_type
+	* @param  unix_time: значени времени в unix-time
+	* @retval возвращает длину для передачи данных
+	*/
+uint8_t _pn_dcr_form_snc_time_frame(uint8_t frame_type, type_PN_DCR_frame *frame, uint32_t unix_time)
+{
+	switch(frame_type){
+		case PN_DCR_UART_FRAME_SYNCH_TIME:
+			frame->snc_time.start_header = 'D';
+			frame->snc_time.cmd_type = 0x40;
+			frame->snc_time.unix_time = unix_time; 
+			frame->snc_time.stop_tail[0] = ';';
+			frame->snc_time.stop_tail[1] = '\r';
+			frame->snc_time.stop_tail[2] = '\n';
+			return 12;
+	}
+	return 0;
+}
+
+/**
   * @brief  функция для загрузки полетного задания ДеКоР из вне
   * @param  pn_dcr_ptr: указатель на структуру управления ПН_ДКР
 	* @param  flight_task: указатель на массив из sizeof(type_PNDCR_FlightTask)-байт, в котором содержится полетное задание
@@ -395,16 +423,16 @@ void pn_dcr_fill_default_flight_task(type_PN_DCR_model* pn_dcr_ptr)
 	// Задание циклограммы по умолчанию
 	// Включаем питание МК ДеКоР
 	_pn_dcr_fill_data_array(data, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-	pn_dcr_fill_flight_task_step(&pn_dcr_ptr->fl_task.default_flt.step[0], DCR_PN_FLT_TYPE_PWR, 0x01, 6000,	0, data);
+	pn_dcr_fill_flight_task_step(&pn_dcr_ptr->fl_task.default_flt.step[0], DCR_PN_FLT_TYPE_PWR, 0x01, 10000,	0, data);
+	// Синхронизуем время
+	_pn_dcr_fill_data_array(data, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+	pn_dcr_fill_flight_task_step(&pn_dcr_ptr->fl_task.default_flt.step[1], DCR_PN_FLT_TYPE_PRST_CMD, DCR_PN_PRST_CMD_SNC_TIME, 1000,	0, data);
 	// Заправшиваем статут
 	_pn_dcr_fill_data_array(data, 0x72, 0xC7, 0, 0, 0, 0, 0, 0);
-	pn_dcr_fill_flight_task_step(&pn_dcr_ptr->fl_task.default_flt.step[1], DCR_PN_FLT_TYPE_UART, 0x01, 10000,	0, data);
-	// Заправшиваем статут
-	_pn_dcr_fill_data_array(data, 0x72, 0xC7, 0, 0, 0, 0, 0, 0);
-	pn_dcr_fill_flight_task_step(&pn_dcr_ptr->fl_task.default_flt.step[2], DCR_PN_FLT_TYPE_UART, 0x01, 10000,	3, data);
-	// Отключаем ДеКоР на 20 секунд
+	pn_dcr_fill_flight_task_step(&pn_dcr_ptr->fl_task.default_flt.step[2], DCR_PN_FLT_TYPE_UART, 0x01, 10000,	10, data);
+	// Отключаем ДеКоР на 5 секунд
 	_pn_dcr_fill_data_array(data, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-	pn_dcr_fill_flight_task_step(&pn_dcr_ptr->fl_task.default_flt.step[4], DCR_PN_FLT_TYPE_PWR, 0x00, 20000,	0, data);
+	pn_dcr_fill_flight_task_step(&pn_dcr_ptr->fl_task.default_flt.step[3], DCR_PN_FLT_TYPE_PWR, 0x00, 1000,	0, data);
 }
 
 /**
@@ -578,19 +606,37 @@ void  _pn_dcr_uart_error_collector(type_PNDCR_interface *int_ptr, uint16_t error
 void pn_dcr_send_cmd(type_PN_DCR_model* pn_dcr_ptr, uint8_t cmd_type, uint8_t *data)
 {
 	type_PN_DCR_frame frame;
+	uint32_t unix_time = 0;
 	uint8_t len;
 	switch(cmd_type){
 		case PN_DCR_CMD_GET_TM_STATUS:
 			len = _pn_dcr_form_frame(PN_DCR_UART_FRAME_SHORT, &frame, 0x72, 0xC7, data);
 			pn_dcr_uart_send(&pn_dcr_ptr->uart, (uint8_t*)&frame, len);
+			#ifdef DEBUG_DCR
+				printf_time(); printf("DCR: CMD: get tm status\n");
+			#endif
 			break;
 		case PN_DCR_CMD_GET_DATA_MONITOR:
 			len = _pn_dcr_form_frame(PN_DCR_UART_FRAME_SHORT, &frame, 0x72, 0xC1, data);
 			pn_dcr_uart_send(&pn_dcr_ptr->uart, (uint8_t*)&frame, len);
+			#ifdef DEBUG_DCR
+				printf_time(); printf("DCR: CMD: get data monitor\n");
+			#endif
 			break;
 		case PN_DCR_CMD_GET_DATA_MASSIVE:
 			len = _pn_dcr_form_frame(PN_DCR_UART_FRAME_SHORT, &frame, 0x72, 0xC3, data);
 			pn_dcr_uart_send(&pn_dcr_ptr->uart, (uint8_t*)&frame, len);
+			#ifdef DEBUG_DCR
+				printf_time(); printf("DCR: CMD: get data array\n");
+			#endif
+			break;
+		case PN_DCR_CMD_SYNCH_TIME:
+			unix_time = clock_get_unix_time_s();
+			len = _pn_dcr_form_snc_time_frame(PN_DCR_UART_FRAME_SYNCH_TIME, &frame, unix_time);
+			pn_dcr_uart_send(&pn_dcr_ptr->uart, (uint8_t*)&frame, len);
+			#ifdef DEBUG_DCR
+				printf_time(); printf("DCR: CMD: synch time %d <0x%08X>\n",	unix_time, unix_time);
+			#endif
 			break;
 	}
 }
@@ -653,6 +699,9 @@ uint8_t pn_dcr_get_last_frame(type_PN_DCR_model* pn_dcr_ptr, uint8_t *data)
 		memcpy(data, pn_dcr_ptr->last_received_frame, pn_dcr_ptr->last_received_frame_leng);
 		leng = pn_dcr_ptr->last_received_frame_leng;
 		pn_dcr_ptr->last_received_frame_leng = 0;
+		#ifdef DEBUG_DCR
+			printf_time(); printf("DCR: get frame:"); printf_buff(data, leng, '\n');
+		#endif
 		return leng;
 	}
 	return 0;
@@ -670,6 +719,9 @@ uint8_t pn_dcr_get_last_status(type_PN_DCR_model* pn_dcr_ptr, uint8_t *data)
 		memcpy(data, pn_dcr_ptr->last_received_status, pn_dcr_ptr->last_received_status_leng);
 		leng = pn_dcr_ptr->last_received_status_leng;
 		pn_dcr_ptr->last_received_status_leng = 0;
+		#ifdef DEBUG_DCR
+			printf_time(); printf("DCR: get status:"); printf_buff(data, leng, '\n');
+		#endif
 		return leng;
 	}
 	return 0;

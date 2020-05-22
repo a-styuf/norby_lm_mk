@@ -5,9 +5,13 @@
 #include "pwr_ch.h"
 #include "usart.h"
 #include "ext_mem.h"
+#include "clock.h"
 
 #include "rtc.h"
 
+#define DEBUG_DCR
+
+//
 #define DCR_MODE_OFF 								0
 #define DCR_MODE_DEFAULT 						1
 #define DCR_MODE_FLIGHT_TASK 				2
@@ -24,12 +28,16 @@
 #define DCR_PN_FLT_NO_ONE		 							0x01
 #define DCR_PN_FLT_TYPE_PWR 							0x01
 #define DCR_PN_FLT_TYPE_UART							0x02
-#define DCR_PN_FLT_PASS			 							0x03
+#define DCR_PN_FLT_TYPE_PRST_CMD					0x03
+#define DCR_PN_FLT_PASS			 							0x08
 
 #define PN_DCR_PWR_MCU			 0x01
 #define PN_DCR_PWR_MSR			 0x02
 #define PN_DCR_PWR_ALL			 0x03
 
+#define DCR_PN_PRST_CMD_SNC_TIME			 0x00
+
+// ошибки работы ДеКоР
 #define PN_DCR_ERR_NO_ERROR 					(0x00)
 #define PN_DCR_ERR_WRONG_FRAME_LENG 	(0x01 << 0)
 #define PN_DCR_ERR_FL_TASK_ERROR			(0x01 << 1)
@@ -47,10 +55,12 @@
 
 #define PN_DCR_UART_FRAME_SHORT				(0x01)
 #define PN_DCR_UART_FRAME_LONG				(0x02)
+#define PN_DCR_UART_FRAME_SYNCH_TIME	(0x03)
 
 #define PN_DCR_CMD_GET_TM_STATUS			(0x01)
 #define PN_DCR_CMD_GET_DATA_MONITOR		(0x02)
 #define PN_DCR_CMD_GET_DATA_MASSIVE		(0x03)
+#define PN_DCR_CMD_SYNCH_TIME					(0x04)
 
 // пороговые значения для определения ошибки питания: напряжение в В, ток в А, мощность в Вт
 // пороги напряжения общие для двух каналов
@@ -107,6 +117,13 @@ typedef union
 		uint8_t data[6];
 		uint8_t stop_tail[3];
 	} shrt;
+	struct {
+		uint8_t start_header;
+		uint8_t cmd_type;
+		uint32_t unix_time;
+		uint8_t rsrv[3];
+		uint8_t stop_tail[3];
+	} snc_time;
 } type_PN_DCR_frame;
 
 /** 
@@ -200,6 +217,7 @@ void pn_dcr_flight_task_process(type_PN_DCR_model* pn_dcr_ptr, uint16_t period_m
 void pn_dcr_set_mode(type_PN_DCR_model* pn_dcr_ptr, uint8_t mode);
 uint8_t pn_dcr_run_step_function(type_PN_DCR_model* pn_dcr_ptr);
 uint8_t _pn_dcr_form_frame(uint8_t frame_type, type_PN_DCR_frame *frame, uint8_t cmd_type, uint8_t cmd_header, uint8_t *data);
+uint8_t _pn_dcr_form_snc_time_frame(uint8_t frame_type, type_PN_DCR_frame *frame, uint32_t unix_time);
 void pn_dcr_load_can_flight_task(type_PN_DCR_model* pn_dcr_ptr, uint8_t *flight_task);
 void pn_dcr_fill_default_flight_task(type_PN_DCR_model* pn_dcr_ptr);
 void pn_dcr_fill_flight_task_step(type_PNDCR_FlightTask_Step* step, uint8_t type, uint8_t cmd, uint32_t pause_ms, uint16_t repeat_cnt, uint8_t *data);
