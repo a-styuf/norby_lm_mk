@@ -26,8 +26,8 @@ int8_t ext_mem_init(type_MEM_CONTROL* mem_ptr, SPI_HandleTypeDef* spi_ptr)
   report += cy15_init(&mem_ptr->cy15b104[2], spi_ptr, GPIOD, 12);
 	report += cy15_init(&mem_ptr->cy15b104[3], spi_ptr, GPIOD, 13);
   // инициализируем блоки памяти для переферии
-  start_addr = part_rel_init(&mem_ptr->part[PART_ISS], PART_MODE_REWRITE, PART_FULL_VOL_REL, PART_ISS_VOL_REL, start_addr);
-  start_addr = part_rel_init(&mem_ptr->part[PART_DCR], PART_MODE_REWRITE, PART_FULL_VOL_REL, PART_DCR_VOL_REL, start_addr);
+  start_addr = part_rel_init(&mem_ptr->part[PART_ISS], PART_MODE_COIL_WRITE, PART_FULL_VOL_REL, PART_ISS_VOL_REL, start_addr);
+  start_addr = part_rel_init(&mem_ptr->part[PART_DCR], PART_MODE_COIL_WRITE, PART_FULL_VOL_REL, PART_DCR_VOL_REL, start_addr);
   start_addr = part_const_init(&mem_ptr->part[PART_DCR_FLIGHT_TASK], PART_MODE_REWRITE, PART_DCR_FLIGHT_TASK_CONST, start_addr);
   //
   return report;
@@ -254,6 +254,32 @@ void ext_mem_format_part(type_MEM_CONTROL* mem_ptr, uint8_t part_num)
     *(uint32_t*)&frame[2] = __REV(addr);
     ext_mem_wr_data_frame(mem_ptr, addr + mem_ptr->part[part_num].start_frame_num, frame);
   }
+  mem_ptr->part[part_num].write_ptr = 0;
+  mem_ptr->part[part_num].read_ptr = 0;
+}
+
+/**
+  * @brief  установка указателей чтения для частей памяти
+  * @param  mem_ptr: структура для управления памятью
+  * @param  part_num: номер тома памяти
+  * @param  rd_ptr: значение укаазтеля чтения для установки
+  * @retval в случае успеха возвращает: 31-24 - номер тома, 23-0 - указатель записи, в случае ошибки возвращает 0xFF место номера тома
+  */
+uint32_t ext_mem_set_rd_ptr_for_part(type_MEM_CONTROL* mem_ptr, uint8_t part_num, uint32_t rd_ptr)
+{
+  if (part_num >= PART_NUM){
+    if (rd_ptr >= (mem_ptr->part[part_num].full_frame_num)){
+      mem_ptr->part[part_num].read_ptr = mem_ptr->part[part_num].full_frame_num - 1;
+      return (uint32_t)((0xFF << 24) + ((mem_ptr->part[part_num].read_ptr) & 0xFFFFFF));
+    }
+    else{
+      mem_ptr->part[part_num].read_ptr = rd_ptr;
+      return (uint32_t)(((part_num & 0xFF) << 24) + ((mem_ptr->part[part_num].read_ptr) & 0xFFFFFF));
+    }
+  }
+  else{
+    return (uint32_t)(((0xFF) << 24) + 0x000000);
+  }
 }
 
 ///*** Работа с блоками памяти ***///
@@ -276,8 +302,6 @@ uint32_t part_rel_init(type_MEM_PART_CONTROL* part_ptr, uint8_t mode, uint16_t f
   part_ptr->write_ptr = 0;
   part_ptr->read_ptr = 0;
   part_ptr->mode = mode;
-  //
-  part_ptr->part_fill_volume_prc = 0;
 	//
 	return part_ptr->finish_frame_num + 1;
 }
@@ -300,8 +324,6 @@ uint32_t part_const_init(type_MEM_PART_CONTROL* part_ptr, uint8_t mode, uint16_t
   part_ptr->write_ptr = 0;
   part_ptr->read_ptr = 0;
   part_ptr->mode = mode;
-  //
-  part_ptr->part_fill_volume_prc = 0;
 	//
 	return part_ptr->finish_frame_num + 1;
 }
@@ -311,7 +333,7 @@ uint32_t part_const_init(type_MEM_PART_CONTROL* part_ptr, uint8_t mode, uint16_t
   * @param  part_ptr: структура для управления памятью
   * @retval заполненнсть памяти в процентах
   */
-uint8_t part_fill_volume(type_MEM_PART_CONTROL* part_ptr)
+uint8_t part_get_free_volume_in_percantage(type_MEM_PART_CONTROL* part_ptr)
 {
   uint32_t free_frames = 0;
   if (part_ptr->write_ptr < part_ptr->read_ptr){
@@ -320,7 +342,7 @@ uint8_t part_fill_volume(type_MEM_PART_CONTROL* part_ptr)
   else{
     free_frames = (part_ptr->write_ptr - part_ptr->read_ptr);
   }
-  return (uint8_t)(100.*(part_ptr->full_frame_num - free_frames)/part_ptr->full_frame_num);
+  return (uint8_t)(100.*(free_frames)/part_ptr->full_frame_num);
 }
 
 /**
@@ -344,7 +366,7 @@ uint8_t part_wr_rd_ptr_calc(type_MEM_PART_CONTROL* part_ptr, uint8_t mode)
         else part_ptr->read_ptr += 1;
         if ((part_ptr->read_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->read_ptr = 0;
       }
-    break;
+      break;
     case PART_MODE_WRITE_BLOCK:  // указатель записи доганяет указатель чтения и блокается
       if (mode == MODE_WRITE){
         report = 1;
@@ -357,8 +379,24 @@ uint8_t part_wr_rd_ptr_calc(type_MEM_PART_CONTROL* part_ptr, uint8_t mode)
         if ((part_ptr->read_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->read_ptr = 0;
         report = 1;
       }
-    break;
-    case PART_MODE_REWRITE:  // указатель записи независит от указателя чтения
+      break;
+    case PART_MODE_COIL_WRITE:  // указатель записи толкает указатель чтения в случае достижения оного
+      if (mode == MODE_WRITE){
+        part_ptr->write_ptr += 1;
+        if ((part_ptr->write_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->write_ptr = 0;
+        if(part_ptr->write_ptr == part_ptr->read_ptr) {
+          part_ptr->read_ptr += 1;
+          if ((part_ptr->read_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->read_ptr = 0;
+        }
+        report = 1;
+      }
+      else if (mode == MODE_READ){
+        part_ptr->read_ptr += 1;
+        if ((part_ptr->read_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->read_ptr = 0;
+        report = 1;
+      }
+      break;
+    case PART_MODE_REWRITE:  // указатель записи независим от указателя чтения
     default: // PART_MODE_REWRITE
       if (mode == MODE_WRITE){
         part_ptr->write_ptr += 1;
@@ -370,9 +408,8 @@ uint8_t part_wr_rd_ptr_calc(type_MEM_PART_CONTROL* part_ptr, uint8_t mode)
         if ((part_ptr->read_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->read_ptr = 0;
         report = 1;
       }
-    break;
+      break;
   }
   return report;
 }
-
 

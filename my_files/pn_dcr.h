@@ -5,33 +5,46 @@
 #include "pwr_ch.h"
 #include "usart.h"
 #include "ext_mem.h"
+#include "clock.h"
 
 #include "rtc.h"
 
+#define DEBUG_DCR
+
+//
 #define DCR_MODE_OFF 								0
 #define DCR_MODE_DEFAULT 						1
 #define DCR_MODE_FLIGHT_TASK 				2
 #define DCR_MODE_PAUSE			 				3
+
+#define DCR_MODE_SINGLE			 				0
+#define DCR_MODE_CYCLE			 				1
 
 #define DCR_PRELODED_FL_TASK_DEFAULT			0x00
 #define DCR_PRELODED_FL_TASK_OTHER				0x01
 #define DCR_PRELODED_FL_TASK_FROM_CAN			0xFF
 
 // типы команды для полетного задания
+#define DCR_PN_FLT_NO_ONE		 							0x01
 #define DCR_PN_FLT_TYPE_PWR 							0x01
 #define DCR_PN_FLT_TYPE_UART							0x02
-
+#define DCR_PN_FLT_TYPE_PRST_CMD					0x03
+#define DCR_PN_FLT_PASS			 							0x08
 
 #define PN_DCR_PWR_MCU			 0x01
 #define PN_DCR_PWR_MSR			 0x02
 #define PN_DCR_PWR_ALL			 0x03
 
+#define DCR_PN_PRST_CMD_SNC_TIME			 0x00
+
+// ошибки работы ДеКоР
 #define PN_DCR_ERR_NO_ERROR 					(0x00)
 #define PN_DCR_ERR_WRONG_FRAME_LENG 	(0x01 << 0)
 #define PN_DCR_ERR_FL_TASK_ERROR			(0x01 << 1)
 #define PN_DCR_ERR_WRONG_MODE					(0x01 << 2)
 #define PN_DCR_ERR_OTHER							(0x01 << 3)
-#define PN_DCR_ERR_PWR								(0x01 << 4)
+#define PN_DCR_ERR_PWR_MCU						(0x01 << 4)
+#define PN_DCR_ERR_PWR_MSR						(0x01 << 8)
 #define PN_DCR_ERR_UART								(0x01 << 12)
 
 #define PN_DCR_UART_ERR_NO_ERROR 			(0x00)
@@ -42,13 +55,14 @@
 
 #define PN_DCR_UART_FRAME_SHORT				(0x01)
 #define PN_DCR_UART_FRAME_LONG				(0x02)
+#define PN_DCR_UART_FRAME_SYNCH_TIME	(0x03)
 
 #define PN_DCR_CMD_GET_TM_STATUS			(0x01)
 #define PN_DCR_CMD_GET_DATA_MONITOR		(0x02)
 #define PN_DCR_CMD_GET_DATA_MASSIVE		(0x03)
+#define PN_DCR_CMD_SYNCH_TIME					(0x04)
 
 // пороговые значения для определения ошибки питания: напряжение в В, ток в А, мощность в Вт
-
 // пороги напряжения общие для двух каналов
 #define PN_DCR_VOLT_MAX 		9.0
 #define PN_DCR_VOLT_MIN 		4.5
@@ -57,7 +71,7 @@
 #define PN_DCR_MC_PWR_MIN 	0.1
 // границы мощности для лини питания датчика
 #define PN_DCR_MSR_PWR_MAX 	1.6
-#define PN_DCR_MSR_PWR_MIN 	0.4
+#define PN_DCR_MSR_PWR_MIN 	0.1
 // задержка для определения ошибки питания - устанавливается каждый ра, когда происходит изменение состояния питания
 #define PN_DCR_PWR_TIMEOUT_MS 	1000
 
@@ -103,6 +117,13 @@ typedef union
 		uint8_t data[6];
 		uint8_t stop_tail[3];
 	} shrt;
+	struct {
+		uint8_t start_header;
+		uint8_t cmd_type;
+		uint32_t unix_time;
+		uint8_t rsrv[3];
+		uint8_t stop_tail[3];
+	} snc_time;
 } type_PN_DCR_frame;
 
 /** 
@@ -125,7 +146,7 @@ typedef struct
 	uint8_t type; //+0
 	uint8_t cmd; //+1
 	uint32_t pause_ms; //+2
-	uint16_t rsrv; //+6
+	uint16_t repeate_cnt; //+6
 	uint8_t data[8]; //+8
 } type_PNDCR_FlightTask_Step; //16
 
@@ -147,6 +168,7 @@ typedef struct
 	type_PNDCR_FlightTask work;
 	uint8_t step_num;
 	uint32_t pause_ms;
+	uint16_t step_repeat_cnt;
 } type_PNDCR_FlightTask_Ctrl;
 
 /** 
@@ -181,38 +203,41 @@ typedef struct
 } type_PN_DCR_model;
 
 void pn_dcr_init(type_PN_DCR_model* pn_dcr_ptr, UART_HandleTypeDef *uart_ptr, type_PWR_CHANNEL* mcu_pwr_ch_ptr, type_PWR_CHANNEL* msr_pwr_ch_ptr);
-void pn_dcr_fill_default_flight_task(type_PN_DCR_model* pn_dcr_ptr);
-void pn_dcr_fill_flight_task_step(type_PNDCR_FlightTask_Step* step, uint8_t type, uint8_t cmd, uint32_t pause_ms, uint8_t *data);
-void _pn_dcr_fill_data_array(uint8_t*data, uint8_t data_0, uint8_t data_1, uint8_t data_2, uint8_t data_3, uint8_t data_4, uint8_t data_5, uint8_t data_6, uint8_t data_7);
 void pn_dcr_reset_state(type_PN_DCR_model* pn_dcr_ptr);
+void pn_dcr_process(type_PN_DCR_model* pn_dcr_ptr, uint16_t period_ms);
 void pn_dcr_report_create(type_PN_DCR_model* pn11_ptr);
-uint8_t pn_dcr_get_outputs_state(type_PN_DCR_model* pn11_ptr);
-//
+///*** функции поддержки работы с питанием ***///
+void pn_dcr_pwr_process(type_PN_DCR_model* pn_dcr_ptr, uint16_t period_ms);
+uint8_t pn_dcr_pwr_check(type_PN_DCR_model* pn_dcr_ptr);
 void pn_dcr_pwr_on(type_PN_DCR_model* pn_dcr_ptr, uint8_t mode);
 void pn_dcr_pwr_off(type_PN_DCR_model* pn_dcr_ptr, uint8_t mode);
-uint8_t pn_dcr_pwr_check(type_PN_DCR_model* pn_dcr_ptr, uint16_t timeout);
-//
-void pn_dcr_send_cmd(type_PN_DCR_model* pn_dcr_ptr, uint8_t cmd_type, uint8_t *data);
-uint8_t pn_dcr_get_data(type_PN_DCR_model* pn_dcr_ptr, uint8_t *data);
-void pn_dcr_process_rx_frames_10ms(type_PN_DCR_model* pn_dcr_ptr);
-uint8_t pn_dcr_get_last_frame(type_PN_DCR_model* pn_dcr_ptr, uint8_t *data);
-uint8_t pn_dcr_get_last_status(type_PN_DCR_model* pn_dcr_ptr, uint8_t *data);
+uint8_t pn_dcr_get_outputs_state(type_PN_DCR_model* pn11_ptr);
+///*** Flight task ***///
+void pn_dcr_flight_task_process(type_PN_DCR_model* pn_dcr_ptr, uint16_t period_ms);
 void pn_dcr_set_mode(type_PN_DCR_model* pn_dcr_ptr, uint8_t mode);
-void pn_dcr_load_can_flight_task(type_PN_DCR_model* pn_dcr_ptr, uint8_t *flight_task);
-void pn_dcr_process(type_PN_DCR_model* pn_dcr_ptr, uint32_t time_step_ms);
 uint8_t pn_dcr_run_step_function(type_PN_DCR_model* pn_dcr_ptr);
 uint8_t _pn_dcr_form_frame(uint8_t frame_type, type_PN_DCR_frame *frame, uint8_t cmd_type, uint8_t cmd_header, uint8_t *data);
-void  _pn_dcr_error_collector(type_PN_DCR_model* pn_dcr_ptr, uint16_t error, int16_t data);
-//
+uint8_t _pn_dcr_form_snc_time_frame(uint8_t frame_type, type_PN_DCR_frame *frame, uint32_t unix_time);
+void pn_dcr_load_can_flight_task(type_PN_DCR_model* pn_dcr_ptr, uint8_t *flight_task);
+void pn_dcr_fill_default_flight_task(type_PN_DCR_model* pn_dcr_ptr);
+void pn_dcr_fill_flight_task_step(type_PNDCR_FlightTask_Step* step, uint8_t type, uint8_t cmd, uint32_t pause_ms, uint16_t repeat_cnt, uint8_t *data);
+///*** Cfg ***///
 uint8_t pn_dcr_get_cfg(type_PN_DCR_model* pn_dcr_ptr, uint8_t *cfg);
 uint8_t pn_dcr_set_cfg(type_PN_DCR_model* pn_dcr_ptr, uint8_t *cfg);
-
-// работа с интерфейсом, исключительно передача и прием данных, без разоора и принятия решений по Декор
+// работа с интерфейсом, исключительно передача и прием данных, без разбора и принятия решений по Декор
 void pn_dcr_uart_init(type_PNDCR_interface *int_ptr, UART_HandleTypeDef *uart_ptr);
 void pn_dcr_uart_send(type_PNDCR_interface *int_ptr, uint8_t* data, uint8_t len);
 void pn_dcr_uart_rx_prcs_cb(type_PNDCR_interface *int_ptr);
 void pn_dcr_uart_tx_prcs_cb(type_PNDCR_interface *int_ptr);
 void pn_dcr_uart_err_prcs_cb(type_PNDCR_interface *int_ptr);
 void _pn_dcr_uart_error_collector(type_PNDCR_interface *int_ptr, uint16_t error);
-
+///*** Верхний уровень протокола общения с ДеКоР ***///
+void pn_dcr_send_cmd(type_PN_DCR_model* pn_dcr_ptr, uint8_t cmd_type, uint8_t *data);
+uint8_t pn_dcr_get_data(type_PN_DCR_model* pn_dcr_ptr, uint8_t *data);
+void pn_dcr_process_rx_frames(type_PN_DCR_model* pn_dcr_ptr, uint16_t pause_ms);
+uint8_t pn_dcr_get_last_frame(type_PN_DCR_model* pn_dcr_ptr, uint8_t *data);
+uint8_t pn_dcr_get_last_status(type_PN_DCR_model* pn_dcr_ptr, uint8_t *data);
+///*** General perpose function ***///
+void  _pn_dcr_error_collector(type_PN_DCR_model* pn_dcr_ptr, uint16_t error, int16_t data);
+void _pn_dcr_fill_data_array(uint8_t*data, uint8_t data_0, uint8_t data_1, uint8_t data_2, uint8_t data_3, uint8_t data_4, uint8_t data_5, uint8_t data_6, uint8_t data_7);
 #endif

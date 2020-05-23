@@ -182,7 +182,7 @@ int main(void)
 		}
 		if (time_slot_flag_10ms){ // 10ms
       //обработка данных принятых от декор и последуещее заполнение памяти кадров ими
-      pn_dcr_process_rx_frames_10ms(&lm.pl._dcr);
+      pn_dcr_process_rx_frames(&lm.pl._dcr, 10);
       fill_dcr_rx_frame(&lm);
       //
       fill_pl_iss_last_frame(&lm);
@@ -208,9 +208,11 @@ int main(void)
         break;
       case CMD_INIT_ISS_MEM:
         printf("cmd: init iss memory\n");
+        ext_mem_format_part(&lm.mem, PART_ISS);
         break;
       case CMD_INIT_DCR_MEM:
         printf("cmd: init decor memory\n");
+        ext_mem_format_part(&lm.mem, PART_DCR);
         break;
       case CMD_DCR_WRITE_FLIGHT_TASK:
         printf("cmd: write dcr flight task from_can to dcr-model\n");
@@ -231,11 +233,15 @@ int main(void)
     int16_val = cmdreg_check_to_process(&lm.interface);
     switch(int16_val){
       case CMDREG_LM_MODE:
-        printf("cmdreg: LM mode 0x%02X\n", lm.interface.cmdreg.array[CMDREG_LM_MODE]);
+        #ifdef DEBUG
+          printf_time(); printf("cmdreg: LM mode 0x%02X\n", lm.interface.cmdreg.array[CMDREG_LM_MODE]);
+        #endif
         break;
       case CMDREG_PL_PWR_SW:
         pwr_on_off(&lm.pwr, lm.interface.cmdreg.array[CMDREG_PL_PWR_SW]);
-        printf("cmdreg: PL pwr sw 0x%02X\n", lm.interface.cmdreg.array[CMDREG_PL_PWR_SW]);
+        #ifdef DEBUG
+          printf_time(); printf("cmdreg: PL pwr sw 0x%02X\n", lm.interface.cmdreg.array[CMDREG_PL_PWR_SW]);
+				#endif
         break;
       case CMDREG_PL_INH_0:
       case CMDREG_PL_INH_1:
@@ -245,7 +251,9 @@ int main(void)
       case CMDREG_PL_INH_5:
       case CMDREG_PL_INH_6:
       case CMDREG_PL_INH_7:
-        printf("cmdreg: PL inhibit %d: 0x%02X\n", (int16_val - CMDREG_PL_INH_0), lm.interface.cmdreg.array[int16_val]);
+        #ifdef DEBUG
+          printf_time(); printf("cmdreg: PL inhibit %d: 0x%02X\n", (int16_val - CMDREG_PL_INH_0), lm.interface.cmdreg.array[int16_val]);
+        #endif
         lm_inhibit_set(&lm, (int16_val - CMDREG_PL_INH_0), lm.interface.cmdreg.array[int16_val]);
         break;
       case CMDREG_ALL_MEM_RD_PTR_0:
@@ -253,23 +261,33 @@ int main(void)
       case CMDREG_ALL_MEM_RD_PTR_2:
       case CMDREG_ALL_MEM_RD_PTR_3:
         lm.mem.read_ptr = *((uint32_t*)&lm.interface.cmdreg.array[CMDREG_ALL_MEM_RD_PTR_0]);
-        printf("cmdreg: LM set full mem read_ptr 0x%04X\n", *((uint32_t*)&lm.interface.cmdreg.array[CMDREG_ALL_MEM_RD_PTR_0]));
+        #ifdef DEBUG
+          printf_time(); printf("cmdreg: LM set full mem read_ptr 0x%04X\n", *((uint32_t*)&lm.interface.cmdreg.array[CMDREG_ALL_MEM_RD_PTR_0]));
+        #endif
         break;
       case CMDREG_DCR_MODE_SET:
         pn_dcr_set_mode(&lm.pl._dcr, lm.interface.cmdreg.array[CMDREG_DCR_MODE_SET]);
-        printf("cmdreg: DCR set mode 0x%02X\n", lm.interface.cmdreg.array[CMDREG_DCR_MODE_SET]);
+        #ifdef DEBUG
+          printf_time(); printf("cmdreg: DCR set mode 0x%02X\n", lm.interface.cmdreg.array[CMDREG_DCR_MODE_SET]);
+        #endif
         break;
       case CMDREG_PL11A_OUT_SET:
         pn_11_output_set(&lm.pl._11A, lm.interface.cmdreg.array[int16_val]);
-        printf("cmdreg: PL11A set output 0x%02X\n", lm.interface.cmdreg.array[int16_val]);
+        #ifdef DEBUG
+          printf_time(); printf("cmdreg: PL11A set output 0x%02X\n", lm.interface.cmdreg.array[int16_val]);
+        #endif
         break;  
       case CMDREG_PL11B_OUT_SET:
         pn_11_output_set(&lm.pl._11B, lm.interface.cmdreg.array[int16_val]);
-        printf("cmdreg: PL11B set output 0x%02X\n", lm.interface.cmdreg.array[int16_val]);
+        #ifdef DEBUG
+          printf_time(); printf("cmdreg: PL11B set output 0x%02X\n", lm.interface.cmdreg.array[int16_val]);
+        #endif
         break;  
       case CMDREG_PL12_OUT_SET:
         pn_12_output_set(&lm.pl._12, lm.interface.cmdreg.array[int16_val]);
-        printf("cmdreg: PL12 set output 0x%02X\n", lm.interface.cmdreg.array[int16_val]);
+        #ifdef DEBUG
+          printf_time(); printf("cmdreg: PL12 set output 0x%02X\n", lm.interface.cmdreg.array[int16_val]);
+        #endif
         break;  
       case CMDREG_PL20_OUT_SET:
         pn_20_output_set(&lm.pl._20, lm.interface.cmdreg.array[int16_val]);
@@ -284,18 +302,34 @@ int main(void)
         #endif
         cyclogram_start(&lm.cyclogram, &lm.pl, lm.interface.cmdreg.array[CMDREG_CYCLOGRAMS_0], lm.interface.cmdreg.array[CMDREG_CYCLOGRAMS_1]);
         break;
-      case CMDREG_CONST_MODE_0:
-        lm.ctrl.constant_mode = lm.interface.cmdreg.array[CMDREG_CONST_MODE_0] & 0x01;
+      case CMDREG_CONST_MODE:
+        lm.ctrl.constant_mode = lm.interface.cmdreg.array[CMDREG_CONST_MODE] & 0x01;
         #ifdef DEBUG
-          printf_time(); printf("cmdreg: const_mode 0x%02X\n", lm.interface.cmdreg.array[CMDREG_CONST_MODE_0]);
+          printf_time(); printf("cmdreg: const_mode 0x%02X\n", lm.interface.cmdreg.array[CMDREG_CONST_MODE]);
         #endif
         cyclogram_start(&lm.cyclogram, &lm.pl, lm.interface.cmdreg.array[CMDREG_CYCLOGRAMS_0], lm.interface.cmdreg.array[CMDREG_CYCLOGRAMS_1]);
         break;
+      case CMDREG_TIME_3:
+        clock_set_time_s(*(uint32_t*)&lm.interface.cmdreg.array[CMDREG_TIME_0]);
+        #ifdef DEBUG
+          printf_time(); printf("cmdreg: synch time %d\n", *(uint32_t*)&lm.interface.cmdreg.array[CMDREG_TIME_0]);
+        #endif
+        break;
+      case CMDREG_PART_MEM_RD_PTR_2:
+        #ifdef DEBUG
+          printf_time(); printf("cmdreg: set part %d rd_ptr to %d\n", lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR], 
+                                                                      *(uint32_t*)&lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR_0] & 0xFFFFFF);
+				#endif
+				ext_mem_set_rd_ptr_for_part(&lm.mem, lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR], 
+                                      *(uint32_t*)&lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR_0] & 0xFFFFFF);
+        
+        break;
       case CMDREG_DBG_LED:
         led_alt_setup(&mcu_state_led, LED_BLINK, 1000, lm.interface.cmdreg.array[CMDREG_DBG_LED], 3000);
-        printf("cmdreg: (dbg) led test 0x%02X\n", lm.interface.cmdreg.array[CMDREG_DBG_LED]);
+        #ifdef DEBUG
+          printf_time(); printf("cmdreg: (dbg) led test 0x%02X\n", lm.interface.cmdreg.array[CMDREG_DBG_LED]);
+        #endif
         break;
-			
       case CMD_NO_ONE:
       default:
         // NULL;

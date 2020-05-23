@@ -144,7 +144,7 @@ int8_t cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t dev_id)
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_read_req_mode, 2000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_read_mode, 1000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_fpga_mcu_on, 2000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_check_and_save_tmi, 240000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_check_and_save_tmi, 60000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_fpga_on, 500);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_read_req_all, 2000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, pl_pn11A_read_all, 100);
@@ -167,7 +167,7 @@ int8_t cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t dev_id)
 	cyclogram_step_init(ccl_ptr, pl_ptr, 2, pl_pn11B_read_req_mode, 2000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 2, pl_pn11B_read_mode, 1000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 2, pl_pn11B_fpga_mcu_on, 2000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 2, pl_pn11B_check_and_save_tmi, 240000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 2, pl_pn11B_check_and_save_tmi, 60000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 2, pl_pn11B_fpga_on, 500);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 2, pl_pn11B_read_req_all, 2000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 2, pl_pn11B_read_all, 100);
@@ -218,7 +218,7 @@ int8_t cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t dev_id)
 	cyclogram_step_init(ccl_ptr, pl_ptr, 5, pl_pn11A_fpga_mcu_on, 100);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 5, pl_pn11B_fpga_mcu_on, 2000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 5, pl_pn11A_check_and_save_tmi, 100);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 5, pl_pn11B_check_and_save_tmi, 240000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 5, pl_pn11B_check_and_save_tmi, 60000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 5, pl_pn11A_fpga_on, 500);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 5, pl_pn11B_fpga_on, 500);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 5, pl_pn11A_read_req_all, 2000);
@@ -305,7 +305,6 @@ int8_t cyclogram_start(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t mode, u
 	cyclogram_stop_step_run(ccl_ptr, pl_ptr);
 	//
 	ccl_ptr->mode = mode;
-	ccl_ptr->num = cyclogram_num;
 	ccl_ptr->time_ms = 0;
 	//
 	cyclogram_single_init(ccl_ptr, pl_ptr, cyclogram_num);
@@ -326,12 +325,15 @@ int8_t cyclogram_start(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t mode, u
 void cyclogram_single_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t cyclogram_num)
 {
 	uint8_t i;
-	//экстренно прерываем работу прошлой циклограммы
 	if(ccl_ptr->mode == CYCLOGRAM_MODE_CYCLIC){
-		ccl_ptr->num = 0;
+		ccl_ptr->num = 1;
+	}
+	else{
+		ccl_ptr->num = cyclogram_num;
 	}
 	ccl_ptr->array[cyclogram_num].step_timeout = 0;
 	ccl_ptr->array[cyclogram_num].state = 0;
+	ccl_ptr->array[cyclogram_num].step_num = 0;
 	for (i=0; i<STEP_NUM; i++){
 		ccl_ptr->array[cyclogram_num].step[i].state = 0;
 	}
@@ -396,7 +398,7 @@ int8_t cyclogram_process(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint16_t peri
 			else if (ccl_ptr->mode == CYCLOGRAM_MODE_CYCLIC){
 				ccl_ptr->num += 1;
 				if (ccl_ptr->num >= CYCLEGRAMM_NUM){
-					ccl_ptr->num = 0;
+					ccl_ptr->num = 1;
 					ccl_ptr->array[c_num].step_timeout = 0;
 				}
 			}

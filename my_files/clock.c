@@ -50,6 +50,31 @@ uint32_t clock_get_time_s(void)
 }
 
 /**
+  * @brief  получение количества секнду с 1970-г (UNIX-time)
+  */
+uint32_t clock_get_unix_time_s(void)
+{
+  type_tm tm_time;
+  RTC_TimeTypeDef time = {0};
+  RTC_DateTypeDef date = {0};
+  uint32_t seconds;
+  //
+	HAL_RTC_GetTime(&hrtc, &time, RTC_FORMAT_BIN);
+	HAL_RTC_GetDate(&hrtc, &date, RTC_FORMAT_BIN);
+  //
+  tm_time.tm_year = CLOCK_START_YEAR + date.Year;
+  tm_time.tm_mon = date.Month;
+  tm_time.tm_mday = date.Date;
+  tm_time.tm_hour = time.Hours;
+  tm_time.tm_min = time.Minutes;
+  tm_time.tm_sec = time.Seconds;
+  //
+  seconds = xtmtot(&tm_time);
+  //
+	return seconds;
+}
+
+/**
   * @brief  вывод на экран массива hex-значений
   * @param  buff: указатель на блок памяти
   * @param  len: длина данных

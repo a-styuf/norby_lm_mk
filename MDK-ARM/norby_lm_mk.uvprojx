@@ -504,6 +504,11 @@
               <FileType>1</FileType>
               <FilePath>..\my_files\clock.c</FilePath>
             </File>
+            <File>
+              <FileName>xtime.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\my_files\xtime.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

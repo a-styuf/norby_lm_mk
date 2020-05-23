@@ -29,7 +29,7 @@ typedef unsigned short uint16_t;
 
 // настройки прибора
 #define DEV_ID (0x06)
-#define SOFT_VERSION "0.25.0"
+#define SOFT_VERSION "0.29.0"
 // свойства микроконтроллера
 
 // раскрашивание переменных
@@ -87,13 +87,16 @@ typedef struct
 typedef struct
 { 
 	uint16_t status; // +0
-	uint16_t error_flags; // +0
-	uint8_t err_cnt; // +8
-	uint8_t rst_cnt; // +7
-	uint16_t voltage; // +2
-	uint16_t current; // +4
-	uint16_t temperature; // +6
-} type_LM_REPORT;
+	uint16_t error_flags; // +2
+	uint8_t err_cnt; // +3
+	uint8_t rst_cnt; // +4
+	uint16_t voltage; // +6
+	uint16_t current; // +8
+	uint16_t temperature; // +10
+	uint16_t iss_vol; // +12
+	uint16_t dcr_vol; // +14
+	uint16_t rsrv; // +16
+} type_LM_REPORT; // +18
 
 /**
   * @brief  управляющие параметры МС
