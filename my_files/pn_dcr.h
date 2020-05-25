@@ -75,9 +75,6 @@
 // задержка для определения ошибки питания - устанавливается каждый ра, когда происходит изменение состояния питания
 #define PN_DCR_PWR_TIMEOUT_MS 	1000
 
-//Ошибки работы
-#define PN_DCR_STATE_NO_ERROR				(0)
-
 
 #pragma pack(2)
 /** 
@@ -194,6 +191,7 @@ typedef struct
 	type_PNDCR_FlightTask_Ctrl fl_task;
 	type_PNDCR_сfg loaded_cfg;
 	type_PNDCR_сfg cfg;
+	uint8_t self_num;
 	uint16_t status;
 	uint16_t error_flags;
 	uint8_t error_cnt;
@@ -202,7 +200,7 @@ typedef struct
 	uint16_t rx_frames_cnt, rx_status_cnt;
 } type_PN_DCR_model;
 
-void pn_dcr_init(type_PN_DCR_model* pn_dcr_ptr, UART_HandleTypeDef *uart_ptr, type_PWR_CHANNEL* mcu_pwr_ch_ptr, type_PWR_CHANNEL* msr_pwr_ch_ptr);
+void pn_dcr_init(type_PN_DCR_model* pn_dcr_ptr, uint8_t num, UART_HandleTypeDef *uart_ptr, type_PWR_CHANNEL* mcu_pwr_ch_ptr, type_PWR_CHANNEL* msr_pwr_ch_ptr);
 void pn_dcr_reset_state(type_PN_DCR_model* pn_dcr_ptr);
 void pn_dcr_process(type_PN_DCR_model* pn_dcr_ptr, uint16_t period_ms);
 void pn_dcr_report_create(type_PN_DCR_model* pn11_ptr);

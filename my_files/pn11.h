@@ -7,8 +7,6 @@
 #include "pn_11_interface_app_lvl.h"
 #include "debug.h"
 
-#include "rtc.h"
-
 #define PN11_OUTPUT_DEFAULT 0x0F
 #define PN11_OUTPUT_FPGA_ON 0x02
 #define PN11_OUTPUT_FPGA_MCU_ON 0x00
@@ -64,7 +62,7 @@
 #define PN_11_MEM_ADDR_MODE       (APP_LVL_ADDR_OFFSET + 0x0)
 #define PN_11_MEM_ADDR_START_MEM  (APP_LVL_ADDR_OFFSET + 0x0)
 
-// объем данных для полного вычитывания
+// типы запретов работы ПН
 #define PN_11_INH_SELF 						(1 << 0)
 #define PN_11_INH_PWR							(1 << 1)
 #define PN_11_INH_TMP							(1 << 2)
@@ -120,6 +118,16 @@ typedef union
 	} array;
 } type_PN_11_MEM;
 
+/** 
+  * @brief  структура формирования параметров для хранения в ПЗУ ПН (18 байт) для последующей упаковки всех состаяний в один кадр из 116 байт
+  */
+typedef struct
+{
+	uint8_t inhibit; 				//+0
+	uint8_t gap; 						//+1
+	uint8_t rsrv[16]; 			//+2
+} type_PN11_сfg;		 			//18
+
 #pragma pack(8)
 
 /** 
@@ -147,6 +155,9 @@ typedef struct
 	type_PN11_report report;
 	type_PN11_TMI_slice tmi_slice;
 	uint8_t tmi_slice_number;
+	//
+	type_PN11_сfg loaded_cfg;
+	type_PN11_сfg cfg;
 	//
 	uint8_t self_num; // собственный номе ПН
 	uint16_t status, error_flags;
@@ -186,6 +197,9 @@ void pn_11_write_u32_data(type_PN11_model* pn11_ptr, uint32_t addr, uint32_t *u3
 uint8_t pn_11_can_instasend(type_PN11_model* pn11_ptr, uint8_t* insta_send_data);
 void pn_11_seq_read_start(type_PN11_model* pn11_ptr, uint32_t start_addr, uint32_t u32_leng);
 void _pn_11_seq_read_request(type_PN11_model* pn11_ptr);
+
+uint8_t pn_11_get_cfg(type_PN11_model* pn11_ptr, uint8_t *cfg);
+uint8_t pn_11_set_cfg(type_PN11_model* pn11_ptr, uint8_t *cfg);
 
 void  _pn_11_error_collector(type_PN11_model* pn11_ptr, uint16_t error, int16_t data);
 

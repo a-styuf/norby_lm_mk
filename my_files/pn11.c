@@ -83,7 +83,6 @@ void pn_11_reset_state(type_PN11_model* pn11_ptr)
 	//
 }
 
-
 /**
   * @brief  поддержка работы програмной модели ПН
   * @param  pn11_ptr: указатель на структуру управления ПН
@@ -93,6 +92,8 @@ void pn_11_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
 {
 	//проверка питания
 	pn_11_pwr_process(pn11_ptr, period_ms);
+	//проверка питания
+	pn_11_tmp_process(pn11_ptr, period_ms);
 	// поддержка протокола общения
 	pn_11_interface_process(pn11_ptr, period_ms);
 }
@@ -253,7 +254,7 @@ void pn_11_tmp_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
 
 /**
   * @brief  проверка параметров температуры
-  * @param  pn_dcr_ptr: указатель на структуру управления ПН
+  * @param  pn_12_ptr: указатель на структуру управления ПН
   * @retval ошибки каналов измерения температуры
   */
 uint8_t pn_11_tmp_check(type_PN11_model* pn11_ptr)
@@ -286,7 +287,7 @@ void pn_11_pwr_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
 
 /**
   * @brief  проверка параметров питания
-  * @param  pn_dcr_ptr: указатель на структуру управления ПН
+  * @param  pn11_ptr: указатель на структуру управления ПН
   * @retval  ошибки каналов питания
   */
 uint8_t pn_11_pwr_check(type_PN11_model* pn11_ptr)
@@ -295,7 +296,6 @@ uint8_t pn_11_pwr_check(type_PN11_model* pn11_ptr)
 	pn11_ptr->pwr_check_timeout_ms = PN_11_PWR_PERIODICAL_TIMEOUT_MS; //на случай асинхронного вызова
 	if (pwr_ch_get_error(pn11_ptr->pwr_ch, &report)){
 		_pn_11_error_collector(pn11_ptr, PN11_ERR_PWR, report);
-		// printf("\tpwr_error = 0x%02X\n", report);
 	}
 	return report;
 }
@@ -553,6 +553,38 @@ uint8_t pn_11_can_instasend(type_PN11_model* pn11_ptr, uint8_t* insta_send_data)
 		break;
 	}
 	return 0;
+}
+
+///*** Cfg ***///
+/**
+  * @brief  получение параметров работы прибора для сохранения в ПЗУ
+  * @param  pn11_ptr: указатель на структуру управления ПН_ДКР
+  * @param  cfg: укзаатель на структуру с параметрами ДеКоР
+  * @retval  1 - ОК, 0 - ошибка
+  */
+uint8_t pn_11_get_cfg(type_PN11_model* pn11_ptr, uint8_t *cfg)
+{
+	memset((uint8_t*)&pn11_ptr->cfg, 0xFE, sizeof(type_PN11_сfg));
+	pn11_ptr->cfg.inhibit = pn11_ptr->inhibit;
+	//
+	memcpy(cfg, (uint8_t*)&pn11_ptr->cfg, sizeof(type_PN11_сfg));
+	//
+	return 1;
+}
+
+/**
+  * @brief  получение параметров работы прибора для сохранения в ПЗУ
+  * @param  pn11_ptr: указатель на структуру управления ПН_ДКР
+  * @param  cfg: укзаатель на структуру с параметрами ДеКоР
+  * @retval  1 - ОК, 0 - ошибка (заготовка под проверку валидности данных)
+  */
+uint8_t pn_11_set_cfg(type_PN11_model* pn11_ptr, uint8_t *cfg)
+{
+	//
+	memcpy((uint8_t*)&pn11_ptr->loaded_cfg, (uint8_t*)cfg, sizeof(type_PN11_сfg));
+	pn_11_set_inh(pn11_ptr, pn11_ptr->loaded_cfg.inhibit);
+	//
+	return 1;
 }
 
 ///*** функции внутреннего назаначения ***///

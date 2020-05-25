@@ -26,8 +26,8 @@ int8_t ext_mem_init(type_MEM_CONTROL* mem_ptr, SPI_HandleTypeDef* spi_ptr)
   report += cy15_init(&mem_ptr->cy15b104[2], spi_ptr, GPIOD, 12);
 	report += cy15_init(&mem_ptr->cy15b104[3], spi_ptr, GPIOD, 13);
   // инициализируем блоки памяти для переферии
-  start_addr = part_rel_init(&mem_ptr->part[PART_ISS], PART_MODE_COIL_WRITE, PART_FULL_VOL_REL, PART_ISS_VOL_REL, start_addr);
-  start_addr = part_rel_init(&mem_ptr->part[PART_DCR], PART_MODE_COIL_WRITE, PART_FULL_VOL_REL, PART_DCR_VOL_REL, start_addr);
+  start_addr = part_rel_init(&mem_ptr->part[PART_ISS], PART_MODE_SMART_COIL_WRITE, PART_FULL_VOL_REL, PART_ISS_VOL_REL, start_addr);
+  start_addr = part_rel_init(&mem_ptr->part[PART_DCR], PART_MODE_SMART_COIL_WRITE, PART_FULL_VOL_REL, PART_DCR_VOL_REL, start_addr);
   start_addr = part_const_init(&mem_ptr->part[PART_DCR_FLIGHT_TASK], PART_MODE_REWRITE, PART_DCR_FLIGHT_TASK_CONST, start_addr);
   //
   return report;
@@ -267,7 +267,7 @@ void ext_mem_format_part(type_MEM_CONTROL* mem_ptr, uint8_t part_num)
   */
 uint32_t ext_mem_set_rd_ptr_for_part(type_MEM_CONTROL* mem_ptr, uint8_t part_num, uint32_t rd_ptr)
 {
-  if (part_num >= PART_NUM){
+  if (part_num < PART_NUM){
     if (rd_ptr >= (mem_ptr->part[part_num].full_frame_num)){
       mem_ptr->part[part_num].read_ptr = mem_ptr->part[part_num].full_frame_num - 1;
       return (uint32_t)((0xFF << 24) + ((mem_ptr->part[part_num].read_ptr) & 0xFFFFFF));
@@ -337,7 +337,7 @@ uint8_t part_get_free_volume_in_percantage(type_MEM_PART_CONTROL* part_ptr)
 {
   uint32_t free_frames = 0;
   if (part_ptr->write_ptr < part_ptr->read_ptr){
-    free_frames = (part_ptr->read_ptr - part_ptr->write_ptr);
+    free_frames = ((part_ptr->full_frame_num - part_ptr->read_ptr) + part_ptr->write_ptr);
   }
   else{
     free_frames = (part_ptr->write_ptr - part_ptr->read_ptr);
@@ -380,7 +380,7 @@ uint8_t part_wr_rd_ptr_calc(type_MEM_PART_CONTROL* part_ptr, uint8_t mode)
         report = 1;
       }
       break;
-    case PART_MODE_COIL_WRITE:  // указатель записи толкает указатель чтения в случае достижения оного
+    case PART_MODE_SMART_COIL_WRITE:  // указатель записи толкает указатель чтения в случае достижения оного, указатель чтения блокируется при достижении указателя записи
       if (mode == MODE_WRITE){
         part_ptr->write_ptr += 1;
         if ((part_ptr->write_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->write_ptr = 0;
@@ -391,9 +391,10 @@ uint8_t part_wr_rd_ptr_calc(type_MEM_PART_CONTROL* part_ptr, uint8_t mode)
         report = 1;
       }
       else if (mode == MODE_READ){
-        part_ptr->read_ptr += 1;
-        if ((part_ptr->read_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->read_ptr = 0;
         report = 1;
+        if(part_ptr->read_ptr == part_ptr->write_ptr) report = 0;
+        else part_ptr->read_ptr += 1;
+        if ((part_ptr->read_ptr + part_ptr->start_frame_num) > part_ptr->finish_frame_num) part_ptr->read_ptr = 0;
       }
       break;
     case PART_MODE_REWRITE:  // указатель записи независим от указателя чтения

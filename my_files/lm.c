@@ -34,9 +34,6 @@ void lm_init(type_LM_DEVICE* lm_ptr)
 	//ext_mem
 	report = ext_mem_init(&lm_ptr->mem, &hspi2);
 	printf("\tExt-mem init: %d\n", report);
-	// load saved_parameters
-	report =  lm_load_parameters(lm_ptr);
-	printf("\tLoad parameters from mem: %d\n", report);
 	//
 	printf_time();
 	printf("Finish init at %d s\n\n", clock_get_time_s());
@@ -56,6 +53,8 @@ int8_t lm_ctrl_init(type_LM_DEVICE* lm_ptr)
 	lm_ptr->ctrl.err_cnt = 0;
 	lm_ptr->ctrl.rst_cnt = 0;
 	lm_ptr->ctrl.pl_status = 0;
+	lm_ptr->inhibit = 0;
+	lm_ptr->pl_cyclogram_stop_flag = 0;
 	return ret_val;
 }
 
@@ -91,12 +90,23 @@ int8_t lm_load_parameters(type_LM_DEVICE* lm_ptr)
 		pn_dcr_load_can_flight_task(&lm_ptr->pl._dcr, (uint8_t*)lm_ptr->interface.dcr_interface.FlightTask);
 	}
 	// загрузка параметров из специальной облости памяти
-	if (ext_mem_rd_param(&lm_ptr->mem, (uint8_t*)&lm_ptr->loaded_cfg)){
-		pn_dcr_set_cfg(&lm_ptr->pl._dcr, lm_ptr->loaded_cfg.pldcr_cfg);
+	if (ext_mem_rd_param(&lm_ptr->mem, (uint8_t*)&lm_ptr->loaded_cfg_frame)){
+		#ifdef DEBUG
+			printf("\n"); printf_time(); printf("Load parameters\n");
+		#endif
+		lm_set_cfg(lm_ptr, lm_ptr->loaded_cfg_frame.lm_cfg);
+		pn_11_set_cfg(&lm_ptr->pl._11A, lm_ptr->loaded_cfg_frame.pl11a_cfg);
+		pn_11_set_cfg(&lm_ptr->pl._11B, lm_ptr->loaded_cfg_frame.pl11b_cfg);
+		pn_12_set_cfg(&lm_ptr->pl._12, lm_ptr->loaded_cfg_frame.pl12_cfg);
+		pn_20_set_cfg(&lm_ptr->pl._20, lm_ptr->loaded_cfg_frame.pl20_cfg);
+		pn_dcr_set_cfg(&lm_ptr->pl._dcr, lm_ptr->loaded_cfg_frame.pldcr_cfg);
 		//
 		retval |= 0x01;
 	}
 	else{
+		#ifdef DEBUG
+			printf("\n"); printf_time(); printf("Load parameters Error\n");
+		#endif
 	}
 	//
 	return retval;
@@ -110,16 +120,65 @@ int8_t lm_load_parameters(type_LM_DEVICE* lm_ptr)
 int8_t lm_save_parameters(type_LM_DEVICE* lm_ptr)
 {
 	int8_t ret_val = 0;
-	;
-	memset((uint8_t*)&lm_ptr->cfg_to_save, 0xFE, 128);
+	memset((uint8_t*)&lm_ptr->cfg_frame_to_save, 0xFE, 128);
 	// запрашиваем конфигурации всех устройст
-	pn_dcr_get_cfg(&lm_ptr->pl._dcr, (uint8_t *)&lm_ptr->cfg_to_save.pldcr_cfg);
+	lm_get_cfg(lm_ptr, (uint8_t *)&lm_ptr->cfg_frame_to_save.lm_cfg);
+	pn_11_get_cfg(&lm_ptr->pl._11A, (uint8_t *)&lm_ptr->cfg_frame_to_save.pl11a_cfg);
+	pn_11_get_cfg(&lm_ptr->pl._11B, (uint8_t *)&lm_ptr->cfg_frame_to_save.pl11b_cfg);
+	pn_12_get_cfg(&lm_ptr->pl._12, (uint8_t *)&lm_ptr->cfg_frame_to_save.pl12_cfg);
+	pn_20_get_cfg(&lm_ptr->pl._20, (uint8_t *)&lm_ptr->cfg_frame_to_save.pl20_cfg);
+	pn_dcr_get_cfg(&lm_ptr->pl._dcr, (uint8_t *)&lm_ptr->cfg_frame_to_save.pldcr_cfg);
 	// прилипляем заголовок
-	frame_create_header((uint8_t *)&lm_ptr->cfg_to_save.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_LM_CONFIG, 0x00, 0x00);
+	frame_create_header((uint8_t *)&lm_ptr->cfg_frame_to_save.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_LM_CONFIG, 0x00, 0x00);
 	// записываем в память
-	ext_mem_wr_param(&lm_ptr->mem, (uint8_t *)&lm_ptr->cfg_to_save);
+	ext_mem_wr_param(&lm_ptr->mem, (uint8_t *)&lm_ptr->cfg_frame_to_save);
 	//
 	return ret_val;
+}
+
+/**
+  * @brief  получение параметров работы прибора для сохранения в ПЗУ
+  * @param  type_LM_DEVICE: указатель на структуру управления МС
+  * @param  cfg: укзаатель на структуру с параметрами
+  * @retval  1 - ОК, 0 - ошибка
+  */
+void lm_get_cfg(type_LM_DEVICE* lm_ptr, uint8_t *cfg)
+{
+	memset((uint8_t*)&lm_ptr->cfg, 0xFE, sizeof(type_LM_сfg));
+	//
+	lm_ptr->cfg.iss_wr_ptr = lm_ptr->mem.part[PART_ISS].write_ptr;
+	lm_ptr->cfg.iss_rd_ptr = lm_ptr->mem.part[PART_ISS].read_ptr;
+	lm_ptr->cfg.dcr_wr_ptr = lm_ptr->mem.part[PART_DCR].write_ptr;
+	lm_ptr->cfg.dcr_rd_ptr = lm_ptr->mem.part[PART_DCR].read_ptr;
+	lm_ptr->cfg.inhibit = lm_ptr->inhibit;
+	lm_ptr->cfg.cyclogram_mode = lm_ptr->cyclogram.mode;
+	lm_ptr->cfg.cyclogram_num = lm_ptr->cyclogram.num;
+	//
+	memcpy(cfg, (uint8_t*)&lm_ptr->cfg, sizeof(type_LM_сfg));
+	//
+}
+
+/**
+  * @brief  получение параметров работы прибора для сохранения в ПЗУ
+  * @param  pn11_ptr: указатель на структуру управления МС
+  * @param  cfg: укзаатель на структуру с параметрами 
+  * @retval  1 - ОК, 0 - ошибка (заготовка под проверку валидности данных)
+  */
+uint8_t lm_set_cfg(type_LM_DEVICE* lm_ptr, uint8_t *cfg)
+{
+	//
+	memcpy((uint8_t*)&lm_ptr->loaded_cfg, (uint8_t*)cfg, sizeof(type_LM_сfg));
+	//
+	lm_ptr->mem.part[PART_ISS].write_ptr = lm_ptr->loaded_cfg.iss_wr_ptr;
+	lm_ptr->mem.part[PART_ISS].read_ptr = lm_ptr->loaded_cfg.iss_rd_ptr;
+	lm_ptr->mem.part[PART_DCR].write_ptr = lm_ptr->loaded_cfg.dcr_wr_ptr;
+	lm_ptr->mem.part[PART_DCR].read_ptr = lm_ptr->loaded_cfg.dcr_rd_ptr;
+	//
+	lm_set_inh(lm_ptr, lm_ptr->loaded_cfg.inhibit);
+	//
+	cyclogram_start(&lm_ptr->cyclogram, &lm_ptr->pl, lm_ptr->loaded_cfg.cyclogram_mode, lm_ptr->loaded_cfg.cyclogram_num);
+	//
+	return 1;
 }
 
 
@@ -129,10 +188,11 @@ int8_t lm_save_parameters(type_LM_DEVICE* lm_ptr)
   * @param  pl_num: номер ПН согласно #define в pl_cuclogram.h
   * @param  inh: cостояниt inh для ПН
   */
-void lm_inhibit_set(type_LM_DEVICE* lm_ptr, uint8_t pl_num, uint8_t inh)
+void lm_pl_inhibit_set(type_LM_DEVICE* lm_ptr, uint8_t pl_num, uint8_t inh)
 {
 	switch(pl_num){
 		case LM:
+			lm_set_inh(lm_ptr, inh);
 			break;
 		case PL11A:
 			pn_11_set_inh(&lm_ptr->pl._11A, inh);
@@ -141,8 +201,10 @@ void lm_inhibit_set(type_LM_DEVICE* lm_ptr, uint8_t pl_num, uint8_t inh)
 			pn_11_set_inh(&lm_ptr->pl._11B, inh);
 			break;
 		case PL12:
+			pn_12_set_inh(&lm_ptr->pl._12, inh);
 			break;
 		case PL20:
+			pn_20_set_inh(&lm_ptr->pl._20, inh);
 			break;
 		case PL_DCR1:
 		case PL_DCR2:
@@ -150,7 +212,47 @@ void lm_inhibit_set(type_LM_DEVICE* lm_ptr, uint8_t pl_num, uint8_t inh)
 		default:
 			break;
 	}
+}
 
+/**
+  * @brief  установка запрета чего-либо
+  * @param  pn20_ptr: указатель на структуру управления ПН
+	* @param  inh: флаги отключения функционала ПН
+  */
+void lm_set_inh(type_LM_DEVICE* lm_ptr, uint8_t inh)
+{
+	lm_ptr->inhibit = inh;
+}
+
+/**
+  * @brief  обертка обработчика циклограмм для ПН ИСС с учетом заполеннности памяти
+  * @param  lm_ptr: указатель на структуру управления ПН
+	* @param  period_ms: период вызова данной функции
+  */
+void lm_cyclogram_process(type_LM_DEVICE* lm_ptr, uint16_t period_ms)
+{
+	if (lm_ptr->inhibit & LM_INH_CCL_MEM_CHECK){
+		lm_ptr->pl_cyclogram_stop_flag = 0;
+	}
+	else {
+		if ((lm_ptr->pl_cyclogram_stop_flag == 0) & (part_get_free_volume_in_percantage(&lm_ptr->mem.part[PART_ISS]) >= ISS_MEM_TOP_BOUND_PROCENTAGE)){
+			#ifdef DEBUG
+				printf("\n"); printf_time(); printf("ISS MEM FULL!\n");
+			#endif
+			lm_ptr->pl_cyclogram_stop_flag = 1;
+		}
+		else if ((lm_ptr->pl_cyclogram_stop_flag == 1) & (part_get_free_volume_in_percantage(&lm_ptr->mem.part[PART_ISS]) < ISS_MEM_BOT_BOUND_PROCENTAGE)){
+			#ifdef DEBUG
+				printf("\n"); printf_time(); printf("ISS MEM HAVE ENOUGH VOLUME\n");
+			#endif
+			lm_ptr->pl_cyclogram_stop_flag = 0;
+		}
+	}
+	//
+	cyclogram_process(&lm_ptr->cyclogram, &lm_ptr->pl, lm_ptr->pl_cyclogram_stop_flag, period_ms);
+	//
+	lm_ptr->ctrl.status &= ~(0xFF << 8);
+	lm_ptr->ctrl.status |= ((lm_ptr->cyclogram.state & 0xFF) << 8);
 }
 
 
@@ -204,10 +306,11 @@ void pwr_on_off(type_PWR_CONTROL* pwr_ptr, uint8_t pwr_switches) //работа�
 }
 
 /**
-  * @brief  организация работы в 100ms слотах
+  * @brief  организация работы во времянных слотах
   * @param  pwr_ptr: структура управления питанием
+	* @param  period_ms: период вызова функции
   */
-void pwr_process_100ms(type_PWR_CONTROL* pwr_ptr)
+void pwr_process(type_PWR_CONTROL* pwr_ptr, uint16_t period_ms)
 {
 	pwr_ptr->ch_read_queue += 1;
 	if (pwr_ptr->ch_read_queue >= 7){
@@ -347,8 +450,9 @@ void tmp_create_report(type_TMP_CONTROL* tmp_ptr)
 /**
   * @brief  организация работы в 100ms слотах: запуск псевдопотока на измерение температуры
   * @param  tmp_ptr: структура управления измерением температуры
+	* @param  period_ms: период вызова функции
   */
-void tmp_process_100ms(type_TMP_CONTROL* tmp_ptr)
+void tmp_process(type_TMP_CONTROL* tmp_ptr, uint16_t period_ms)
 {
 	tmp_ptr->ch_read_queue += 1;
 	if (tmp_ptr->ch_read_queue >= 5){

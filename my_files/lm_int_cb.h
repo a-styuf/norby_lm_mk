@@ -3,6 +3,7 @@
 
 #include "lm.h"
 #include "led.h"
+#include "debug.h"
 
 // раскрашивание переменных для обработчиков функций
 #define MODE_START CMD_START

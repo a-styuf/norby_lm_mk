@@ -29,10 +29,10 @@
 #define PART_DCR_VOL_REL                64
 
 //
-#define PART_MODE_READ_BLOCK   0x00  // указатель чтения доганяет указатель записи и блокается
-#define PART_MODE_WRITE_BLOCK  0x01  // указатель записи доганяет указатель чтения и блокается
-#define PART_MODE_REWRITE      0x02  // указатель записи независит от указателя чтения
-#define PART_MODE_COIL_WRITE   0x03  // указатель записи независит от указателя чтения
+#define PART_MODE_READ_BLOCK           0x00  // указатель чтения доганяет указатель записи и блокается
+#define PART_MODE_WRITE_BLOCK          0x01  // указатель записи доганяет указатель чтения и блокается
+#define PART_MODE_REWRITE              0x02  // указатель записи независит от указателя чтения
+#define PART_MODE_SMART_COIL_WRITE     0x03  // указатель записи толкает указатель чтения в случае достижения оного, указатель чтения блокируется при достижении указателя записи
 
 #define MODE_READ              0x01
 #define MODE_WRITE             0x02

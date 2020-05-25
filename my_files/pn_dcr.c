@@ -14,12 +14,13 @@
 /**
   * @brief  инийиализация полезной нагрузки ДеКоР
   * @param  pn_dcr_ptr: указатель на структуру управления ПН1.1
+	* @param  num: номер полезной нагрузки
   * @param  uart_ptr: указатель на структуру управления UART через HAL CubeMX
   * @param  mcu_pwr_ch_ptr: указатель на структуру управления питанием части Декор с MCU
   * @param  msr_pwr_ch_ptr: указатель на структуру управления питанием измерительной части Декор
   * @param  num: номер ПН1.1: 0-А, 1-B
   */
-void pn_dcr_init(type_PN_DCR_model* pn_dcr_ptr, UART_HandleTypeDef *uart_ptr, type_PWR_CHANNEL* mcu_pwr_ch_ptr, type_PWR_CHANNEL* msr_pwr_ch_ptr)
+void pn_dcr_init(type_PN_DCR_model* pn_dcr_ptr, uint8_t num, UART_HandleTypeDef *uart_ptr, type_PWR_CHANNEL* mcu_pwr_ch_ptr, type_PWR_CHANNEL* msr_pwr_ch_ptr)
 {
 	// установка канала управления питанием
 	pn_dcr_ptr->mcu_pwr_ch = mcu_pwr_ch_ptr;
@@ -28,6 +29,8 @@ void pn_dcr_init(type_PN_DCR_model* pn_dcr_ptr, UART_HandleTypeDef *uart_ptr, ty
 	pwr_ch_set_bound(msr_pwr_ch_ptr, PN_DCR_VOLT_MAX, PN_DCR_VOLT_MIN, PN_DCR_MSR_PWR_MAX, PN_DCR_MSR_PWR_MIN);
 	// инициализация интерфейса общения
 	pn_dcr_uart_init(&pn_dcr_ptr->uart, uart_ptr);
+	//
+	pn_dcr_ptr->self_num = num;
 	// сброс ошибок и счетчиков ошибок
 	pn_dcr_reset_state(pn_dcr_ptr);
 	// считывание циклограммы работы из ext-mem
@@ -235,8 +238,8 @@ void pn_dcr_set_mode(type_PN_DCR_model* pn_dcr_ptr, uint8_t mode)
 			pn_dcr_ptr->fl_task.step_repeat_cnt = 0;
 			break;
 		case DCR_MODE_FLIGHT_TASK:
-			pn_dcr_ptr->status &= (~0x000FF);
-			pn_dcr_ptr->status |= mode & 0x000FF;
+			pn_dcr_ptr->status &= (~0x00FF);
+			pn_dcr_ptr->status |= mode & 0x00FF;
 			memcpy((uint8_t*)&pn_dcr_ptr->fl_task.work, (uint8_t*)&pn_dcr_ptr->fl_task.can,  sizeof(type_PNDCR_FlightTask));
 			pn_dcr_ptr->fl_task.step_num = 0;
 			pn_dcr_ptr->fl_task.pause_ms = 500;
@@ -247,8 +250,8 @@ void pn_dcr_set_mode(type_PN_DCR_model* pn_dcr_ptr, uint8_t mode)
 			pn_dcr_ptr->status |= mode & 0x000F;
 			break;
 		case DCR_MODE_OFF:
-			pn_dcr_ptr->status &= (~0x0000F);
-			pn_dcr_ptr->status |= mode & 0x000FF;
+			pn_dcr_ptr->status &= (~0x000F);
+			pn_dcr_ptr->status |= mode & 0x00FF;
 			pn_dcr_pwr_off(pn_dcr_ptr, PN_DCR_PWR_ALL);
 			pn_dcr_ptr->fl_task.step_num = 0;
 			pn_dcr_ptr->fl_task.pause_ms = 0;
@@ -273,7 +276,8 @@ uint8_t pn_dcr_run_step_function(type_PN_DCR_model* pn_dcr_ptr)
 	type = pn_dcr_ptr->fl_task.work.step[pn_dcr_ptr->fl_task.step_num].type;
 	cmd = pn_dcr_ptr->fl_task.work.step[pn_dcr_ptr->fl_task.step_num].cmd;
 	pause_ms = pn_dcr_ptr->fl_task.work.step[pn_dcr_ptr->fl_task.step_num].pause_ms;
-	
+	pn_dcr_ptr->status &= ~(0xFF << 8);
+	pn_dcr_ptr->status |= ((pn_dcr_ptr->fl_task.step_num & 0xFF) << 8);
 	memcpy(data, pn_dcr_ptr->fl_task.work.step[pn_dcr_ptr->fl_task.step_num].data, 8);
 	// устанавливаем паузу до след. циклограммы
 	pn_dcr_ptr->fl_task.pause_ms = pause_ms;
@@ -516,6 +520,10 @@ void pn_dcr_uart_send(type_PNDCR_interface *int_ptr, uint8_t* data, uint8_t len)
 	memcpy(int_ptr->tx_data, data, len);
 	int_ptr->tx_len = len;
 	HAL_UART_Transmit_IT(int_ptr->huart, int_ptr->tx_data, int_ptr->tx_len);
+	// перезапускаем прием данных
+	if (HAL_UART_Receive_IT(int_ptr->huart, int_ptr->rx_buff + int_ptr->rx_ptr, 1) == HAL_BUSY){
+		//нет нужды запускать, и так идут данные
+	}
 }
 
 /**
@@ -568,6 +576,8 @@ void pn_dcr_uart_err_prcs_cb(type_PNDCR_interface *int_ptr)
 	else if (HAL_UART_ERROR){
 		_pn_dcr_uart_error_collector(int_ptr, PN_DCR_UART_ERR_HAL_OTHER);
 	}
+	// перезапуск приема данных
+	HAL_UART_Receive_IT(int_ptr->huart, int_ptr->rx_buff + int_ptr->rx_ptr, 1);
 }
 
 /**
@@ -594,7 +604,6 @@ void  _pn_dcr_uart_error_collector(type_PNDCR_interface *int_ptr, uint16_t error
       break;
   }
 }
-
 
 ///*** Верхний уровень протокола общения с ДеКоР ***///
 /**

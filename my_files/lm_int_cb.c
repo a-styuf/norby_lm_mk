@@ -8,7 +8,6 @@
   */
 
 #include "lm_int_cb.h"
-#include <stdio.h>
 
 extern type_LM_DEVICE lm;
 extern type_LED_INDICATOR mcu_state_led, con_state_led;
@@ -45,7 +44,6 @@ void ProcCallbackCmds(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, int s
 	for (i=id.uf.Offset; i<(id.uf.Offset + leng); i++){
       cmd_process_cb(&lm.interface, i);
   }
-  // printf("CAN%d DevId=%d VarId=%d Offset=%d RTR=%d Leng=%d State=%d\n\r", n, id.uf.DevId, id.uf.VarId, id.uf.Offset, id.uf.RTR, leng, state);
 }
 
 /**
@@ -65,7 +63,6 @@ void ProcCallbackCmdRegs(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, in
 	for (i=id.uf.Offset; i<(id.uf.Offset + leng); i++){
       cmdreg_process_cb(&lm.interface, i);
   }
-  // printf("CAN%d DevId=%d VarId=%d Offset=%d RTR=%d Leng=%d State=%d\n\r", n, id.uf.DevId, id.uf.VarId, id.uf.Offset, id.uf.RTR, leng, state);
 }
 
 /**
@@ -90,7 +87,6 @@ void ProcCallbackExtMems(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, in
       else if(id.uf.Offset == 256){
         ext_mem_rd_frame_from_part(&lm.mem, lm.interface.ext_mem.External_Mem_DCR_Frame, PART_DCR);
       }
-      // printf("CAN%d DevId=%d VarId=%d Offset=%d RTR=%d Leng=%d State=%d\n\r", n, id.uf.DevId, id.uf.VarId, id.uf.Offset, id.uf.RTR, leng, state);
   }
 }
 
@@ -112,7 +108,6 @@ void ProcCallbackDCRInterface(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t len
 	for (i=id.uf.Offset; i<(id.uf.Offset + leng); i++){
       dcr_inerface_process_cb(&lm.interface, i);
   }
-  // printf("CAN%d DevId=%d VarId=%d Offset=%d RTR=%d Leng=%d State=%d\n\r", n, id.uf.DevId, id.uf.VarId, id.uf.Offset, id.uf.RTR, leng, state);
 }
 
 
@@ -133,7 +128,6 @@ void ProcCallbackISSInterface(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t len
 	for (i=id.uf.Offset; i<(id.uf.Offset + leng); i++){
       pl_iss_inerface_process_cb(&lm.interface, i);
   }
-  // printf("CAN%d DevId=%d VarId=%d Offset=%d RTR=%d Leng=%d State=%d\n\r", n, id.uf.DevId, id.uf.VarId, id.uf.Offset, id.uf.RTR, leng, state);
 }
 
 /**
@@ -148,7 +142,6 @@ void ProcCallbackCAN_Flash(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, 
   volatile int n, vcmd;
   CallbackCAN_Flash(can_ptr, id, leng, state);
   if(can_ptr == CAN1) n = 1; else if(can_ptr == CAN2) n = 2; else n = 0;
-  printf("CAN%d DevId=%d VarId=%d Offset=%d RTR=%d Leng=%d State=%d\n\r", n, id.uf.DevId, id.uf.VarId, id.uf.Offset, id.uf.RTR, leng, state);
 }
 
 //*** Cmds process function ***//

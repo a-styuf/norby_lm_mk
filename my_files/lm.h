@@ -29,13 +29,24 @@ typedef unsigned short uint16_t;
 
 // настройки прибора
 #define DEV_ID (0x06)
-#define SOFT_VERSION "0.29.0"
+#define SOFT_VERSION "1.00.0"
 // свойства микроконтроллера
 
 // раскрашивание переменных
 
+// настройка оставноки\запуска циклограмм по заполнению памяти
+#define ISS_MEM_TOP_BOUND_PROCENTAGE 		95 //граница отключения работы циклограмм
+#define ISS_MEM_BOT_BOUND_PROCENTAGE 		90 //граница включения работы циклограмм
+
+
+// типы запретов работы ПН
+#define LM_INH_SELF 						(1 << 0)
+#define LM_INH_PWR							(1 << 1)
+#define LM_INH_TMP							(1 << 2)
+#define LM_INH_CCL_MEM_CHECK		(1 << 3)
+
 // описание рабочих структур
-// Power //-
+// Power //
 typedef struct
 {
 	uint32_t gpio_state;  // 31:pwr_gd, 30:pwr_alert, 29-21:NU, 20-18: ena[2:0] LM ... 2-0: ena[2:0] PL_DCR2
@@ -98,6 +109,22 @@ typedef struct
 	uint16_t rsrv; // +16
 } type_LM_REPORT; // +18
 
+/** 
+  * @brief  структура формирования параметров для хранения в ПЗУ ПН (26 байт) для последующей упаковки всех состаяний в один кадр из 116 байт
+  */
+typedef struct
+{
+	uint32_t iss_wr_ptr; 				//+0
+	uint32_t iss_rd_ptr; 				//+4
+	uint32_t dcr_wr_ptr; 				//+8
+	uint32_t dcr_rd_ptr; 				//+12
+	uint8_t inhibit; 						//+16
+	uint8_t cyclogram_mode; 		//+17
+	uint8_t cyclogram_num; 			//+18
+	uint8_t gap; 								//+19
+	uint8_t rsrv[6];						//+20
+} type_LM_сfg;		 						//26
+
 /**
   * @brief  управляющие параметры МС
   */
@@ -123,11 +150,17 @@ typedef struct
 	type_PWR_CONTROL pwr;
 	type_TMP_CONTROL tmp;
 	type_CMD_CONTROL cmd_ctrl[CMD_POOL_LEN];  // параметры для управления долгими командами
+	//
 	type_CYCLOGRAM cyclogram;
 	type_PL pl;
+	uint8_t pl_cyclogram_stop_flag; //переменная, отвечающая за разрешение работы циклограмм ИСС
+	//
+	uint8_t inhibit;  // 0-2 - NU, 3 - запрет проверки оставшегося свободного места для работы циклограмм ИСС
+	//
 	type_LM_INTERFACES interface;
 	type_LM_REPORT report;
-	type_LM_CFG_Frame loaded_cfg, cfg_to_save;
+	type_LM_сfg loaded_cfg, cfg;
+	type_LM_CFG_Frame loaded_cfg_frame, cfg_frame_to_save;
 } type_LM_DEVICE;
 
 // прототипы функций
@@ -138,17 +171,21 @@ int8_t lm_ctrl_init(type_LM_DEVICE* lm_ptr);
 void lm_report_create(type_LM_DEVICE* lm_ptr);
 int8_t lm_load_parameters(type_LM_DEVICE* lm_ptr);
 int8_t lm_save_parameters(type_LM_DEVICE* lm_ptr);
-void lm_inhibit_set(type_LM_DEVICE* lm_ptr, uint8_t pl_num, uint8_t inh);
+void lm_get_cfg(type_LM_DEVICE* lm_ptr, uint8_t *cfg);
+uint8_t lm_set_cfg(type_LM_DEVICE* lm_ptr, uint8_t *cfg);
+void lm_pl_inhibit_set(type_LM_DEVICE* lm_ptr, uint8_t pl_num, uint8_t inh);
+void lm_set_inh(type_LM_DEVICE* lm_ptr, uint8_t inh);
+void lm_cyclogram_process(type_LM_DEVICE* lm_ptr, uint16_t period_ms);
 
 int8_t pwr_init(type_PWR_CONTROL* pwr_ptr, I2C_HandleTypeDef* hi2c_ptr);
 void pwr_on_off(type_PWR_CONTROL* pwr_ptr, uint8_t pwr_switches);
-void pwr_process_100ms(type_PWR_CONTROL* pwr_ptr);
+void pwr_process(type_PWR_CONTROL* pwr_ptr, uint16_t period_ms);
 void pwr_create_report(type_PWR_CONTROL* pwr_ptr);
 void pwr_alert_gd_it_process(type_PWR_CONTROL* pwr_ptr, uint16_t it_position);
 void pwr_cb_it_process(type_PWR_CONTROL* pwr_ptr, uint8_t error);
 
 int8_t tmp_init(type_TMP_CONTROL* tmp_ptr, I2C_HandleTypeDef* hi2c_ptr);
-void tmp_process_100ms(type_TMP_CONTROL* tmp_ptr);
+void tmp_process(type_TMP_CONTROL* tmp_ptr, uint16_t period_ms);
 void tmp_alert_it_process(type_TMP_CONTROL* tmp_ptr, uint16_t it_position);
 void tmp_cb_it_process(type_TMP_CONTROL* tmp_ptr, uint8_t error);
 

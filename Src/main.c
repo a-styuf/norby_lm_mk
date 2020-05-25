@@ -131,6 +131,8 @@ int main(void)
   ProcCallbackCmds_Init();
   can_vcp_init(&can_vcp, &vcp);
   blocking_test();
+  //
+  lm_load_parameters(&lm);
   //led init
   led_init(&mcu_state_led, GPIOD, 6);
   led_init(&con_state_led, GPIOD, 7);
@@ -166,11 +168,11 @@ int main(void)
       fill_tmi_and_beacon(&lm);
       fill_gen_tmi(&lm);
 			//опрос мониторов питания и температур
-			pwr_process_100ms(&lm.pwr);
+			pwr_process(&lm.pwr, 100);
 			//опрос тремодатчиков
-			tmp_process_100ms(&lm.tmp);
+			tmp_process(&lm.tmp, 100);
 			//работа с циклограммой
-			cyclogram_process(&lm.cyclogram, &lm.pl, 100);
+			lm_cyclogram_process(&lm, 100);
       fill_pl_cyclogramm_result(&lm);
       // работа с продолжительными функциями запускаемые через переменную команд (0x02)
       cmd_process_test_led(MODE_WORK, 100);
@@ -254,7 +256,7 @@ int main(void)
         #ifdef DEBUG
           printf_time(); printf("cmdreg: PL inhibit %d: 0x%02X\n", (int16_val - CMDREG_PL_INH_0), lm.interface.cmdreg.array[int16_val]);
         #endif
-        lm_inhibit_set(&lm, (int16_val - CMDREG_PL_INH_0), lm.interface.cmdreg.array[int16_val]);
+        lm_pl_inhibit_set(&lm, (int16_val - CMDREG_PL_INH_0), lm.interface.cmdreg.array[int16_val]);
         break;
       case CMDREG_ALL_MEM_RD_PTR_0:
       case CMDREG_ALL_MEM_RD_PTR_1:
@@ -318,10 +320,10 @@ int main(void)
       case CMDREG_PART_MEM_RD_PTR_2:
         #ifdef DEBUG
           printf_time(); printf("cmdreg: set part %d rd_ptr to %d\n", lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR], 
-                                                                      *(uint32_t*)&lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR_0] & 0xFFFFFF);
+                                                                      *(uint32_t*)&lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR_0] & 0x00FFFFFF);
 				#endif
 				ext_mem_set_rd_ptr_for_part(&lm.mem, lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR], 
-                                      *(uint32_t*)&lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR_0] & 0xFFFFFF);
+                                      *(uint32_t*)&lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR_0] & 0x00FFFFFF);
         
         break;
       case CMDREG_DBG_LED:

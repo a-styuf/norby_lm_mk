@@ -227,13 +227,12 @@ typedef struct {
 typedef struct {
   type_SingleFrame_Header header; //+0
   // 0-МС, 1-ПН1.1A, 2-ПН1.1В, 3-ПН1.2, 4-ПН2.0, 5-ПН_ДКР
-  uint8_t lm_cfg[18]; //+10
-  uint8_t pl11a_cfg[18]; //+28
-  uint8_t pl11b_cfg[18]; //+46
-  uint8_t pl12_cfg[18]; //+64
-  uint8_t pl20_cfg[18]; //+82
-  uint8_t pldcr_cfg[18]; //+100
-  uint8_t rsrv[8]; //+118
+  uint8_t lm_cfg[26]; //+10
+  uint8_t pl11a_cfg[18]; //+36
+  uint8_t pl11b_cfg[18]; //+54
+  uint8_t pl12_cfg[18]; //+72
+  uint8_t pl20_cfg[18]; //+90
+  uint8_t pldcr_cfg[18]; //+108
   //
   uint16_t crc16; //+126
 } type_LM_CFG_Frame; //128

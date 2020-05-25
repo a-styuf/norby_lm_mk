@@ -80,6 +80,7 @@ typedef struct
 	uint32_t time_ms;
 	uint8_t num;
 	uint8_t mode;
+	uint8_t state;  // 6-0: значение режима циклограммы, 7 - "1" ожидается очистка памяти, "0" нормальная работа
 } type_CYCLOGRAM;
 
 void pl_init(type_PL* pl_ptr, type_PWR_CHANNEL* pwr_arr, type_TMP1075_DEVICE* tmp_arr, UART_HandleTypeDef* huart11A, UART_HandleTypeDef* huart11B, UART_HandleTypeDef* huart12, UART_HandleTypeDef* huart20, UART_HandleTypeDef* huartDCR);
@@ -91,7 +92,7 @@ void cyclogram_stop_step_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t 
 void cyclogram_stop_step_run(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr);
 int8_t cyclogram_start(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t mode, uint8_t cyclogram_num);
 void cyclogram_single_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t cyclogram_num);
-int8_t cyclogram_process(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint16_t period_ms);
+int8_t cyclogram_process(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t stop_flag, uint16_t period_ms);
 
 int8_t result_init(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t result_write_tmi_slice(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr, uint8_t *tmi_slice);
