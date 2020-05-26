@@ -44,9 +44,10 @@ void pn_dcr_init(type_PN_DCR_model* pn_dcr_ptr, uint8_t num, UART_HandleTypeDef 
 void pn_dcr_reset_state(type_PN_DCR_model* pn_dcr_ptr)
 {
 	pn_dcr_ptr->status = 0;
+	pn_dcr_ptr->mode = 0;
 	pn_dcr_ptr->rx_frames_cnt = 0;
 	pn_dcr_ptr->rx_status_cnt = 0;
-	pn_dcr_ptr->pwr_check_timeout_ms = PN_DCR_PWR_TIMEOUT_MS;
+	pn_dcr_ptr->pwr_check_timeout_ms = PN_DCR_PWR_PERIODICAL_TIMEOUT_MS;
 	_pn_dcr_error_collector(pn_dcr_ptr, PN_DCR_ERR_NO_ERROR, 0);
 }
 
@@ -61,6 +62,19 @@ void pn_dcr_process(type_PN_DCR_model* pn_dcr_ptr, uint16_t period_ms)
 	pn_dcr_pwr_process(pn_dcr_ptr, period_ms);
 	//полетное задание
 	pn_dcr_flight_task_process(pn_dcr_ptr, period_ms);
+}
+
+/**
+  * @brief  возращает короткий статус, где  бит 0 - статус работы прибора, 1 - статус ошибок
+  * @param  pn_dcr_ptr: указатель на структуру управления ПН
+	* @retval  короткий статус работы прибора
+  */
+uint8_t pn_dcr_get_short_status(type_PN_DCR_model* pn_dcr_ptr)
+{
+	uint8_t work_status, error_status;
+	work_status = (pn_dcr_ptr->status & PN_DCR_STATUS_MODE) ? 1 : 0;
+	error_status = (pn_dcr_ptr->status & PN_DCR_STATUS_ERROR) ? 1 : 0;
+	return work_status | (error_status << 1);
 }
 
 /**
@@ -93,11 +107,11 @@ void pn_dcr_report_create(type_PN_DCR_model* pn_dcr_ptr)
   */
 void pn_dcr_pwr_process(type_PN_DCR_model* pn_dcr_ptr, uint16_t period_ms)
 {
-	if ((pn_dcr_ptr->pwr_check_timeout_ms > 0) && (pn_dcr_ptr->pwr_check_timeout_ms <= (0xFFFF - PN_DCR_PWR_TIMEOUT_MS))){
+	if ((pn_dcr_ptr->pwr_check_timeout_ms > 0) && (pn_dcr_ptr->pwr_check_timeout_ms <= (0xFFFF - PN_DCR_PWR_PERIODICAL_TIMEOUT_MS))){
 		pn_dcr_ptr->pwr_check_timeout_ms -= period_ms;
 	}
 	else{
-		pn_dcr_ptr->pwr_check_timeout_ms = PN_DCR_PWR_TIMEOUT_MS; //нефиг долюбить эти ошибки постоянно, секунды вполне хватит
+		pn_dcr_ptr->pwr_check_timeout_ms = PN_DCR_PWR_PERIODICAL_TIMEOUT_MS; //нефиг долюбить эти ошибки постоянно, секунды вполне хватит
 		pn_dcr_pwr_check(pn_dcr_ptr);
 	}
 }
@@ -110,7 +124,7 @@ void pn_dcr_pwr_process(type_PN_DCR_model* pn_dcr_ptr, uint16_t period_ms)
 uint8_t pn_dcr_pwr_check(type_PN_DCR_model* pn_dcr_ptr)
 {
 	uint8_t report1=0, report2 = 0;
-	pn_dcr_ptr->pwr_check_timeout_ms = PN_DCR_PWR_TIMEOUT_MS; //на случай асинхронного вызова
+	pn_dcr_ptr->pwr_check_timeout_ms = PN_DCR_PWR_PERIODICAL_TIMEOUT_MS; //на случай асинхронного вызова
 	if (pwr_ch_get_error(pn_dcr_ptr->mcu_pwr_ch, &report1)){
 		_pn_dcr_error_collector(pn_dcr_ptr, PN_DCR_ERR_PWR_MCU, report1);
 		// printf("\tpwr_error = 0x%02X\n", report1);
@@ -141,7 +155,7 @@ void pn_dcr_pwr_on(type_PN_DCR_model* pn_dcr_ptr, uint8_t mode)
 			pwr_ch_on_off(pn_dcr_ptr->msr_pwr_ch, 0x01);
 			break;
 	}
-	pn_dcr_ptr->pwr_check_timeout_ms = PN_DCR_PWR_TIMEOUT_MS;
+	pn_dcr_ptr->pwr_check_timeout_ms = PN_DCR_PWR_ON_OFF_TIMEOUT_MS;
 }
 
 /**
@@ -163,7 +177,7 @@ void pn_dcr_pwr_off(type_PN_DCR_model* pn_dcr_ptr, uint8_t mode)
 			pwr_ch_on_off(pn_dcr_ptr->msr_pwr_ch, 0x00);
 			break;
 	}
-	pn_dcr_ptr->pwr_check_timeout_ms = PN_DCR_PWR_TIMEOUT_MS;
+	pn_dcr_ptr->pwr_check_timeout_ms = PN_DCR_PWR_ON_OFF_TIMEOUT_MS;
 }
 
 /**
@@ -194,7 +208,7 @@ uint8_t pn_dcr_get_outputs_state(type_PN_DCR_model* pn_dcr_ptr)
 void pn_dcr_flight_task_process(type_PN_DCR_model* pn_dcr_ptr, uint16_t period_ms)
 {
 	// обработка полетного задания
-	switch(pn_dcr_ptr->status & 0x000F){
+	switch(pn_dcr_ptr->mode & 0x000F){
 		case DCR_MODE_DEFAULT:
 		case DCR_MODE_FLIGHT_TASK:
 			if (pn_dcr_ptr->fl_task.pause_ms >= period_ms){
@@ -217,6 +231,7 @@ void pn_dcr_flight_task_process(type_PN_DCR_model* pn_dcr_ptr, uint16_t period_m
 			break;
 		default:
 			_pn_dcr_error_collector(pn_dcr_ptr, PN_DCR_ERR_WRONG_MODE, 0);
+			pn_dcr_ptr->mode = 0;
 			break;
 	}
 }
@@ -228,37 +243,37 @@ void pn_dcr_flight_task_process(type_PN_DCR_model* pn_dcr_ptr, uint16_t period_m
   */
 void pn_dcr_set_mode(type_PN_DCR_model* pn_dcr_ptr, uint8_t mode)
 {
+	//
+	pn_dcr_ptr->mode = mode;
+	//
 	switch(mode & 0x0F){
 		case DCR_MODE_DEFAULT:
-			pn_dcr_ptr->status &= (~0x00FF);
-			pn_dcr_ptr->status |= mode & 0x000FF;
 			memcpy((uint8_t*)&pn_dcr_ptr->fl_task.work, (uint8_t*)&pn_dcr_ptr->fl_task.default_flt,  sizeof(type_PNDCR_FlightTask));
 			pn_dcr_ptr->fl_task.step_num = 0;
 			pn_dcr_ptr->fl_task.pause_ms = 500;
 			pn_dcr_ptr->fl_task.step_repeat_cnt = 0;
 			break;
 		case DCR_MODE_FLIGHT_TASK:
-			pn_dcr_ptr->status &= (~0x00FF);
-			pn_dcr_ptr->status |= mode & 0x00FF;
 			memcpy((uint8_t*)&pn_dcr_ptr->fl_task.work, (uint8_t*)&pn_dcr_ptr->fl_task.can,  sizeof(type_PNDCR_FlightTask));
 			pn_dcr_ptr->fl_task.step_num = 0;
 			pn_dcr_ptr->fl_task.pause_ms = 500;
 			pn_dcr_ptr->fl_task.step_repeat_cnt = 0;
 			break;
 		case DCR_MODE_PAUSE:
-			pn_dcr_ptr->status &= (~0x000FF);
-			pn_dcr_ptr->status |= mode & 0x000F;
+			//
 			break;
 		case DCR_MODE_OFF:
-			pn_dcr_ptr->status &= (~0x000F);
-			pn_dcr_ptr->status |= mode & 0x00FF;
 			pn_dcr_pwr_off(pn_dcr_ptr, PN_DCR_PWR_ALL);
 			pn_dcr_ptr->fl_task.step_num = 0;
 			pn_dcr_ptr->fl_task.pause_ms = 0;
 			pn_dcr_ptr->fl_task.step_repeat_cnt = 0;
 			break;
+		default:
+			_pn_dcr_error_collector(pn_dcr_ptr, PN_DCR_ERR_WRONG_MODE, 0);
+				pn_dcr_ptr->mode = 0;
+			break;
 	}
-	return;
+  return;
 }
 
 /**
@@ -276,17 +291,23 @@ uint8_t pn_dcr_run_step_function(type_PN_DCR_model* pn_dcr_ptr)
 	type = pn_dcr_ptr->fl_task.work.step[pn_dcr_ptr->fl_task.step_num].type;
 	cmd = pn_dcr_ptr->fl_task.work.step[pn_dcr_ptr->fl_task.step_num].cmd;
 	pause_ms = pn_dcr_ptr->fl_task.work.step[pn_dcr_ptr->fl_task.step_num].pause_ms;
-	pn_dcr_ptr->status &= ~(0xFF << 8);
-	pn_dcr_ptr->status |= ((pn_dcr_ptr->fl_task.step_num & 0xFF) << 8);
+	//
+	pn_dcr_ptr->status &= ~(PN_DCR_CCL_STEP_NUM);
+	pn_dcr_ptr->status |= ((pn_dcr_ptr->fl_task.step_num << 8) & PN_DCR_CCL_STEP_NUM);
+	pn_dcr_ptr->status &= ~(PN_DCR_STATUS_MODE);
+	pn_dcr_ptr->status |= ((pn_dcr_ptr->mode & 0x03) << 0);
+	pn_dcr_ptr->status &= ~(PN_DCR_STATUS_TAG_MODE);
+	pn_dcr_ptr->status |= (((pn_dcr_ptr->mode >> 4) & 0x01) << 2);
+	//
 	memcpy(data, pn_dcr_ptr->fl_task.work.step[pn_dcr_ptr->fl_task.step_num].data, 8);
 	// устанавливаем паузу до след. циклограммы
 	pn_dcr_ptr->fl_task.pause_ms = pause_ms;
 	// обработчик окончания циклограммы
 	if (((type == 0x00) && (cmd == 0x00)) || (pn_dcr_ptr->fl_task.step_num >= 128)){
-		if (((pn_dcr_ptr->status >> 4) & 0x0F) == DCR_MODE_SINGLE){
+		if (((pn_dcr_ptr->mode >> 4) & 0x0F) == DCR_MODE_SINGLE){
 			pn_dcr_set_mode(pn_dcr_ptr, DCR_MODE_OFF);
 		}
-		else if (((pn_dcr_ptr->status >> 4) & 0x0F) == DCR_MODE_CYCLE){
+		else if (((pn_dcr_ptr->mode >> 4) & 0x0F) == DCR_MODE_CYCLE){
 			pn_dcr_ptr->fl_task.step_num = 0;
 		}
 		else{
@@ -462,7 +483,7 @@ void pn_dcr_fill_flight_task_step(type_PNDCR_FlightTask_Step* step, uint8_t type
 uint8_t pn_dcr_get_cfg(type_PN_DCR_model* pn_dcr_ptr, uint8_t *cfg)
 {
 	memset((uint8_t*)&pn_dcr_ptr->cfg, 0xFE, sizeof(type_PNDCR_сfg));
-	pn_dcr_ptr->cfg.status = pn_dcr_ptr->status & 0x00FF;
+	pn_dcr_ptr->cfg.mode = pn_dcr_ptr->mode & 0x00FF;
 	//
 	memcpy(cfg, (uint8_t*)&pn_dcr_ptr->cfg, sizeof(type_PNDCR_сfg));
 	//
@@ -480,8 +501,8 @@ uint8_t pn_dcr_set_cfg(type_PN_DCR_model* pn_dcr_ptr, uint8_t *cfg)
 	//
 	memcpy((uint8_t*)&pn_dcr_ptr->loaded_cfg, (uint8_t*)cfg, sizeof(type_PNDCR_сfg));
 	//
-	pn_dcr_ptr->status = pn_dcr_ptr->loaded_cfg.status & 0x000FF; //из-за преобразования типов необходимо поменть байты местами
-	pn_dcr_set_mode(pn_dcr_ptr, pn_dcr_ptr->status);
+	pn_dcr_ptr->mode = pn_dcr_ptr->loaded_cfg.mode & 0x000FF; //из-за преобразования типов необходимо поменть байты местами
+	pn_dcr_set_mode(pn_dcr_ptr, pn_dcr_ptr->mode);
 	//
 	return 1;
 }
@@ -770,6 +791,14 @@ void  _pn_dcr_error_collector(type_PN_DCR_model* pn_dcr_ptr, uint16_t error, int
 			pn_dcr_ptr->error_flags |= PN_DCR_ERR_WRONG_FRAME_LENG;
       pn_dcr_ptr->error_cnt += 1;
       break;
+		case PN_DCR_ERR_FL_TASK_ERROR:
+			pn_dcr_ptr->error_flags |= PN_DCR_ERR_FL_TASK_ERROR;
+      pn_dcr_ptr->error_cnt += 1;
+      break;
+		case PN_DCR_ERR_WRONG_MODE:
+			pn_dcr_ptr->error_flags |= PN_DCR_ERR_WRONG_MODE;
+      pn_dcr_ptr->error_cnt += 1;
+      break;
 		case PN_DCR_ERR_PWR_MCU:
 			if (data){
 				if (data != ((pn_dcr_ptr->error_flags >> 4) & 0xF)){
@@ -795,8 +824,13 @@ void  _pn_dcr_error_collector(type_PN_DCR_model* pn_dcr_ptr, uint16_t error, int
 			}
       break;
     default:
-      pn_dcr_ptr->error_flags |= PN_DCR_UART_ERR_OTHER;
+      pn_dcr_ptr->error_flags |= PN_DCR_ERR_OTHER;
       pn_dcr_ptr->error_cnt += 1;
       break;
   }
+	//
+	if (error != PN_DCR_ERR_NO_ERROR){
+		pn_dcr_ptr->status &= ~PN_DCR_STATUS_ERROR;
+		pn_dcr_ptr->status |= PN_DCR_STATUS_ERROR;
+	}
 }

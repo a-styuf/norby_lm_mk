@@ -187,6 +187,23 @@ void pn_11_report_reset(type_PN11_model* pn11_ptr)
 void pn_11_set_inh(type_PN11_model* pn11_ptr, uint8_t inh)
 {
 	pn11_ptr->inhibit = inh;
+	//
+	pn11_ptr->status &= ~(PN11_STATUS_INH);
+	pn11_ptr->status |= ((inh<<4) & PN11_STATUS_INH);
+	//
+}
+
+/**
+  * @brief  возращает короткий статус, где  бит 0 - статус работы прибора, 1 - статус ошибок
+  * @param  pn11_ptr: указатель на структуру управления ПН
+	* @retval  короткий статус работы прибора
+  */
+uint8_t pn_11_get_short_status(type_PN11_model* pn11_ptr)
+{
+	uint8_t work_status, error_status;
+	work_status = (pn11_ptr->status & PN11_STATUS_WORK) ? 1 : 0;
+	error_status = (pn11_ptr->status & PN11_STATUS_ERROR) ? 1 : 0;
+	return work_status | (error_status << 1);
 }
 
 /**
@@ -308,6 +325,9 @@ void pn_11_pwr_on(type_PN11_model* pn11_ptr)
 {
 	pwr_ch_on_off(pn11_ptr->pwr_ch, 0x01);
 	pn11_ptr->pwr_check_timeout_ms = PN_11_PWR_ON_OFF_TIMEOUT_MS;
+	//
+	pn11_ptr->status |= (PN11_STATUS_WORK);
+	//
 }
 
 /**
@@ -318,6 +338,9 @@ void pn_11_pwr_off(type_PN11_model* pn11_ptr)
 {
 	pwr_ch_on_off(pn11_ptr->pwr_ch, 0x00);
 	pn11_ptr->pwr_check_timeout_ms = PN_11_PWR_ON_OFF_TIMEOUT_MS;
+	//
+	pn11_ptr->status &= ~(PN11_STATUS_WORK);
+	//
 }
 
 ///*** функции поддержки интерфейса ***///
@@ -636,6 +659,11 @@ void  _pn_11_error_collector(type_PN11_model* pn11_ptr, uint16_t error, int16_t 
       pn11_ptr->error_cnt += 1;
       break;
   }
+	//
+	if (error != PN11_NO_ERROR){
+		pn11_ptr->status &= ~PN11_STATUS_ERROR;
+		pn11_ptr->status |= PN11_STATUS_ERROR;
+	}
 }
 
 ///*** Debug tests ***///

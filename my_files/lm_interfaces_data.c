@@ -100,7 +100,7 @@ void fill_tmi_const_mode(type_LM_TMI_Data_Frame* frame_ptr)
   uint8_t i=0;
   // 0-МС, 1-ПН1.1A, 2-ПН1.1В, 3-ПН1.2, 4-ПН2.0, 5-ПН_ДКР1, 6-ПН_ДКР2
   for(i=0; i<6; i++){
-    frame_ptr->pl_status[i] = ((0x3D + (2*i+0)) << 8) + (0x3D + (2*i+1));
+    frame_ptr->pl_status[i] = __REV16(((0x3D + (2*i+0)) << 8) + (0x3D + (2*i+1)));
   }
   for(i=0; i<7; i++){
     frame_ptr->pwr_inf[i].voltage = 0x49 + (2*i+0);
@@ -114,6 +114,13 @@ void fill_tmi_const_mode(type_LM_TMI_Data_Frame* frame_ptr)
   frame_ptr->iss_mem_status = 0x5D;
   frame_ptr->dcr_mem_status = 0x5E;
   frame_ptr->pl_rst_count = 0x5F;
-  frame_ptr->com_reg_lm_mode = 0x60;
-  frame_ptr->com_reg_pwr_on_off = 0x6162;
+  frame_ptr->com_reg_pwr_on_off = 0x60;
+  frame_ptr->com_reg_inh = __REV16(0x6162);
+  //
+  frame_ptr->iss_rd_ptr = __REV16(0x6869);
+  frame_ptr->iss_wr_ptr = __REV16(0x6A6B);
+  frame_ptr->iss_mem_vol = __REV16(0x6C6D);
+  frame_ptr->dcr_rd_ptr = __REV16(0x6E6F);
+  frame_ptr->dcr_wr_ptr = __REV16(0x7071);
+  frame_ptr->dct_mem_vol = __REV16(0x7273);
 }

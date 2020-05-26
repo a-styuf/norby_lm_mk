@@ -83,11 +83,17 @@ uint8_t pwr_ch_get_error(type_PWR_CHANNEL* pwr_ch_ptr, uint8_t *error)
 			// #endif
 			report|= PWR_CH_ERR_VOLTAGE;
 		}
-		if ((power <= pwr_ch_ptr->power_min) || (power > pwr_ch_ptr->power_max)){
+		if (power > pwr_ch_ptr->power_max){
 			// #ifdef DEBUG
 			// 	printf("power_error %.1f\n", power);
 			// #endif
 			report|=  PWR_CH_ERR_PWR;
+		}
+		if (power <= pwr_ch_ptr->power_min){
+			// #ifdef DEBUG
+			// 	printf("power_error %.1f\n", power);
+			// #endif
+			report|=  PWR_CH_ERR_SWITCH;
 		}
 	}
 	 //для определения изменения значения с нуля на 1 используется для old и new: (old^new)&new

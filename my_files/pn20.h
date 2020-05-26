@@ -14,6 +14,11 @@
 #define PN20_TEMP_MAX (60<<8)
 #define PN20_TEMP_MIN (-50<<8)
 
+//Статусы работы
+#define PN20_STATUS_WORK		 		(0x01<<0)
+#define PN20_STATUS_ERROR		 		(0x01<<1)
+#define PN20_STATUS_INH			 		(0x0F<<4)
+
 //Ошибки работы
 #define PN20_NO_ERROR			 			(0)
 #define PN20_STM1_ERROR 				(1<<0)
@@ -172,6 +177,7 @@ int8_t pn_20_tmi_slice_get_and_check(type_PN20_model* pn20_ptr, uint8_t *slice);
 void pn_20_report_create(type_PN20_model* pn20_ptr);
 void pn_20_report_reset(type_PN20_model* pn20_ptr);
 void pn_20_set_inh(type_PN20_model* pn20_ptr, uint8_t inh);
+uint8_t pn_20_get_short_status(type_PN20_model* pn20_ptr);
 
 void pn_20_output_set(type_PN20_model* pn20_ptr, uint8_t output_state);
 uint8_t pn_20_get_inputs_state(type_PN20_model* pn20_ptr);

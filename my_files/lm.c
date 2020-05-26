@@ -53,7 +53,7 @@ int8_t lm_ctrl_init(type_LM_DEVICE* lm_ptr)
 	lm_ptr->ctrl.err_cnt = 0;
 	lm_ptr->ctrl.rst_cnt = 0;
 	lm_ptr->ctrl.pl_status = 0;
-	lm_ptr->inhibit = 0;
+	lm_ptr->ctrl.inhibit = 0;
 	lm_ptr->pl_cyclogram_stop_flag = 0;
 	return ret_val;
 }
@@ -150,7 +150,7 @@ void lm_get_cfg(type_LM_DEVICE* lm_ptr, uint8_t *cfg)
 	lm_ptr->cfg.iss_rd_ptr = lm_ptr->mem.part[PART_ISS].read_ptr;
 	lm_ptr->cfg.dcr_wr_ptr = lm_ptr->mem.part[PART_DCR].write_ptr;
 	lm_ptr->cfg.dcr_rd_ptr = lm_ptr->mem.part[PART_DCR].read_ptr;
-	lm_ptr->cfg.inhibit = lm_ptr->inhibit;
+	lm_ptr->cfg.inhibit = lm_ptr->ctrl.inhibit;
 	lm_ptr->cfg.cyclogram_mode = lm_ptr->cyclogram.mode;
 	lm_ptr->cfg.cyclogram_num = lm_ptr->cyclogram.num;
 	//
@@ -221,7 +221,11 @@ void lm_pl_inhibit_set(type_LM_DEVICE* lm_ptr, uint8_t pl_num, uint8_t inh)
   */
 void lm_set_inh(type_LM_DEVICE* lm_ptr, uint8_t inh)
 {
-	lm_ptr->inhibit = inh;
+	lm_ptr->ctrl.inhibit = inh;
+	//
+	lm_ptr->ctrl.status &= ~(LM_STATUS_ERROR);
+	lm_ptr->ctrl.status |= ((inh << 4) & LM_STATUS_ERROR);
+	//
 }
 
 /**
@@ -231,7 +235,7 @@ void lm_set_inh(type_LM_DEVICE* lm_ptr, uint8_t inh)
   */
 void lm_cyclogram_process(type_LM_DEVICE* lm_ptr, uint16_t period_ms)
 {
-	if (lm_ptr->inhibit & LM_INH_CCL_MEM_CHECK){
+	if (lm_ptr->ctrl.inhibit & LM_INH_CCL_MEM_CHECK){
 		lm_ptr->pl_cyclogram_stop_flag = 0;
 	}
 	else {
@@ -253,6 +257,31 @@ void lm_cyclogram_process(type_LM_DEVICE* lm_ptr, uint16_t period_ms)
 	//
 	lm_ptr->ctrl.status &= ~(0xFF << 8);
 	lm_ptr->ctrl.status |= ((lm_ptr->cyclogram.state & 0xFF) << 8);
+}
+
+uint16_t lm_get_pl_status(type_LM_DEVICE* lm_ptr)
+{
+	uint16_t status = 0;
+	//LM
+	//
+	//PL1.1А
+	status |= (pn_11_get_short_status(&lm_ptr->pl._11A) & 0x01) << PL11A;
+	status |= (pn_11_get_short_status(&lm_ptr->pl._11A) & 0x02) << (PL11A - 1) + 8; // сдвигаем на -1  так как статус ошибки находится во втором бите
+	//PL1.1B
+	status |= (pn_11_get_short_status(&lm_ptr->pl._11B) & 0x01) << PL11B;
+	status |= (pn_11_get_short_status(&lm_ptr->pl._11B) & 0x02) << (PL11B - 1) + 8; // сдвигаем на -1  так как статус ошибки находится во втором бите
+	//PL1.2
+	status |= (pn_12_get_short_status(&lm_ptr->pl._12) & 0x01) << PL12;
+	status |= (pn_12_get_short_status(&lm_ptr->pl._12) & 0x02) << (PL12 - 1) + 8; // сдвигаем на -1  так как статус ошибки находится во втором бите
+	//PL2.0
+	status |= (pn_20_get_short_status(&lm_ptr->pl._20) & 0x01) << PL20;
+	status |= (pn_20_get_short_status(&lm_ptr->pl._20) & 0x02) << (PL20 - 1) + 8; // сдвигаем на -1  так как статус ошибки находится во втором бите
+	//PL_DCR
+	status |= (pn_dcr_get_short_status(&lm_ptr->pl._dcr) & 0x01) << PL_DCR1;
+	status |= (pn_dcr_get_short_status(&lm_ptr->pl._dcr) & 0x02) << (PL_DCR1 - 1) + 8; // сдвигаем на -1  так как статус ошибки находится во втором бите
+	//
+	lm_ptr->ctrl.pl_status = status;
+	return status;
 }
 
 
@@ -501,7 +530,7 @@ void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr)
 	type_LM_Beacon_Frame beacon_fr;
 	frame_create_header((uint8_t*)&beacon_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_BEACON ,lm_ptr->interface.frame_num, 0x00);
 	beacon_fr.lm_status = lm_ptr->ctrl.status;
-	beacon_fr.pl_status = lm_ptr->ctrl.pl_status;
+	beacon_fr.pl_status = lm_get_pl_status(lm_ptr);
 	beacon_fr.lm_temp = (lm_ptr->tmp.tmp1075[0].temp >> 8) & 0xFF;
 	beacon_fr.pl_power_switches = pwr_get_pwr_switch_key(&lm_ptr->pwr);
 	//
@@ -532,11 +561,19 @@ void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr)
 		tmi_fr.iss_mem_status = part_get_free_volume_in_percantage(&lm_ptr->mem.part[PART_ISS]);
 		tmi_fr.dcr_mem_status = part_get_free_volume_in_percantage(&lm_ptr->mem.part[PART_DCR]);
 		tmi_fr.pl_rst_count = lm_ptr->ctrl.rst_cnt;
-		tmi_fr.com_reg_lm_mode = lm_ptr->interface.cmdreg.array[1];
-		tmi_fr.com_reg_pwr_on_off = *(uint16_t*)&lm_ptr->interface.cmdreg.array[2];
+		tmi_fr.com_reg_pwr_on_off = lm_ptr->interface.cmdreg.array[CMDREG_PL_PWR_SW];
+		tmi_fr.com_reg_inh = *(uint16_t*)&lm_ptr->interface.cmdreg.array[CMDREG_PL_INH_0];
+		//
+		tmi_fr.iss_rd_ptr = lm_ptr->mem.part[PART_ISS].read_ptr;
+		tmi_fr.iss_wr_ptr = lm_ptr->mem.part[PART_ISS].write_ptr;
+		tmi_fr.iss_mem_vol = lm_ptr->mem.part[PART_ISS].full_frame_num;
+		tmi_fr.dcr_rd_ptr = lm_ptr->mem.part[PART_DCR].read_ptr;
+		tmi_fr.dcr_wr_ptr = lm_ptr->mem.part[PART_DCR].write_ptr;
+		tmi_fr.dct_mem_vol = lm_ptr->mem.part[PART_DCR].full_frame_num;
 	}
 	frame_crc16_calc((uint8_t *)&tmi_fr);
 	//
+	memset(tmi_fr.rsrv, 0x00, sizeof(tmi_fr.rsrv));
 	memset(tmi_fr.filler, 0x00, sizeof(tmi_fr.filler));
 	memcpy((uint8_t*)&lm_ptr->interface.tmi_data.tmi, (uint8_t*)&tmi_fr, sizeof(tmi_fr));
 }

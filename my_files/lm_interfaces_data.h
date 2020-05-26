@@ -122,10 +122,17 @@ typedef struct {
   uint8_t iss_mem_status;   //+42
   uint8_t dcr_mem_status;   //+43
   uint8_t pl_rst_count;   //+44
-  uint8_t com_reg_lm_mode;   //+45
-  uint16_t com_reg_pwr_on_off;  //+46
+  uint8_t com_reg_pwr_on_off;   //+45
+  uint16_t com_reg_inh;  //+46
+  uint16_t iss_rd_ptr;    //+48
+  uint16_t iss_wr_ptr;    //+50
+  uint16_t iss_mem_vol;    //+52
+  uint16_t dcr_rd_ptr;    //+54
+  uint16_t dcr_wr_ptr;    //+56
+  uint16_t dct_mem_vol;    //+58
+  uint16_t rsrv[5]; //+48
   //
-  uint8_t filler[78]; //+48
+  uint8_t filler[61]; //+48
   //
   uint16_t crc16; //+126
 } type_LM_TMI_Data_Frame; //128

@@ -37,6 +37,12 @@
 
 #define DCR_PN_PRST_CMD_SNC_TIME			 0x00
 
+// статус ДеКоР
+#define PN_DCR_STATUS_MODE 						(0x03 << 0)
+#define PN_DCR_STATUS_TAG_MODE				(0x01 << 2)
+#define PN_DCR_STATUS_ERROR						(0x01 << 3)
+#define PN_DCR_CCL_STEP_NUM						(0xFF << 8)
+
 // ошибки работы ДеКоР
 #define PN_DCR_ERR_NO_ERROR 					(0x00)
 #define PN_DCR_ERR_WRONG_FRAME_LENG 	(0x01 << 0)
@@ -68,12 +74,13 @@
 #define PN_DCR_VOLT_MIN 		4.5
 // границы мощности для линии питания МК
 #define PN_DCR_MC_PWR_MAX 	0.4
-#define PN_DCR_MC_PWR_MIN 	0.1
+#define PN_DCR_MC_PWR_MIN 	0.004
 // границы мощности для лини питания датчика
 #define PN_DCR_MSR_PWR_MAX 	1.6
 #define PN_DCR_MSR_PWR_MIN 	0.1
 // задержка для определения ошибки питания - устанавливается каждый ра, когда происходит изменение состояния питания
-#define PN_DCR_PWR_TIMEOUT_MS 	1000
+#define PN_DCR_PWR_PERIODICAL_TIMEOUT_MS 	1000
+#define PN_DCR_PWR_ON_OFF_TIMEOUT_MS 			5000
 
 
 #pragma pack(2)
@@ -173,7 +180,7 @@ typedef struct
   */
 typedef struct
 {
-	uint16_t status; 				//+0
+	uint16_t mode; 				//+0
 	uint8_t rsrv[16]; 				//+2
 } type_PNDCR_сfg; 			//18
 
@@ -192,6 +199,7 @@ typedef struct
 	type_PNDCR_сfg loaded_cfg;
 	type_PNDCR_сfg cfg;
 	uint8_t self_num;
+	uint16_t mode;
 	uint16_t status;
 	uint16_t error_flags;
 	uint8_t error_cnt;
@@ -203,6 +211,7 @@ typedef struct
 void pn_dcr_init(type_PN_DCR_model* pn_dcr_ptr, uint8_t num, UART_HandleTypeDef *uart_ptr, type_PWR_CHANNEL* mcu_pwr_ch_ptr, type_PWR_CHANNEL* msr_pwr_ch_ptr);
 void pn_dcr_reset_state(type_PN_DCR_model* pn_dcr_ptr);
 void pn_dcr_process(type_PN_DCR_model* pn_dcr_ptr, uint16_t period_ms);
+uint8_t pn_dcr_get_short_status(type_PN_DCR_model* pn_dcr_ptr);
 void pn_dcr_report_create(type_PN_DCR_model* pn11_ptr);
 ///*** функции поддержки работы с питанием ***///
 void pn_dcr_pwr_process(type_PN_DCR_model* pn_dcr_ptr, uint16_t period_ms);

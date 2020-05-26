@@ -21,6 +21,11 @@
 #define PN11_PWR_MAX (10<<8)
 #define PN11_PWR_MIN (1<<0)
 
+//Статусы работы
+#define PN11_STATUS_WORK		 		(0x01<<0)
+#define PN11_STATUS_ERROR		 		(0x01<<1)
+#define PN11_STATUS_INH			 		(0x0F<<4)
+
 //Ошибки работы
 #define PN11_NO_ERROR			 		(0)
 #define PN11_CPU_ERROR 				(1<<0)
@@ -33,7 +38,6 @@
 #define PN11_APP_LVL_ERROR		(1<<13)
 #define PN11_TR_LVL_ERROR			(1<<14)
 #define PN11_OTHER_ERROR 			(1<<15)
-
 
 // пороговые значения для определения ошибки температуры: в 1/256°C
 #define PN_11_TEMP_HIGH 	(80*256)
@@ -173,6 +177,7 @@ int8_t pn_11_tmi_slice_get_and_check(type_PN11_model* pn11_ptr, uint8_t *slice);
 void pn_11_report_create(type_PN11_model* pn11_ptr);
 void pn_11_report_reset(type_PN11_model* pn11_ptr);
 void pn_11_set_inh(type_PN11_model* pn11_ptr, uint8_t inh);
+uint8_t pn_11_get_short_status(type_PN11_model* pn11_ptr);
 
 void pn_11_output_set(type_PN11_model* pn11_ptr, uint8_t output_state);
 uint8_t pn_11_get_inputs_state(type_PN11_model* pn11_ptr);

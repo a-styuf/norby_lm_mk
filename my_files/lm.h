@@ -39,6 +39,9 @@ typedef unsigned short uint16_t;
 #define ISS_MEM_BOT_BOUND_PROCENTAGE 		90 //граница включения работы циклограмм
 
 
+// биты статуса
+#define LM_STATUS_ERROR						(0x0F << 4)
+
 // типы запретов работы ПН
 #define LM_INH_SELF 						(1 << 0)
 #define LM_INH_PWR							(1 << 1)
@@ -137,6 +140,8 @@ typedef struct
 	uint8_t rst_cnt;
 	uint16_t pl_status;
 	uint16_t constant_mode;  //1 - режим констант включен, 0 - режим констант отключен
+	//
+	uint8_t inhibit;  // 0-2 - NU, 3 - запрет проверки оставшегося свободного места для работы циклограмм ИСС
 } type_LM_CTRL;
 
 // lm //
@@ -154,8 +159,6 @@ typedef struct
 	type_CYCLOGRAM cyclogram;
 	type_PL pl;
 	uint8_t pl_cyclogram_stop_flag; //переменная, отвечающая за разрешение работы циклограмм ИСС
-	//
-	uint8_t inhibit;  // 0-2 - NU, 3 - запрет проверки оставшегося свободного места для работы циклограмм ИСС
 	//
 	type_LM_INTERFACES interface;
 	type_LM_REPORT report;
@@ -176,6 +179,7 @@ uint8_t lm_set_cfg(type_LM_DEVICE* lm_ptr, uint8_t *cfg);
 void lm_pl_inhibit_set(type_LM_DEVICE* lm_ptr, uint8_t pl_num, uint8_t inh);
 void lm_set_inh(type_LM_DEVICE* lm_ptr, uint8_t inh);
 void lm_cyclogram_process(type_LM_DEVICE* lm_ptr, uint16_t period_ms);
+uint16_t lm_get_pl_status(type_LM_DEVICE* lm_ptr);
 
 int8_t pwr_init(type_PWR_CONTROL* pwr_ptr, I2C_HandleTypeDef* hi2c_ptr);
 void pwr_on_off(type_PWR_CONTROL* pwr_ptr, uint8_t pwr_switches);

@@ -14,6 +14,11 @@
 #define PN12_TEMP_MAX (85<<8)
 #define PN12_TEMP_MIN (-30<<8)
 
+//Статусы работы
+#define PN12_STATUS_WORK		 		(0x01<<0)
+#define PN12_STATUS_ERROR		 		(0x01<<1)
+#define PN12_STATUS_INH			 		(0x0F<<4)
+
 //Ошибки работы
 #define PN12_NO_ERROR			 		(0)
 #define PN12_STM1_ERROR 			(1<<0)
@@ -135,6 +140,7 @@ int8_t pn_12_tmi_slice_get_and_check(type_PN12_model* pn12_ptr, uint8_t *slice);
 void pn_12_report_create(type_PN12_model* pn12_ptr);
 void pn_12_report_reset(type_PN12_model* pn12_ptr);
 void pn_12_set_inh(type_PN12_model* pn12_ptr, uint8_t inh);
+uint8_t pn_12_get_short_status(type_PN12_model* pn12_ptr);
 
 void pn_12_output_set(type_PN12_model* pn12_ptr, uint8_t output_state);
 uint8_t pn_12_get_inputs_state(type_PN12_model* pn12_ptr);

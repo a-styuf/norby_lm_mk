@@ -164,6 +164,23 @@ void pn_12_report_reset(type_PN12_model* pn12_ptr)
 void pn_12_set_inh(type_PN12_model* pn12_ptr, uint8_t inh)
 {
 	pn12_ptr->inhibit = inh;
+	//
+	pn12_ptr->status &= ~(PN12_STATUS_INH);
+	pn12_ptr->status |= ((inh<<4) & PN12_STATUS_INH);
+	//
+}
+
+/**
+  * @brief  возращает короткий статус, где  бит 0 - статус работы прибора, 1 - статус ошибок
+  * @param  pn12_ptr: указатель на структуру управления ПН
+	* @retval  короткий статус работы прибора
+  */
+uint8_t pn_12_get_short_status(type_PN12_model* pn12_ptr)
+{
+	uint8_t work_status, error_status;
+	work_status = (pn12_ptr->status & PN12_STATUS_WORK) ? 1 : 0;
+	error_status = (pn12_ptr->status & PN12_STATUS_ERROR) ? 1 : 0;
+	return work_status | (error_status << 1);
 }
 
 /**
@@ -284,6 +301,9 @@ void pn_12_pwr_on(type_PN12_model* pn12_ptr)
 {
 	pwr_ch_on_off(pn12_ptr->pwr_ch, 0x01);
 	pn12_ptr->pwr_check_timeout_ms = PN_12_PWR_ON_OFF_TIMEOUT_MS;
+	//
+	pn12_ptr->status |= (PN12_STATUS_WORK);
+	//
 }
 
 /**
@@ -294,6 +314,9 @@ void pn_12_pwr_off(type_PN12_model* pn12_ptr)
 {
 	pwr_ch_on_off(pn12_ptr->pwr_ch, 0x00);
 	pn12_ptr->pwr_check_timeout_ms = PN_12_PWR_ON_OFF_TIMEOUT_MS;
+	//
+	pn12_ptr->status &= ~(PN12_STATUS_WORK);
+	//
 }
 
 ///*** Cfg ***///
@@ -376,6 +399,11 @@ void  _pn_12_error_collector(type_PN12_model* pn12_ptr, uint16_t error, int16_t 
       pn12_ptr->error_cnt += 1;
       break;
   }
+	//
+	if (error != PN12_NO_ERROR){
+		pn12_ptr->status &= ~PN12_STATUS_ERROR;
+		pn12_ptr->status |= PN12_STATUS_ERROR;
+	}
 }
 
 ///*** Debug tests ***///
