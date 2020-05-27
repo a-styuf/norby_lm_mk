@@ -22,8 +22,9 @@
 #define PL_DCR2 (6)
 
 // раскрашивание переменных
-#define CYCLEGRAMM_NUM 	(16)
-#define STEP_NUM 				(64)
+#define CYCLEGRAMM_NUM 										(16)
+#define STEP_NUM 													(64)
+#define CYCLOGRAM_EMERGENCY_STOP_TIMEOUT 	(60000)
 
 //режимы работы
 #define CYCLOGRAM_MODE_OFF 			(0)

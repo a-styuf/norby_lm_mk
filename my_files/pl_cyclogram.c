@@ -283,8 +283,10 @@ void cyclogram_stop_step_run(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr)
 		#ifdef DEBUG
 			printf_time();	printf("-Cyclogram stop\n");
 		#endif
+		ccl_ptr->array[ccl_ptr->num].step[ccl_ptr->array[ccl_ptr->num].step_num].state = 0; // обнуляем состояние шага циклограммы для корректной обработки в следующий проход
 		ccl_ptr->array[ccl_ptr->num].stop_step.function(&ccl_ptr->result, pl_ptr);
 		ccl_ptr->array[ccl_ptr->num].step_num = STEP_NUM - 1;
+		ccl_ptr->array[ccl_ptr->num].step_timeout = CYCLOGRAM_EMERGENCY_STOP_TIMEOUT;
 		ccl_ptr->array[ccl_ptr->num].step[ccl_ptr->array[ccl_ptr->num].step_num].state = 1;
 	}
 	else{
@@ -337,7 +339,7 @@ void cyclogram_single_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t cyc
 {
 	uint8_t i;
 	if(ccl_ptr->mode == CYCLOGRAM_MODE_CYCLIC){
-		ccl_ptr->num = 1;
+		ccl_ptr->num = ((cyclogram_num >= 1) && (cyclogram_num < CYCLEGRAMM_NUM)) ? cyclogram_num : 1;
 	}
 	else{  // проверка на правильный номер циклограммы
 		if (cyclogram_num < CYCLEGRAMM_NUM){
@@ -367,15 +369,16 @@ int8_t cyclogram_process(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t stop_
 {
 	uint8_t c_num, s_num;
 	int8_t fanction_report;
-	c_num = ccl_ptr->num;
-	s_num = ccl_ptr->array[c_num].step_num;
-	//
-	ccl_ptr->state = ccl_ptr->mode;
-	//
-	ccl_ptr->time_ms += period_ms;
-	//
 	if (ccl_ptr->mode != CYCLOGRAM_MODE_OFF){
-		if((ccl_ptr->array[c_num].step[s_num].function != 0) && (ccl_ptr->array[c_num].step_num < STEP_NUM)){
+		//
+		c_num = ccl_ptr->num;
+		s_num = ccl_ptr->array[c_num].step_num;
+		//
+		ccl_ptr->state = ccl_ptr->mode;
+		//
+		ccl_ptr->time_ms += period_ms;
+		//
+		if(((ccl_ptr->array[c_num].step[s_num].function != 0) || (ccl_ptr->array[c_num].step_timeout)) && (ccl_ptr->array[c_num].step_num < STEP_NUM)){
 			if (ccl_ptr->array[c_num].step[s_num].state == 0){ //шаг циклограммы не запущен
 				ccl_ptr->array[c_num].step[s_num].state = 1;
 				ccl_ptr->array[c_num].step_timeout = ccl_ptr->array[c_num].step[s_num].delay_to_next_step_ms;
@@ -383,17 +386,19 @@ int8_t cyclogram_process(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t stop_
 				ccl_ptr->result.cyclogram_num = c_num;
 				ccl_ptr->result.time_ms =	ccl_ptr->time_ms;
 				//
-				fanction_report = ccl_ptr->array[c_num].step[s_num].function(&ccl_ptr->result, pl_ptr);
-				#ifdef DEBUG
-					printf_time();
-					printf("---step_num %d: report %d\n", ccl_ptr->array[c_num].step_num, fanction_report);
-				#endif
-				if (fanction_report){ // экстренное прекращение работы циклограммы
+				if (ccl_ptr->array[c_num].step[s_num].function != 0){
+					fanction_report = ccl_ptr->array[c_num].step[s_num].function(&ccl_ptr->result, pl_ptr);
 					#ifdef DEBUG
 						printf_time();
-						printf("--- ! ALARM ! \n");
+						printf("---step_num %d: report %d\n", ccl_ptr->array[c_num].step_num, fanction_report);
 					#endif
-					cyclogram_stop_step_run(ccl_ptr, pl_ptr);
+					if (fanction_report){ // экстренное прекращение работы циклограммы
+						#ifdef DEBUG
+							printf_time();
+							printf("--- ! ALARM ! \n");
+						#endif
+						cyclogram_stop_step_run(ccl_ptr, pl_ptr);
+					}
 				}
 			} 
 			else{
@@ -766,17 +771,17 @@ int8_t pl_pn11B_check_and_save_tmi(type_CYCLOGRAM_RESULT* result_ptr, type_PL* p
 		retval = 0;
 	}
 	result_write_tmi_slice(result_ptr, pl_ptr, (uint8_t*)&tmi_slice);
-	//debug
-	printf_time();
-	printf("--PL11B tmi slice %d: tmi_num %d, pl_type %d, U %.1f, I %.1f, temp %d\n", 
-																																									retval,
-																																									tmi_slice.number,
-																																									tmi_slice.pl_type,
-																																									tmi_slice.voltage/16.,
-																																									tmi_slice.current/16.,
-																																									tmi_slice.temp
-																																									);
-	//
+	#ifdef DEBUG
+		printf_time();
+		printf("--PL11B tmi slice %d: tmi_num %d, pl_type %d, U %.1f, I %.1f, temp %d\n", 
+																																										retval,
+																																										tmi_slice.number,
+																																										tmi_slice.pl_type,
+																																										tmi_slice.voltage/16.,
+																																										tmi_slice.current/16.,
+																																										tmi_slice.temp
+																																										);
+	#endif
 	return retval;
 }
 
@@ -928,7 +933,6 @@ int8_t pl_pn11_A_B_stop(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
 	#endif
 	return 0;
 }
-
 
 ///*** ПН1.2 - атомараные функции  ***///
 int8_t pl_pn12_pwr_on(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)

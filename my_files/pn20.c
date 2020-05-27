@@ -119,6 +119,9 @@ int8_t pn_20_tmi_slice_get_and_check(type_PN20_model* pn20_ptr, uint8_t *slice)
 			ret_val += 1;
 		}
 	}
+	if (pn20_ptr->inhibit & PN_20_INH_SELF){
+		ret_val += 1;
+	}
 	// создаем и копируем срез телеметрии
 	pn_20_tmi_slice_create(pn20_ptr);
 	memcpy(slice, (uint8_t*)&pn20_ptr->tmi_slice, sizeof(type_PN20_TMI_slice));

@@ -206,22 +206,36 @@ int main(void)
     int16_val = cmd_check_to_process(&lm.interface);
     switch(int16_val){
       case CMD_INIT_LM:
-        printf("cmd: init LM\n");
+        #ifdef DEBUG
+          printf_time(); printf("cmd: init LM - start\n");
+        #endif
+        lm_reset_state(&lm);
+        #ifdef DEBUG
+          printf_time(); printf("cmd: init LM - stop\n");
+        #endif
         break;
       case CMD_INIT_ISS_MEM:
-        printf("cmd: init iss memory\n");
+        #ifdef DEBUG
+          printf_time(); printf("cmd: init iss memory\n");
+        #endif
         ext_mem_format_part(&lm.mem, PART_ISS);
         break;
       case CMD_INIT_DCR_MEM:
-        printf("cmd: init decor memory\n");
+        #ifdef DEBUG
+          printf_time(); printf("cmd: init decor memory\n");
+        #endif
         ext_mem_format_part(&lm.mem, PART_DCR);
         break;
       case CMD_DCR_WRITE_FLIGHT_TASK:
-        printf("cmd: write dcr flight task from_can to dcr-model\n");
+        #ifdef DEBUG
+          printf_time(); printf("cmd: write dcr flight task from_can to dcr-model\n");
+        #endif
         cmd_process_dcr_write_flight_task(lm.interface.cmd.array[CMD_DCR_WRITE_FLIGHT_TASK], 0);
         break;
       case CMD_DBG_LED_TEST:
-        printf("cmd: (dbg) led test 0x%02X\n", lm.interface.cmd.array[CMD_DBG_LED_TEST]);
+        #ifdef DEBUG
+          printf_time(); printf("cmd: (dbg) led test 0x%02X\n", lm.interface.cmd.array[CMD_DBG_LED_TEST]);
+        #endif
         cmd_process_test_led(lm.interface.cmd.array[CMD_DBG_LED_TEST], 0);
         break;
       case CMD_NO_ONE:

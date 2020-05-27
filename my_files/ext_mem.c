@@ -29,6 +29,7 @@ int8_t ext_mem_init(type_MEM_CONTROL* mem_ptr, SPI_HandleTypeDef* spi_ptr)
   start_addr = part_rel_init(&mem_ptr->part[PART_ISS], PART_MODE_SMART_COIL_WRITE, PART_FULL_VOL_REL, PART_ISS_VOL_REL, start_addr);
   start_addr = part_rel_init(&mem_ptr->part[PART_DCR], PART_MODE_SMART_COIL_WRITE, PART_FULL_VOL_REL, PART_DCR_VOL_REL, start_addr);
   start_addr = part_const_init(&mem_ptr->part[PART_DCR_FLIGHT_TASK], PART_MODE_REWRITE, PART_DCR_FLIGHT_TASK_CONST, start_addr);
+  start_addr = part_const_init(&mem_ptr->part[PART_DCR_STATUS], PART_MODE_SMART_COIL_WRITE, PART_DCR_STATUS_CONST, start_addr);
   //
   return report;
 }

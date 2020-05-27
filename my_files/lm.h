@@ -29,7 +29,7 @@ typedef unsigned short uint16_t;
 
 // настройки прибора
 #define DEV_ID (0x06)
-#define SOFT_VERSION "1.00.0"
+#define SOFT_VERSION "1.00.2"
 // свойства микроконтроллера
 
 // раскрашивание переменных
@@ -107,8 +107,8 @@ typedef struct
 	uint16_t voltage; // +6
 	uint16_t current; // +8
 	uint16_t temperature; // +10
-	uint16_t iss_vol; // +12
-	uint16_t dcr_vol; // +14
+	uint16_t iss_mem_wr_ptr; // +12
+	uint16_t dcr_mem_wd_ptr; // +14
 	uint16_t rsrv; // +16
 } type_LM_REPORT; // +18
 
@@ -180,6 +180,7 @@ void lm_pl_inhibit_set(type_LM_DEVICE* lm_ptr, uint8_t pl_num, uint8_t inh);
 void lm_set_inh(type_LM_DEVICE* lm_ptr, uint8_t inh);
 void lm_cyclogram_process(type_LM_DEVICE* lm_ptr, uint16_t period_ms);
 uint16_t lm_get_pl_status(type_LM_DEVICE* lm_ptr);
+void lm_reset_state(type_LM_DEVICE* lm_ptr);
 
 int8_t pwr_init(type_PWR_CONTROL* pwr_ptr, I2C_HandleTypeDef* hi2c_ptr);
 void pwr_on_off(type_PWR_CONTROL* pwr_ptr, uint8_t pwr_switches);

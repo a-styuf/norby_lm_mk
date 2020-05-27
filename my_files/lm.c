@@ -48,6 +48,7 @@ int8_t lm_ctrl_init(type_LM_DEVICE* lm_ptr)
 	int8_t ret_val = 0;
 		// инициализируем параметры управляющей структуры
 	lm_ptr->ctrl.global_time_s = 0;
+	clock_set_time_s(0);
 	lm_ptr->ctrl.status = 0;
 	lm_ptr->ctrl.error_flags = 0;
 	lm_ptr->ctrl.err_cnt = 0;
@@ -72,8 +73,8 @@ void lm_report_create(type_LM_DEVICE* lm_ptr)
 	lm_ptr->report.voltage 				= lm_ptr->pwr.ch[0].ina226.voltage;
 	lm_ptr->report.current 				= lm_ptr->pwr.ch[0].ina226.current;
 	lm_ptr->report.temperature 		= lm_ptr->tmp.tmp1075[0].temp;
-	lm_ptr->report.iss_vol 				= (lm_ptr->mem.part[PART_ISS].full_frame_num) & 0xFFFF;
-	lm_ptr->report.dcr_vol		 		= (lm_ptr->mem.part[PART_DCR].full_frame_num) & 0xFFFF;
+	lm_ptr->report.iss_mem_wr_ptr = (lm_ptr->mem.part[PART_ISS].write_ptr) & 0xFFFF;
+	lm_ptr->report.dcr_mem_wd_ptr	= (lm_ptr->mem.part[PART_DCR].write_ptr) & 0xFFFF;
 }
 
 /**
@@ -259,6 +260,11 @@ void lm_cyclogram_process(type_LM_DEVICE* lm_ptr, uint16_t period_ms)
 	lm_ptr->ctrl.status |= ((lm_ptr->cyclogram.state & 0xFF) << 8);
 }
 
+/**
+  * @brief  получение общего статус а ПН
+  * @param  lm_ptr: указатель на структуру управления МС
+	* @retval  статус полезных нагрузок
+  */
 uint16_t lm_get_pl_status(type_LM_DEVICE* lm_ptr)
 {
 	uint16_t status = 0;
@@ -282,6 +288,27 @@ uint16_t lm_get_pl_status(type_LM_DEVICE* lm_ptr)
 	//
 	lm_ptr->ctrl.pl_status = status;
 	return status;
+}
+
+/**
+  * @brief  инициализация состояния МС
+	* @param  lm_ptr: указатель на структуру управления МС
+  */
+void lm_reset_state(type_LM_DEVICE* lm_ptr)
+{
+	lm_ctrl_init(lm_ptr);
+	//
+	pn_11_reset_state(&lm_ptr->pl._11A);
+	pn_11_reset_state(&lm_ptr->pl._11B);
+	pn_12_reset_state(&lm_ptr->pl._12);
+	pn_20_reset_state(&lm_ptr->pl._20);
+	pn_dcr_reset_state(&lm_ptr->pl._dcr);
+	//
+	cyclogram_start(&lm_ptr->cyclogram, &lm_ptr->pl,CYCLOGRAM_MODE_OFF, 0);
+	//
+	ext_mem_format_part(&lm_ptr->mem, PART_ISS);
+	ext_mem_format_part(&lm_ptr->mem, PART_DCR);
+	//
 }
 
 
@@ -601,8 +628,10 @@ void fill_gen_tmi(type_LM_DEVICE* lm_ptr)
 	memcpy(gen_fr.pl20_report, (uint8_t*)&lm_ptr->pl._20.report, sizeof(type_PN20_report));
 	memcpy(gen_fr.pldcr_report, (uint8_t*)&lm_ptr->pl._dcr.report, sizeof(type_PNDCR_report));
 	//
-	gen_fr.iss_wr_ptr = lm_ptr->mem.part[PART_ISS].write_ptr;
-	gen_fr.dcr_wr_ptr = lm_ptr->mem.part[PART_DCR].write_ptr;
+	gen_fr.iss_rd_ptr = lm_ptr->mem.part[PART_ISS].read_ptr;
+	gen_fr.iss_mem_vol = lm_ptr->mem.part[PART_ISS].full_frame_num;
+	gen_fr.dcr_rd_ptr = lm_ptr->mem.part[PART_DCR].read_ptr;
+	gen_fr.dct_mem_vol = lm_ptr->mem.part[PART_DCR].full_frame_num;
 	//
 	frame_crc16_calc((uint8_t *)&gen_fr);
 	//
@@ -631,6 +660,8 @@ void fill_dcr_rx_frame(type_LM_DEVICE* lm_ptr)
 		frame_crc16_calc((uint8_t *)&status_dcr_fr);
 		// сохраняем сформированный кадр в расшаренную can-память
 		memcpy((uint8_t*)&lm_ptr->interface.tmi_data.dcr_status, (uint8_t*)&status_dcr_fr, sizeof(status_dcr_fr));
+		// сохраняем статус в память на всякий случай
+		ext_mem_wr_frame_to_part(&lm_ptr->mem, (uint8_t*)&lm_ptr->interface.tmi_data.dcr_status, PART_DCR_STATUS);
 	}
 	//
 	memset((uint8_t*)&long_dcr_fr, 0xFE, sizeof(type_DCR_LONG_Frame));

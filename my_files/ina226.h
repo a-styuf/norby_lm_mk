@@ -46,8 +46,8 @@
 #define DIE_ID_REG_ADDR 0xFF
 
 //Configuration_register
-#define AVEREGES_DEF AVERAGES_NUM_1024
-#define CONV_TIME_DEF CONV_TIME_1100us
+#define AVEREGES_DEF AVERAGES_NUM_128
+#define CONV_TIME_DEF CONV_TIME_588us
 #define MODE_DEF SHUNT_VOLTAGE_CONT
 #define ALERT_MODE_DEF (1<<11)
 //Calibration register: This value is needed to recalculate for each shunt

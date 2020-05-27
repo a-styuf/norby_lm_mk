@@ -44,7 +44,8 @@ void pn_dcr_init(type_PN_DCR_model* pn_dcr_ptr, uint8_t num, UART_HandleTypeDef 
 void pn_dcr_reset_state(type_PN_DCR_model* pn_dcr_ptr)
 {
 	pn_dcr_ptr->status = 0;
-	pn_dcr_ptr->mode = 0;
+	pn_dcr_ptr->mode = DCR_MODE_OFF;
+	pn_dcr_set_mode(pn_dcr_ptr, DCR_MODE_OFF);
 	pn_dcr_ptr->rx_frames_cnt = 0;
 	pn_dcr_ptr->rx_status_cnt = 0;
 	pn_dcr_ptr->pwr_check_timeout_ms = PN_DCR_PWR_PERIODICAL_TIMEOUT_MS;

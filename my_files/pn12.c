@@ -118,6 +118,9 @@ int8_t pn_12_tmi_slice_get_and_check(type_PN12_model* pn12_ptr, uint8_t *slice)
 			ret_val += 1;
 		}
 	}
+	if (pn12_ptr->inhibit & PN_12_INH_SELF){
+		ret_val += 1;
+	}
 	// создаем и копируем срез телеметрии
 	pn_12_tmi_slice_create(pn12_ptr);
 	memcpy(slice, (uint8_t*)&pn12_ptr->tmi_slice, sizeof(type_PN12_TMI_slice));

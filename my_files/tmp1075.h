@@ -12,10 +12,6 @@
 #define HLIM_REGISTER_ADDR 0x03
 #define DEV_ID_REGISTER_ADDR 0x0F
 
-//Configuration_register
-#define AVEREGES_DEF AVERAGES_NUM_1024
-#define CONV_TIME_DEF CONV_TIME_1100us
-#define MODE_DEF SHUNT_VOLTAGE_CONT
 //Default condiguration
 #define CONFIG_DEFAULT ((0x00<<15)|(0x01<<13)|(0x02<<11)|(0x00<<10)|(0x00<<9)|(0x00<<8)|(0xFF<<0)) // continuos mode, pweiod - 110ms, alert-active low
 #define ALARM_HLIM_DEFAULT (85*256)  //85°C
