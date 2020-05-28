@@ -272,15 +272,6 @@ int main(void)
         #endif
         lm_pl_inhibit_set(&lm, (int16_val - CMDREG_PL_INH_0), lm.interface.cmdreg.array[int16_val]);
         break;
-      case CMDREG_ALL_MEM_RD_PTR_0:
-      case CMDREG_ALL_MEM_RD_PTR_1:
-      case CMDREG_ALL_MEM_RD_PTR_2:
-      case CMDREG_ALL_MEM_RD_PTR_3:
-        lm.mem.read_ptr = *((uint32_t*)&lm.interface.cmdreg.array[CMDREG_ALL_MEM_RD_PTR_0]);
-        #ifdef DEBUG
-          printf_time(); printf("cmdreg: LM set full mem read_ptr 0x%04X\n", *((uint32_t*)&lm.interface.cmdreg.array[CMDREG_ALL_MEM_RD_PTR_0]));
-        #endif
-        break;
       case CMDREG_DCR_MODE_SET:
         pn_dcr_set_mode(&lm.pl._dcr, lm.interface.cmdreg.array[CMDREG_DCR_MODE_SET]);
         #ifdef DEBUG
@@ -331,13 +322,13 @@ int main(void)
           printf_time(); printf("cmdreg: synch time %d\n", *(uint32_t*)&lm.interface.cmdreg.array[CMDREG_TIME_0]);
         #endif
         break;
-      case CMDREG_PART_MEM_RD_PTR_2:
+      case CMDREG_PART_MEM_RD_PTR_3:
         #ifdef DEBUG
           printf_time(); printf("cmdreg: set part %d rd_ptr to %d\n", lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR], 
-                                                                      *(uint32_t*)&lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR_0] & 0x00FFFFFF);
+                                                                      *(uint32_t*)&lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR_0]);
 				#endif
-				ext_mem_set_rd_ptr_for_part(&lm.mem, lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR], 
-                                      *(uint32_t*)&lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR_0] & 0x00FFFFFF);
+				ext_mem_set_rd_ptr_for_part(&lm.mem, &lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR], 
+                                      (uint32_t*)&lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR_0]);
         
         break;
       case CMDREG_DBG_LED:

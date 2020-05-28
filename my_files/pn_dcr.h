@@ -181,7 +181,9 @@ typedef struct
 typedef struct
 {
 	uint16_t mode; 				//+0
-	uint8_t rsrv[16]; 				//+2
+	uint16_t frame_cnt;		//+2
+	uint16_t status_cnt;	//+4
+	uint8_t rsrv[12]; 		//+6
 } type_PNDCR_сfg; 			//18
 
 #pragma pack(8)
@@ -200,6 +202,8 @@ typedef struct
 	type_PNDCR_сfg cfg;
 	uint8_t self_num;
 	uint16_t mode;
+	uint16_t frame_cnt;
+	uint16_t status_cnt;
 	uint16_t status;
 	uint16_t error_flags;
 	uint8_t error_cnt;

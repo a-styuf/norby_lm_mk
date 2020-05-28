@@ -80,6 +80,7 @@ void pn_11_reset_state(type_PN11_model* pn11_ptr)
 	pn_11_report_reset(pn11_ptr);
 	pn_11_interface_reset(pn11_ptr);
 	pn_11_output_set(pn11_ptr, PN11_OUTPUT_DEFAULT);
+	pn_11_pwr_off(pn11_ptr);
 	//
 }
 

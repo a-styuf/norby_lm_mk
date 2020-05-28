@@ -154,6 +154,7 @@ void lm_get_cfg(type_LM_DEVICE* lm_ptr, uint8_t *cfg)
 	lm_ptr->cfg.inhibit = lm_ptr->ctrl.inhibit;
 	lm_ptr->cfg.cyclogram_mode = lm_ptr->cyclogram.mode;
 	lm_ptr->cfg.cyclogram_num = lm_ptr->cyclogram.num;
+	lm_ptr->cfg.result_num = lm_ptr->cyclogram.result.result_num;
 	//
 	memcpy(cfg, (uint8_t*)&lm_ptr->cfg, sizeof(type_LM_сfg));
 	//
@@ -174,6 +175,7 @@ uint8_t lm_set_cfg(type_LM_DEVICE* lm_ptr, uint8_t *cfg)
 	lm_ptr->mem.part[PART_ISS].read_ptr = lm_ptr->loaded_cfg.iss_rd_ptr;
 	lm_ptr->mem.part[PART_DCR].write_ptr = lm_ptr->loaded_cfg.dcr_wr_ptr;
 	lm_ptr->mem.part[PART_DCR].read_ptr = lm_ptr->loaded_cfg.dcr_rd_ptr;
+	lm_ptr->cyclogram.result.result_num = lm_ptr->cfg.result_num;
 	//
 	lm_set_inh(lm_ptr, lm_ptr->loaded_cfg.inhibit);
 	//
@@ -304,7 +306,7 @@ void lm_reset_state(type_LM_DEVICE* lm_ptr)
 	pn_20_reset_state(&lm_ptr->pl._20);
 	pn_dcr_reset_state(&lm_ptr->pl._dcr);
 	//
-	cyclogram_start(&lm_ptr->cyclogram, &lm_ptr->pl,CYCLOGRAM_MODE_OFF, 0);
+	cyclogram_reset_state(&lm_ptr->cyclogram, &lm_ptr->pl);
 	//
 	ext_mem_format_part(&lm_ptr->mem, PART_ISS);
 	ext_mem_format_part(&lm_ptr->mem, PART_DCR);
@@ -653,7 +655,8 @@ void fill_dcr_rx_frame(type_LM_DEVICE* lm_ptr)
 	leng = pn_dcr_get_last_status(&lm_ptr->pl._dcr, data);
 	if (leng) {
 		// формируем заголовок для кадра
-		frame_create_header((uint8_t*)&status_dcr_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_DCR_LAST_RX_STATUS, lm_ptr->pl._dcr.rx_status_cnt, 0x00);
+		frame_create_header((uint8_t*)&status_dcr_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_DCR_LAST_RX_STATUS, lm_ptr->pl._dcr.status_cnt, 0x00);
+		lm_ptr->pl._dcr.status_cnt += 1;
 		// сохраняем в сформированный кадр данные, полученные из модели DCR
 		memcpy((uint8_t*)status_dcr_fr.status_dcr_data, data, sizeof(leng));
 		//
@@ -668,7 +671,8 @@ void fill_dcr_rx_frame(type_LM_DEVICE* lm_ptr)
 	leng = pn_dcr_get_last_frame(&lm_ptr->pl._dcr, data);
 	if (leng) {
 		// формируем заголовок для кадра
-		frame_create_header((uint8_t*)&long_dcr_fr.header, DEV_ID, DCR_FRAME_TYPE, DATA_TYPE_DCR_LAST_RX_FRAME, lm_ptr->pl._dcr.rx_frames_cnt, 0x00);
+		frame_create_header((uint8_t*)&long_dcr_fr.header, DEV_ID, DCR_FRAME_TYPE, DATA_TYPE_DCR_LAST_RX_FRAME, lm_ptr->pl._dcr.frame_cnt, 0x00);
+		lm_ptr->pl._dcr.frame_cnt += 1;
 		// сохраняем в сформированный кадр данные, полученные из модели DCR
 		memcpy((uint8_t*)long_dcr_fr.long_dcr_frame, data, 124);
 		//

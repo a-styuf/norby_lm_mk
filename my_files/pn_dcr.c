@@ -48,6 +48,8 @@ void pn_dcr_reset_state(type_PN_DCR_model* pn_dcr_ptr)
 	pn_dcr_set_mode(pn_dcr_ptr, DCR_MODE_OFF);
 	pn_dcr_ptr->rx_frames_cnt = 0;
 	pn_dcr_ptr->rx_status_cnt = 0;
+	pn_dcr_ptr->frame_cnt = 0;
+	pn_dcr_ptr->status_cnt = 0;
 	pn_dcr_ptr->pwr_check_timeout_ms = PN_DCR_PWR_PERIODICAL_TIMEOUT_MS;
 	_pn_dcr_error_collector(pn_dcr_ptr, PN_DCR_ERR_NO_ERROR, 0);
 }
@@ -351,7 +353,7 @@ uint8_t pn_dcr_run_step_function(type_PN_DCR_model* pn_dcr_ptr)
 		}
 		//
 		#ifdef DEBUG_DCR
-			printf_time(); printf("DCR: FlTask %d; Step %02d num %02d: type=%d, cmd=%d, pause_ms=%d\n",	pn_dcr_ptr->status & 0x0F,
+			printf_time(); printf("DCR: FlTask %d; Step %02d num %02d: type=%d, cmd=%d, pause_ms=%d\n",	pn_dcr_ptr->status & PN_DCR_STATUS_MODE,
 																																											pn_dcr_ptr->fl_task.step_num,
 																																											pn_dcr_ptr->fl_task.step_repeat_cnt,
 																																											type,
@@ -485,6 +487,8 @@ uint8_t pn_dcr_get_cfg(type_PN_DCR_model* pn_dcr_ptr, uint8_t *cfg)
 {
 	memset((uint8_t*)&pn_dcr_ptr->cfg, 0xFE, sizeof(type_PNDCR_сfg));
 	pn_dcr_ptr->cfg.mode = pn_dcr_ptr->mode & 0x00FF;
+	pn_dcr_ptr->cfg.frame_cnt = pn_dcr_ptr->frame_cnt;
+	pn_dcr_ptr->cfg.status_cnt = pn_dcr_ptr->status_cnt;
 	//
 	memcpy(cfg, (uint8_t*)&pn_dcr_ptr->cfg, sizeof(type_PNDCR_сfg));
 	//
@@ -503,6 +507,8 @@ uint8_t pn_dcr_set_cfg(type_PN_DCR_model* pn_dcr_ptr, uint8_t *cfg)
 	memcpy((uint8_t*)&pn_dcr_ptr->loaded_cfg, (uint8_t*)cfg, sizeof(type_PNDCR_сfg));
 	//
 	pn_dcr_ptr->mode = pn_dcr_ptr->loaded_cfg.mode & 0x000FF; //из-за преобразования типов необходимо поменть байты местами
+	pn_dcr_ptr->frame_cnt = pn_dcr_ptr->cfg.frame_cnt;
+	pn_dcr_ptr->status_cnt = pn_dcr_ptr->cfg.status_cnt;
 	pn_dcr_set_mode(pn_dcr_ptr, pn_dcr_ptr->mode);
 	//
 	return 1;

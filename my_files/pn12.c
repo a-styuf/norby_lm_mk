@@ -59,6 +59,7 @@ void pn_12_reset_state(type_PN12_model* pn12_ptr)
 	_pn_12_error_collector(pn12_ptr, PN12_NO_ERROR, NULL);
 	pn_12_report_reset(pn12_ptr);
 	pn_12_output_set(pn12_ptr, PN12_OUTPUT_DEFAULT);
+	pn_12_pwr_off(pn12_ptr);
 }
 
 /**

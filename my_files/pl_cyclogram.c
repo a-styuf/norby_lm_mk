@@ -90,6 +90,7 @@ int8_t cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t dev_id)
 	ccl_ptr->result.body_offset = 0;
 	ccl_ptr->result.body_num = 0;
 	ccl_ptr->result.tmi_slice_num = 0;
+	ccl_ptr->result.result_num = 0;
 	ccl_ptr->result.cyclogram_result_ready_flag = 0;
 	//
 	// Циклограмма 0: 0x00 - Тестовая
@@ -239,6 +240,17 @@ int8_t cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t dev_id)
 }
 
 /**
+  * @brief  сброс циклограммы
+  * @param  ccl_ptr: структура управления циклограммой
+  * @param  pl_ptr: структура управления ПН-ми
+  */
+void cyclogram_reset_state(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr)
+{
+	uint8_t dev_id = ccl_ptr->result.lm_id;
+	cyclogram_init(ccl_ptr, pl_ptr, dev_id);
+}
+
+/**
   * @brief  инициализация шага циклограммы
   * @param  ccl_ptr: структура управления циклограммой
   * @param  pl_ptr:  структура управления ПН-ми
@@ -321,7 +333,7 @@ int8_t cyclogram_start(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t mode, u
 	cyclogram_single_init(ccl_ptr, pl_ptr, cyclogram_num);
 	if ((mode == CYCLOGRAM_MODE_CYCLIC) || (mode == CYCLOGRAM_MODE_SINGLE)){
 		#ifdef DEBUG
-			printf("\n"); printf_time(); printf("-Cyclogram start %d\n", cyclogram_num);
+			printf("\n"); printf_time(); printf("-Cyclogram start %d\n", ccl_ptr->num);
 		#endif
 	}
 	//

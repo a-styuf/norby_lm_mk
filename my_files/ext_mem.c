@@ -262,24 +262,38 @@ void ext_mem_format_part(type_MEM_CONTROL* mem_ptr, uint8_t part_num)
 /**
   * @brief  установка указателей чтения для частей памяти
   * @param  mem_ptr: структура для управления памятью
-  * @param  part_num: номер тома памяти
+  * @param  part_num: указатель номера тома памяти, 0xFF - вся память
   * @param  rd_ptr: значение укаазтеля чтения для установки
-  * @retval в случае успеха возвращает: 31-24 - номер тома, 23-0 - указатель записи, в случае ошибки возвращает 0xFF место номера тома
+  * @retval 1 - успешно установили указатель, 0 - ошибка
   */
-uint32_t ext_mem_set_rd_ptr_for_part(type_MEM_CONTROL* mem_ptr, uint8_t part_num, uint32_t rd_ptr)
+int8_t ext_mem_set_rd_ptr_for_part(type_MEM_CONTROL* mem_ptr, uint8_t *part_num, uint32_t *rd_ptr)
 {
-  if (part_num < PART_NUM){
-    if (rd_ptr >= (mem_ptr->part[part_num].full_frame_num)){
-      mem_ptr->part[part_num].read_ptr = mem_ptr->part[part_num].full_frame_num - 1;
-      return (uint32_t)((0xFF << 24) + ((mem_ptr->part[part_num].read_ptr) & 0xFFFFFF));
+  if (*part_num < PART_NUM){
+    if (*rd_ptr >= (mem_ptr->part[*part_num].full_frame_num)){
+      mem_ptr->part[*part_num].read_ptr = mem_ptr->part[*part_num].full_frame_num - 1;
+      *rd_ptr =  mem_ptr->part[*part_num].full_frame_num - 1;
+      return 0;
     }
     else{
-      mem_ptr->part[part_num].read_ptr = rd_ptr;
-      return (uint32_t)(((part_num & 0xFF) << 24) + ((mem_ptr->part[part_num].read_ptr) & 0xFFFFFF));
+      mem_ptr->part[*part_num].read_ptr = *rd_ptr;
+      return 1;
+    }
+  }
+  else if (0x7F == *part_num){
+    if (*rd_ptr >= FRAME_MEM_VOL_FRAMES){
+      mem_ptr->read_ptr = FRAME_MEM_VOL_FRAMES - 1;
+      *rd_ptr = FRAME_MEM_VOL_FRAMES - 1;
+      return 0;
+    }
+    else{
+      mem_ptr->read_ptr = *rd_ptr;
+      return 1;
     }
   }
   else{
-    return (uint32_t)(((0xFF) << 24) + 0x000000);
+    *part_num = 0xFF;
+    *rd_ptr = 0;
+    return 0;
   }
 }
 

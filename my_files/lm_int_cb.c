@@ -87,6 +87,9 @@ void ProcCallbackExtMems(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, in
       else if(id.uf.Offset == 256){
         ext_mem_rd_frame_from_part(&lm.mem, lm.interface.ext_mem.External_Mem_DCR_Frame, PART_DCR);
       }
+      else if(id.uf.Offset == 384){
+        ext_mem_rd_frame_from_part(&lm.mem, lm.interface.ext_mem.External_Mem_DCR_Status, PART_DCR_STATUS);
+      }
   }
 }
 

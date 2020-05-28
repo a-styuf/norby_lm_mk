@@ -66,27 +66,23 @@
 #define CMDREG_PL_INH_6           0x18
 #define CMDREG_PL_INH_7           0x19
 //
-#define CMDREG_ALL_MEM_RD_PTR_0   0x1A
-#define CMDREG_ALL_MEM_RD_PTR_1   0x1B
-#define CMDREG_ALL_MEM_RD_PTR_2   0x1C
-#define CMDREG_ALL_MEM_RD_PTR_3   0x1D
+#define CMDREG_CYCLOGRAMS_0       0x1A
+#define CMDREG_CYCLOGRAMS_1       0x1B
+//
+#define CMDREG_DCR_MODE_SET       0x1C
+//
+#define CMDREG_RESERV             0x1D
 //
 #define CMDREG_PART_MEM_RD_PTR    0x1E
 #define CMDREG_PART_MEM_RD_PTR_0  0x1F
 #define CMDREG_PART_MEM_RD_PTR_1  0x20
 #define CMDREG_PART_MEM_RD_PTR_2  0x21
-//
-#define CMDREG_DCR_MODE_SET       0x22
+#define CMDREG_PART_MEM_RD_PTR_3  0x22
 //
 #define CMDREG_PL11A_OUT_SET      0x23
 #define CMDREG_PL11B_OUT_SET      0x24
 #define CMDREG_PL12_OUT_SET       0x25
 #define CMDREG_PL20_OUT_SET       0x26
-//
-#define CMDREG_CYCLOGRAMS_0       0x27
-#define CMDREG_CYCLOGRAMS_1       0x28
-//
-#define CMDREG_CONST_MODE_0       0x29
 //
 #define CMDREG_DBG_LED            0x30
 //
@@ -185,7 +181,8 @@ typedef struct {
   uint8_t External_Mem_Full_Frame[128];  //+0
   uint8_t External_Mem_ISS_Frame[128];  //+128
   uint8_t External_Mem_DCR_Frame[128];  //+256
-} type_IVar_ExtMem; //384
+  uint8_t External_Mem_DCR_Status[128];  //+384
+} type_IVar_ExtMem; //512
 
 /**
   * @brief  IVar for DCR-interface

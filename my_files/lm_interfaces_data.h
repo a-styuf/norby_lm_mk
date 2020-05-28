@@ -130,9 +130,9 @@ typedef struct {
   uint16_t dcr_rd_ptr;    //+54
   uint16_t dcr_wr_ptr;    //+56
   uint16_t dct_mem_vol;    //+58
-  uint16_t rsrv[5]; //+48
+  uint16_t rsrv[5]; //+60
   //
-  uint8_t filler[61]; //+48
+  uint8_t filler[56]; //+70
   //
   uint16_t crc16; //+126
 } type_LM_TMI_Data_Frame; //128
