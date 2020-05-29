@@ -81,13 +81,16 @@ void ProcCallbackExtMems(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, in
       if(id.uf.Offset == 0){
         ext_mem_any_line_read(&lm.mem, lm.interface.ext_mem.External_Mem_Full_Frame);
       }
-      else if(id.uf.Offset == 128){
+      else if(id.uf.Offset == 128*1){
         ext_mem_rd_frame_from_part(&lm.mem, lm.interface.ext_mem.External_Mem_ISS_Frame, PART_ISS);
       }
-      else if(id.uf.Offset == 256){
+      else if(id.uf.Offset == 128*2){
         ext_mem_rd_frame_from_part(&lm.mem, lm.interface.ext_mem.External_Mem_DCR_Frame, PART_DCR);
       }
-      else if(id.uf.Offset == 384){
+      else if(id.uf.Offset == 128*3){
+        ext_mem_rd_frame_from_part(&lm.mem, lm.interface.ext_mem.External_Mem_DCR_FlightTask, PART_DCR_FLIGHT_TASK);
+      }
+      else if(id.uf.Offset == 128*4){
         ext_mem_rd_frame_from_part(&lm.mem, lm.interface.ext_mem.External_Mem_DCR_Status, PART_DCR_STATUS);
       }
   }

@@ -181,8 +181,9 @@ typedef struct {
   uint8_t External_Mem_Full_Frame[128];  //+0
   uint8_t External_Mem_ISS_Frame[128];  //+128
   uint8_t External_Mem_DCR_Frame[128];  //+256
-  uint8_t External_Mem_DCR_Status[128];  //+384
-} type_IVar_ExtMem; //512
+  uint8_t External_Mem_DCR_FlightTask[128];  //+384
+  uint8_t External_Mem_DCR_Status[128];  //+512
+} type_IVar_ExtMem; //640
 
 /**
   * @brief  IVar for DCR-interface

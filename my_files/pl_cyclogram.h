@@ -31,6 +31,10 @@
 #define CYCLOGRAM_MODE_SINGLE 	(1)
 #define CYCLOGRAM_MODE_CYCLIC 	(2)
 
+//ошибки циклограмм
+#define CYCLOGRAM_STATUS_OK			(0<<0)
+#define CYCLOGRAM_STATUS_ERROR	(1<<0)
+
 typedef struct
 { 
 	type_PN11_model _11A;
@@ -101,6 +105,7 @@ int8_t result_write_tmi_slice(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr
 int8_t result_row_data_write(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr, uint8_t *pl_data, uint16_t pl_data_leng);
 int8_t result_refresh(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t result_finish(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t result_emergency_stop(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 
 // pl_1.1A
 int8_t pl_pn11A_set_iku_default(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
@@ -140,10 +145,12 @@ int8_t pl_pn11_A_B_stop(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn12_pwr_on(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn12_pwr_off(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn12_set_iku_default(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn12_check_and_save_tmi(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn12_stop(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 
 int8_t pl_pn20_pwr_on(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn20_pwr_off(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn20_set_iku_default(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn20_check_and_save_tmi(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn20_stop(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 #endif

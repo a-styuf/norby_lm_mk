@@ -41,6 +41,7 @@
 #define PN_DCR_STATUS_MODE 						(0x03 << 0)
 #define PN_DCR_STATUS_TAG_MODE				(0x01 << 2)
 #define PN_DCR_STATUS_ERROR						(0x01 << 3)
+#define PN_DCR_STATUS_INH							(0x01 << 4)
 #define PN_DCR_CCL_STEP_NUM						(0xFF << 8)
 
 // ошибки работы ДеКоР
@@ -81,6 +82,8 @@
 // задержка для определения ошибки питания - устанавливается каждый ра, когда происходит изменение состояния питания
 #define PN_DCR_PWR_PERIODICAL_TIMEOUT_MS 	1000
 #define PN_DCR_PWR_ON_OFF_TIMEOUT_MS 			5000
+// типы запретов работы ПН
+#define PN_11_INH_SELF 						(1 << 0)
 
 
 #pragma pack(2)
@@ -183,7 +186,9 @@ typedef struct
 	uint16_t mode; 				//+0
 	uint16_t frame_cnt;		//+2
 	uint16_t status_cnt;	//+4
-	uint8_t rsrv[12]; 		//+6
+	uint8_t inhibit;			//+6
+	uint8_t gap;					//+7
+	uint8_t rsrv[10]; 		//+8
 } type_PNDCR_сfg; 			//18
 
 #pragma pack(8)
@@ -207,6 +212,7 @@ typedef struct
 	uint16_t status;
 	uint16_t error_flags;
 	uint8_t error_cnt;
+	uint8_t inhibit;
 	uint8_t last_received_frame[124], last_received_frame_leng;
 	uint8_t last_received_status[116], last_received_status_leng;
 	uint16_t rx_frames_cnt, rx_status_cnt;
@@ -215,6 +221,8 @@ typedef struct
 void pn_dcr_init(type_PN_DCR_model* pn_dcr_ptr, uint8_t num, UART_HandleTypeDef *uart_ptr, type_PWR_CHANNEL* mcu_pwr_ch_ptr, type_PWR_CHANNEL* msr_pwr_ch_ptr);
 void pn_dcr_reset_state(type_PN_DCR_model* pn_dcr_ptr);
 void pn_dcr_process(type_PN_DCR_model* pn_dcr_ptr, uint16_t period_ms);
+void pn_dcr_set_status(type_PN_DCR_model* pn_dcr_ptr);
+void pn_dcr_set_inh(type_PN_DCR_model* pn_dcr_ptr, uint8_t inh);
 uint8_t pn_dcr_get_short_status(type_PN_DCR_model* pn_dcr_ptr);
 void pn_dcr_report_create(type_PN_DCR_model* pn11_ptr);
 ///*** функции поддержки работы с питанием ***///

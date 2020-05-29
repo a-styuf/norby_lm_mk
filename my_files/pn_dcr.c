@@ -35,6 +35,8 @@ void pn_dcr_init(type_PN_DCR_model* pn_dcr_ptr, uint8_t num, UART_HandleTypeDef 
 	pn_dcr_reset_state(pn_dcr_ptr);
 	// считывание циклограммы работы из ext-mem
 	pn_dcr_fill_default_flight_task(pn_dcr_ptr);
+	//
+	pn_dcr_set_cfg(pn_dcr_ptr, 0x00);
 }
 
 /**
@@ -65,6 +67,34 @@ void pn_dcr_process(type_PN_DCR_model* pn_dcr_ptr, uint16_t period_ms)
 	pn_dcr_pwr_process(pn_dcr_ptr, period_ms);
 	//полетное задание
 	pn_dcr_flight_task_process(pn_dcr_ptr, period_ms);
+	//обновление статуса ДеКоР
+	pn_dcr_set_status(pn_dcr_ptr);
+}
+
+/**
+  * @brief  функция для обновления статуса ДеКоР
+  * @param  pn_dcr_ptr: указатель на структуру управления ПН_ДКР
+  */
+void pn_dcr_set_status(type_PN_DCR_model* pn_dcr_ptr)
+{
+	pn_dcr_ptr->status &= ~(PN_DCR_CCL_STEP_NUM);
+	pn_dcr_ptr->status |= ((pn_dcr_ptr->fl_task.step_num << 8) & PN_DCR_CCL_STEP_NUM);
+	pn_dcr_ptr->status &= ~(PN_DCR_STATUS_MODE);
+	pn_dcr_ptr->status |= ((pn_dcr_ptr->mode & 0x03) << 0);
+	pn_dcr_ptr->status &= ~(PN_DCR_STATUS_TAG_MODE);
+	pn_dcr_ptr->status |= (((pn_dcr_ptr->mode >> 4) & 0x01) << 2);
+	pn_dcr_ptr->status &= ~(PN_DCR_STATUS_INH);
+	pn_dcr_ptr->status |= (((pn_dcr_ptr->inhibit) & 0x0F) << 4);
+}
+
+/**
+  * @brief  установка выходов управления ПН в значение по умолчанию
+  * @param  pn_dcr_ptr: указатель на структуру управления ПН1.1
+	* @param  inh: флаги отключения функционала ПН
+  */
+void pn_dcr_set_inh(type_PN_DCR_model* pn_dcr_ptr, uint8_t inh)
+{
+	pn_dcr_ptr->inhibit = inh;
 }
 
 /**
@@ -211,31 +241,36 @@ uint8_t pn_dcr_get_outputs_state(type_PN_DCR_model* pn_dcr_ptr)
 void pn_dcr_flight_task_process(type_PN_DCR_model* pn_dcr_ptr, uint16_t period_ms)
 {
 	// обработка полетного задания
-	switch(pn_dcr_ptr->mode & 0x000F){
-		case DCR_MODE_DEFAULT:
-		case DCR_MODE_FLIGHT_TASK:
-			if (pn_dcr_ptr->fl_task.pause_ms >= period_ms){
-				pn_dcr_ptr->fl_task.pause_ms -= period_ms;
-			}
-			else if(pn_dcr_ptr->fl_task.pause_ms > 0){
-				pn_dcr_ptr->fl_task.pause_ms = 0;
-			}
-			else {
-				if (pn_dcr_run_step_function(pn_dcr_ptr)){
+	if ((pn_dcr_ptr->inhibit & PN_11_INH_SELF)  && (pn_dcr_ptr->mode & 0x000F)){
+		pn_dcr_set_mode(pn_dcr_ptr, DCR_MODE_OFF);
+	}
+	else{
+		switch(pn_dcr_ptr->mode & 0x000F){
+			case DCR_MODE_DEFAULT:
+			case DCR_MODE_FLIGHT_TASK:
+				if (pn_dcr_ptr->fl_task.pause_ms >= period_ms){
+					pn_dcr_ptr->fl_task.pause_ms -= period_ms;
+				}
+				else if(pn_dcr_ptr->fl_task.pause_ms > 0){
+					pn_dcr_ptr->fl_task.pause_ms = 0;
 				}
 				else {
-					_pn_dcr_error_collector(pn_dcr_ptr, PN_DCR_ERR_FL_TASK_ERROR, 0);
+					if (pn_dcr_run_step_function(pn_dcr_ptr)){
+					}
+					else {
+						_pn_dcr_error_collector(pn_dcr_ptr, PN_DCR_ERR_FL_TASK_ERROR, 0);
+					}
 				}
-			}
-			break;
-		case DCR_MODE_PAUSE:
-			break;
-		case DCR_MODE_OFF:
-			break;
-		default:
-			_pn_dcr_error_collector(pn_dcr_ptr, PN_DCR_ERR_WRONG_MODE, 0);
-			pn_dcr_ptr->mode = 0;
-			break;
+				break;
+			case DCR_MODE_PAUSE:
+				break;
+			case DCR_MODE_OFF:
+				break;
+			default:
+				_pn_dcr_error_collector(pn_dcr_ptr, PN_DCR_ERR_WRONG_MODE, 0);
+				pn_dcr_ptr->mode = 0;
+				break;
+		}
 	}
 }
 
@@ -294,13 +329,6 @@ uint8_t pn_dcr_run_step_function(type_PN_DCR_model* pn_dcr_ptr)
 	type = pn_dcr_ptr->fl_task.work.step[pn_dcr_ptr->fl_task.step_num].type;
 	cmd = pn_dcr_ptr->fl_task.work.step[pn_dcr_ptr->fl_task.step_num].cmd;
 	pause_ms = pn_dcr_ptr->fl_task.work.step[pn_dcr_ptr->fl_task.step_num].pause_ms;
-	//
-	pn_dcr_ptr->status &= ~(PN_DCR_CCL_STEP_NUM);
-	pn_dcr_ptr->status |= ((pn_dcr_ptr->fl_task.step_num << 8) & PN_DCR_CCL_STEP_NUM);
-	pn_dcr_ptr->status &= ~(PN_DCR_STATUS_MODE);
-	pn_dcr_ptr->status |= ((pn_dcr_ptr->mode & 0x03) << 0);
-	pn_dcr_ptr->status &= ~(PN_DCR_STATUS_TAG_MODE);
-	pn_dcr_ptr->status |= (((pn_dcr_ptr->mode >> 4) & 0x01) << 2);
 	//
 	memcpy(data, pn_dcr_ptr->fl_task.work.step[pn_dcr_ptr->fl_task.step_num].data, 8);
 	// устанавливаем паузу до след. циклограммы
@@ -489,6 +517,7 @@ uint8_t pn_dcr_get_cfg(type_PN_DCR_model* pn_dcr_ptr, uint8_t *cfg)
 	pn_dcr_ptr->cfg.mode = pn_dcr_ptr->mode & 0x00FF;
 	pn_dcr_ptr->cfg.frame_cnt = pn_dcr_ptr->frame_cnt;
 	pn_dcr_ptr->cfg.status_cnt = pn_dcr_ptr->status_cnt;
+	pn_dcr_ptr->cfg.inhibit = pn_dcr_ptr->inhibit;
 	//
 	memcpy(cfg, (uint8_t*)&pn_dcr_ptr->cfg, sizeof(type_PNDCR_сfg));
 	//
@@ -507,8 +536,9 @@ uint8_t pn_dcr_set_cfg(type_PN_DCR_model* pn_dcr_ptr, uint8_t *cfg)
 	memcpy((uint8_t*)&pn_dcr_ptr->loaded_cfg, (uint8_t*)cfg, sizeof(type_PNDCR_сfg));
 	//
 	pn_dcr_ptr->mode = pn_dcr_ptr->loaded_cfg.mode & 0x000FF; //из-за преобразования типов необходимо поменть байты местами
-	pn_dcr_ptr->frame_cnt = pn_dcr_ptr->cfg.frame_cnt;
-	pn_dcr_ptr->status_cnt = pn_dcr_ptr->cfg.status_cnt;
+	pn_dcr_ptr->frame_cnt = pn_dcr_ptr->loaded_cfg.frame_cnt;
+	pn_dcr_ptr->status_cnt = pn_dcr_ptr->loaded_cfg.status_cnt;
+	pn_dcr_ptr->inhibit = pn_dcr_ptr->loaded_cfg.inhibit;
 	pn_dcr_set_mode(pn_dcr_ptr, pn_dcr_ptr->mode);
 	//
 	return 1;

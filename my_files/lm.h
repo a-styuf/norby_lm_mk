@@ -29,7 +29,7 @@ typedef unsigned short uint16_t;
 
 // настройки прибора
 #define DEV_ID (0x06)
-#define SOFT_VERSION "1.00.2"
+#define SOFT_VERSION "1.01.1"
 // свойства микроконтроллера
 
 // раскрашивание переменных
@@ -124,7 +124,7 @@ typedef struct
 	uint8_t inhibit; 						//+16
 	uint8_t cyclogram_mode; 		//+17
 	uint8_t cyclogram_num; 			//+18
-	uint8_t gap; 								//+19
+	uint8_t rst_cnt;						//+19
 	uint16_t result_num;				//+20
 	uint8_t rsrv[4];						//+22
 } type_LM_сfg;		 						//26

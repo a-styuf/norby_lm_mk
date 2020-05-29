@@ -55,6 +55,7 @@ int8_t lm_ctrl_init(type_LM_DEVICE* lm_ptr)
 	lm_ptr->ctrl.rst_cnt = 0;
 	lm_ptr->ctrl.pl_status = 0;
 	lm_ptr->ctrl.inhibit = 0;
+	lm_ptr->cfg.rst_cnt = 0;
 	lm_ptr->pl_cyclogram_stop_flag = 0;
 	return ret_val;
 }
@@ -152,6 +153,7 @@ void lm_get_cfg(type_LM_DEVICE* lm_ptr, uint8_t *cfg)
 	lm_ptr->cfg.dcr_wr_ptr = lm_ptr->mem.part[PART_DCR].write_ptr;
 	lm_ptr->cfg.dcr_rd_ptr = lm_ptr->mem.part[PART_DCR].read_ptr;
 	lm_ptr->cfg.inhibit = lm_ptr->ctrl.inhibit;
+	lm_ptr->cfg.rst_cnt = lm_ptr->ctrl.rst_cnt;
 	lm_ptr->cfg.cyclogram_mode = lm_ptr->cyclogram.mode;
 	lm_ptr->cfg.cyclogram_num = lm_ptr->cyclogram.num;
 	lm_ptr->cfg.result_num = lm_ptr->cyclogram.result.result_num;
@@ -175,7 +177,9 @@ uint8_t lm_set_cfg(type_LM_DEVICE* lm_ptr, uint8_t *cfg)
 	lm_ptr->mem.part[PART_ISS].read_ptr = lm_ptr->loaded_cfg.iss_rd_ptr;
 	lm_ptr->mem.part[PART_DCR].write_ptr = lm_ptr->loaded_cfg.dcr_wr_ptr;
 	lm_ptr->mem.part[PART_DCR].read_ptr = lm_ptr->loaded_cfg.dcr_rd_ptr;
-	lm_ptr->cyclogram.result.result_num = lm_ptr->cfg.result_num;
+	lm_ptr->cyclogram.result.result_num = lm_ptr->loaded_cfg.result_num;
+	lm_ptr->ctrl.rst_cnt = lm_ptr->loaded_cfg.rst_cnt + 1;
+
 	//
 	lm_set_inh(lm_ptr, lm_ptr->loaded_cfg.inhibit);
 	//
@@ -210,7 +214,7 @@ void lm_pl_inhibit_set(type_LM_DEVICE* lm_ptr, uint8_t pl_num, uint8_t inh)
 			pn_20_set_inh(&lm_ptr->pl._20, inh);
 			break;
 		case PL_DCR1:
-		case PL_DCR2:
+			pn_dcr_set_inh(&lm_ptr->pl._dcr, inh);
 			break;	
 		default:
 			break;
@@ -575,9 +579,13 @@ void fill_tmi_and_beacon(type_LM_DEVICE* lm_ptr)
 	}
 	else{
 		// 0-МС, 1-ПН1.1A, 2-ПН1.1В, 3-ПН1.2, 4-ПН2.0, 5-ПН_ДКР1, 6-ПН_ДКР2
-		for(i=0; i<6; i++){
-			tmi_fr.pl_status[i] = lm_ptr->ctrl.pl_status;
-		}
+		tmi_fr.pl_status[LM] = lm_ptr->ctrl.status;
+		tmi_fr.pl_status[PL11A] = lm_ptr->pl._11A.status;
+		tmi_fr.pl_status[PL11B] = lm_ptr->pl._11B.status;
+		tmi_fr.pl_status[PL12] = lm_ptr->pl._12.status;
+		tmi_fr.pl_status[PL20] = lm_ptr->pl._20.status;
+		tmi_fr.pl_status[PL_DCR1] = lm_ptr->pl._dcr.status;
+
 		for(i=0; i<7; i++){
 			tmi_fr.pwr_inf[i].voltage = (lm_ptr->pwr.ch[i].ina226.voltage >> 4) & 0xFF;
 			tmi_fr.pwr_inf[i].current = (lm_ptr->pwr.ch[i].ina226.current >> 4) & 0xFF;
