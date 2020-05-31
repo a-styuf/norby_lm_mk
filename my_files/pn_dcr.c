@@ -54,6 +54,7 @@ void pn_dcr_reset_state(type_PN_DCR_model* pn_dcr_ptr)
 	pn_dcr_ptr->status_cnt = 0;
 	pn_dcr_ptr->pwr_check_timeout_ms = PN_DCR_PWR_PERIODICAL_TIMEOUT_MS;
 	_pn_dcr_error_collector(pn_dcr_ptr, PN_DCR_ERR_NO_ERROR, 0);
+	pn_dcr_set_inh(pn_dcr_ptr, 0x00);
 }
 
 /**

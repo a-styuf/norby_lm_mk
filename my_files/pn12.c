@@ -60,7 +60,7 @@ void pn_12_reset_state(type_PN12_model* pn12_ptr)
 	pn_12_report_reset(pn12_ptr);
 	pn_12_output_set(pn12_ptr, PN12_OUTPUT_DEFAULT);
 	pn_12_pwr_off(pn12_ptr);
-	pn_12_set_cfg(pn12_ptr, 0x00);
+	pn_12_set_inh(pn12_ptr, 0x00);
 }
 
 /**

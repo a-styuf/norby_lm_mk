@@ -20,6 +20,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
 #include "i2c.h"
 #include "rtc.h"
 #include "spi.h"
@@ -126,6 +127,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USART3_UART_Init();
   MX_USART6_UART_Init();
+  MX_DMA_Init();
   /* USER CODE BEGIN 2 */
   lm_init(&lm);
   ProcCallbackCmds_Init();
@@ -138,8 +140,8 @@ int main(void)
   led_init(&con_state_led, GPIOD, 7);
   led_setup(&con_state_led, LED_OFF, 0, 0);
   led_setup(&mcu_state_led, LED_HEART_BEAT, 1000, 0);
-  led_alt_setup(&con_state_led, LED_BLINK, 50, 127, 2000);
-  led_alt_setup(&mcu_state_led, LED_BLINK, 50, 127, 2000);
+  led_alt_setup(&con_state_led, LED_BLINK, 200, 127, 2000);
+  led_alt_setup(&mcu_state_led, LED_BLINK, 200, 127, 2000);
   //
   HAL_TIM_Base_Start_IT(&htim6); //LED and 10ms_slot timer
   HAL_TIM_Base_Start_IT(&htim2); //global clock timer
@@ -204,6 +206,7 @@ int main(void)
     //*** USB-CAN
     //* обработка команд *//
     int16_val = cmd_check_to_process(&lm.interface);
+    if (int16_val != CMD_NO_ONE) led_alt_setup(&con_state_led, LED_BLINK, 1400, 127, 2800);
     switch(int16_val){
       case CMD_INIT_LM:
         #ifdef DEBUG
@@ -247,6 +250,7 @@ int main(void)
     }
     //* обработка командных регистров *//
     int16_val = cmdreg_check_to_process(&lm.interface);
+    if (int16_val != CMD_NO_ONE) led_alt_setup(&con_state_led, LED_BLINK, 1400, 127, 2800);
     switch(int16_val){
       case CMDREG_LM_MODE:
         #ifdef DEBUG
@@ -344,6 +348,7 @@ int main(void)
     }
     //* обработка команды для интерфейса к Декор *//
     int16_val = dcr_inerface_check_to_process(&lm.interface);
+    if (int16_val != CMD_NO_ONE) led_alt_setup(&con_state_led, LED_BLINK, 1400, 127, 2800);
     switch(int16_val){
       case DCR_INTERFACE_INSTASEND_LENG_OFFSET:
         pn_dcr_uart_send(&lm.pl._dcr.uart, lm.interface.dcr_interface.InstaMessage, lm.interface.dcr_interface.InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET]);
@@ -359,6 +364,7 @@ int main(void)
     }
     //* обработка команды для интерфейса к ПН_�?СС *//
     int16_val = pl_iss_inerface_check_to_process(&lm.interface);
+    if (int16_val != CMD_NO_ONE) led_alt_setup(&con_state_led, LED_BLINK, 700, 150, 2800);
     switch(int16_val){
       case PL11A_INTERFACE_INSTASEND_LENG_OFFSET:
         pl_iss_get_app_lvl_reprot(PL11A, lm.interface.pl_iss_interface.InstaMessage[PL11A-1], str);
@@ -386,7 +392,7 @@ int main(void)
     //*** VCP-CAN. ***//
     //* обработка команд USB-VCP *//
     if (can_vcp_read_process(&can_vcp)) {
-			led_alt_setup(&con_state_led, LED_BLINK, 700, 127, 1000);
+			led_alt_setup(&con_state_led, LED_BLINK, 700, 100, 2800);
 		}
   }
   /* USER CODE END 3 */
@@ -468,6 +474,9 @@ void blocking_test(void)
   // pn_20_dbg_reset_state(&lm.pl._20);
   //
   // pn_11_dbg_tr_lvl_test(&lm.pl._11A);
+  //
+  // printf("MEM DMA test\n");
+  // cy15_blocking_test(&lm.mem.cy15b104[0]);
   //
   printf_time();
   printf("Finish test\n\n");
@@ -574,6 +583,20 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart_req)
   if(huart_req == &huart6){ // PL_DCR
 		pn_dcr_uart_err_prcs_cb(&lm.pl._dcr.uart);
 	}
+}
+
+void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+  if (hspi == &hspi2){
+    lm.mem.cy15b104[0].rx_tx_cmplt_flag = 1;
+  }
+}
+
+void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
+{
+  if (hspi == &hspi2){
+    lm.mem.cy15b104[0].rx_tx_cmplt_flag = -1;
+  }
 }
 
 /* USER CODE END 4 */

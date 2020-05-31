@@ -8,6 +8,7 @@
   */
 
 #include "lm_int_cb.h"
+#include "led.h"
 
 extern type_LM_DEVICE lm;
 extern type_LED_INDICATOR mcu_state_led, con_state_led;
@@ -75,27 +76,30 @@ void ProcCallbackCmdRegs(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, in
 void ProcCallbackExtMems(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, int state) 
 {
   volatile int n, vcmd;
-  if(state == 1) return;  //обработка второго вызова не нужна
+  uint8_t offset;
+  if(state == 1) {
+    return;  //обработка второго вызова не нужна
+  }
   if(can_ptr == CAN1) n = 1; else if(can_ptr == CAN2) n = 2; else n = 0;
-	if (id.uf.Offset%128 == 0){
-      if(id.uf.Offset == 0){
-        ext_mem_any_line_read(&lm.mem, lm.interface.ext_mem.External_Mem_Full_Frame);
+  offset = id.uf.Offset % 128;
+	if (id.uf.Offset % 8 == 0){
+      if((id.uf.Offset >= 128*0) && (id.uf.Offset < 128*1)){
+        ext_mem_read_from_part_8b(&lm.mem, offset, lm.interface.ext_mem.External_Mem_Full_Frame + offset, PART_ALL_MEM);
       }
-      else if(id.uf.Offset == 128*1){
-        ext_mem_rd_frame_from_part(&lm.mem, lm.interface.ext_mem.External_Mem_ISS_Frame, PART_ISS);
+      else if((id.uf.Offset >= 128*1) && (id.uf.Offset < 128*2)){
+        ext_mem_read_from_part_8b(&lm.mem, offset, lm.interface.ext_mem.External_Mem_ISS_Frame + offset, PART_ISS);
       }
-      else if(id.uf.Offset == 128*2){
-        ext_mem_rd_frame_from_part(&lm.mem, lm.interface.ext_mem.External_Mem_DCR_Frame, PART_DCR);
+      else if((id.uf.Offset >= 128*2) && (id.uf.Offset < 128*3)){
+        ext_mem_read_from_part_8b(&lm.mem, offset, lm.interface.ext_mem.External_Mem_DCR_Frame + offset, PART_DCR);
       }
-      else if(id.uf.Offset == 128*3){
-        ext_mem_rd_frame_from_part(&lm.mem, lm.interface.ext_mem.External_Mem_DCR_FlightTask, PART_DCR_FLIGHT_TASK);
+      else if((id.uf.Offset >= 128*3) && (id.uf.Offset < 128*4)){
+        ext_mem_read_from_part_8b(&lm.mem, offset, lm.interface.ext_mem.External_Mem_DCR_FlightTask + offset, PART_DCR_FLIGHT_TASK);
       }
-      else if(id.uf.Offset == 128*4){
-        ext_mem_rd_frame_from_part(&lm.mem, lm.interface.ext_mem.External_Mem_DCR_Status, PART_DCR_STATUS);
+      else if((id.uf.Offset >= 128*4) && (id.uf.Offset < 128*5)){
+        ext_mem_read_from_part_8b(&lm.mem, offset, lm.interface.ext_mem.External_Mem_DCR_Status + offset, PART_DCR_STATUS);
       }
   }
 }
-
 
 /**
   * @brief  регистрация колбэков для обработки команд CAN

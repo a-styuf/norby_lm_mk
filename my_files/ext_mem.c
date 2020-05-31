@@ -18,7 +18,7 @@
 int8_t ext_mem_init(type_MEM_CONTROL* mem_ptr, SPI_HandleTypeDef* spi_ptr)
 {
   int8_t report = 0;
-  uint32_t start_addr=0;
+  uint32_t start_addr;
   mem_ptr->read_ptr = 0;
   // инициализируем память
   report += cy15_init(&mem_ptr->cy15b104[0], spi_ptr, GPIOD, 10);
@@ -72,6 +72,29 @@ void ext_mem_any_read(type_MEM_CONTROL* mem_ptr, uint32_t frame_addr, uint8_t* b
 }
 
 /**
+  * @brief  чтение 8-ми байтового блока из произволного места памяти по адресу кадра и смещени внутри кадра (для передачи по CAN)
+  * @param  mem_ptr: структура для управления памятью
+  * @param  frame_addr: адрес кадра в памяти
+  * @param  offset: смещщение внутри кадра (т.к. кадр 128 - байт, читаемы блок 8 - байт, offset не более 120 и кратен 8-ми)
+  * @param  buff: указатель на блок памяти (не менее 8-ми байт)
+  */
+void ext_mem_any_read_8b_block(type_MEM_CONTROL* mem_ptr, uint32_t frame_addr, uint8_t offset, uint8_t* buff)
+{
+  uint32_t b_addr=0;
+  for(uint8_t i=0; i<CY15B104_MEM_NUM; i++){
+    if (((i*SINGLE_MEM_VOL_FRAMES) <= frame_addr) && (frame_addr < ((i+1)*SINGLE_MEM_VOL_FRAMES))){
+      if ((offset % 8 != 0) && (offset <=120)){
+        break;
+      }
+      b_addr = 128*(frame_addr - (i*SINGLE_MEM_VOL_FRAMES));
+      b_addr += offset;
+      cy15_read(&mem_ptr->cy15b104[i], b_addr, buff, 8);
+			break;
+    }
+  }
+}
+
+/**
   * @brief  последовательнрое чтение 128-ми байтового блока из памяти по read_ptr
   * @param  mem_ptr: структура для управления памятью
   * @param  buff: указатель на блок памяти
@@ -90,6 +113,31 @@ void ext_mem_any_line_read(type_MEM_CONTROL* mem_ptr, uint8_t* buff)
   else mem_ptr->read_ptr += 1;
 }
 
+/**
+  * @brief  чтение по 8 байт из всей памяти по указателю чтения и offset, при offset=120 (последняя область из 8-байт) происходит инкрементация указателя чтения
+  * @param  mem_ptr: структура для управления памятью
+  * @param  offset: сдвиг внутри кадра
+  * @param  buff: указатель на блок памяти
+  */
+void ext_mem_any_line_read_8b_block(type_MEM_CONTROL* mem_ptr, uint8_t offset, uint8_t* buff)
+{
+  uint32_t b_addr=0;
+  for(uint8_t i=0; i<CY15B104_MEM_NUM; i++){
+    if (((i*SINGLE_MEM_VOL_FRAMES) <= mem_ptr->read_ptr) && (mem_ptr->read_ptr < ((i+1)*SINGLE_MEM_VOL_FRAMES))){
+      if ((offset % 8 != 0) && (offset <=120)){
+        break;
+      }
+      b_addr = 128*(mem_ptr->read_ptr - (i*SINGLE_MEM_VOL_FRAMES));
+      b_addr += offset;
+      cy15_read(&mem_ptr->cy15b104[i], b_addr, buff, 8);
+			break;
+    }
+  }
+  if (offset == 120){
+    if (mem_ptr->read_ptr >= FULL_MEM_VOL_FRAMES) mem_ptr->read_ptr = 0;
+    else mem_ptr->read_ptr += 1;
+  }
+}
 
 /**
   * @brief  блокирующая неразрушающая проверка памяти 128-ми байтными блоками
@@ -180,6 +228,20 @@ void ext_mem_rd_data_frame(type_MEM_CONTROL* mem_ptr, uint32_t addr, uint8_t *fr
 }
 
 /**
+  * @brief  чтение кадров с данными по 8 байт (для CAN)
+  * @param  mem_ptr: структура для управления памятью
+  * @param  addr: номер кадра в пространстве кадров с данными
+  * @param  offset: номер кадра в пространстве кадров с данными
+  * @param  frame: указатель на структуру с кадром
+  */
+void ext_mem_rd_data_frame_8b_block(type_MEM_CONTROL* mem_ptr, uint32_t addr, uint8_t offset, uint8_t *frame)
+{
+  uint32_t real_addr;
+  real_addr = addr + (addr/(SINGLE_MEM_VOL_FRAMES-1)) + 1;
+  ext_mem_any_read_8b_block(mem_ptr, real_addr, offset, frame);
+}
+
+/**
   * @brief  запись кадра с данными в определенную область памяти
   * @param  mem_ptr: структура для управления памятью
   * @param  frame: указатель на структуру с кадром
@@ -199,8 +261,8 @@ void ext_mem_wr_frame_to_part(type_MEM_CONTROL* mem_ptr, uint8_t *frame, uint8_t
   */
 void ext_mem_rd_frame_from_part(type_MEM_CONTROL* mem_ptr, uint8_t *frame, uint8_t part_num)
 {
-  part_wr_rd_ptr_calc(&mem_ptr->part[part_num], MODE_READ);
   ext_mem_rd_data_frame(mem_ptr, mem_ptr->part[part_num].read_ptr + mem_ptr->part[part_num].start_frame_num, frame);
+  part_wr_rd_ptr_calc(&mem_ptr->part[part_num], MODE_READ);
 }
 
 /**
@@ -262,7 +324,7 @@ void ext_mem_format_part(type_MEM_CONTROL* mem_ptr, uint8_t part_num)
 /**
   * @brief  установка указателей чтения для частей памяти
   * @param  mem_ptr: структура для управления памятью
-  * @param  part_num: указатель номера тома памяти, 0xFF - вся память
+  * @param  part_num: указатель номера тома памяти, 0x7F - вся память
   * @param  rd_ptr: значение укаазтеля чтения для установки
   * @retval 1 - успешно установили указатель, 0 - ошибка
   */
@@ -279,7 +341,7 @@ int8_t ext_mem_set_rd_ptr_for_part(type_MEM_CONTROL* mem_ptr, uint8_t *part_num,
       return 1;
     }
   }
-  else if (0x7F == *part_num){
+  else if (PART_ALL_MEM == *part_num){
     if (*rd_ptr >= FRAME_MEM_VOL_FRAMES){
       mem_ptr->read_ptr = FRAME_MEM_VOL_FRAMES - 1;
       *rd_ptr = FRAME_MEM_VOL_FRAMES - 1;
@@ -294,6 +356,34 @@ int8_t ext_mem_set_rd_ptr_for_part(type_MEM_CONTROL* mem_ptr, uint8_t *part_num,
     *part_num = 0xFF;
     *rd_ptr = 0;
     return 0;
+  }
+}
+
+/**
+  * @brief  чтение данных произвольной длины из памяти
+  * @param  mem_ptr: структура для управления памятью
+  * @param  offset: смещение адреса внутри кадра, если  = 0 - инкрементируется указатель чтения
+  * @param  part_num: указатель номера тома памяти, 0x7F - вся память
+  * @param  rd_ptr: значение укаазтеля чтения для установки
+  * @retval 1 - успешно установили указатель, 0 - ошибка
+  */
+void ext_mem_read_from_part_8b(type_MEM_CONTROL* mem_ptr, uint8_t offset, uint8_t *frame_part, uint8_t part_num)
+{
+	uint32_t frame_abs_addr;
+  switch(part_num){
+    case PART_ALL_MEM:
+      ext_mem_any_line_read_8b_block(mem_ptr, offset, frame_part);
+      break;
+    case PART_ISS:
+    case PART_DCR:
+    case PART_DCR_FLIGHT_TASK:
+    case PART_DCR_STATUS:
+      frame_abs_addr = mem_ptr->part[part_num].read_ptr + mem_ptr->part[part_num].start_frame_num;
+      ext_mem_rd_data_frame_8b_block(mem_ptr, frame_abs_addr, offset, frame_part);
+      if(offset == 120){ //если запрашиваем последнюю область памяти, то обрабатываем указатели чтения/записи
+        part_wr_rd_ptr_calc(&mem_ptr->part[part_num], MODE_READ);
+      }
+      break;
   }
 }
 
@@ -315,7 +405,7 @@ uint32_t part_rel_init(type_MEM_PART_CONTROL* part_ptr, uint8_t mode, uint16_t f
   part_ptr->finish_frame_num = part_ptr->start_frame_num + part_ptr->full_frame_num - 1;
   // 
   part_ptr->write_ptr = 0;
-  part_ptr->read_ptr = 0;
+  part_ptr->read_ptr = part_ptr->finish_frame_num - 1;
   part_ptr->mode = mode;
 	//
 	return part_ptr->finish_frame_num + 1;
@@ -367,6 +457,7 @@ uint8_t part_get_free_volume_in_percantage(type_MEM_PART_CONTROL* part_ptr)
   */
 uint8_t part_wr_rd_ptr_calc(type_MEM_PART_CONTROL* part_ptr, uint8_t mode)
 {
+  uint32_t prev_wr_ptr;
   int8_t report = 0;
   switch(part_ptr->mode){
     case PART_MODE_READ_BLOCK:  // указатель чтения доганяет указатель записи и блокается

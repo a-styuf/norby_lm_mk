@@ -61,7 +61,7 @@ void pn_20_reset_state(type_PN20_model* pn20_ptr)
 	pn_20_report_reset(pn20_ptr);
 	pn_20_output_set(pn20_ptr, PN20_OUTPUT_DEFAULT);
 	pn_20_pwr_off(pn20_ptr);
-	pn_20_set_cfg(pn20_ptr, 0x00);
+	pn_20_set_inh(pn20_ptr, 0x00);
 }
 
 /**

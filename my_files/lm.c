@@ -314,6 +314,7 @@ void lm_reset_state(type_LM_DEVICE* lm_ptr)
 	//
 	ext_mem_format_part(&lm_ptr->mem, PART_ISS);
 	ext_mem_format_part(&lm_ptr->mem, PART_DCR);
+	lm_ptr->mem.read_ptr = 0;
 	//
 }
 

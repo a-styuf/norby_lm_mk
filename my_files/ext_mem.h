@@ -17,6 +17,8 @@
 #define PART_DCR_STATUS 3
 #define PART_NUM 4 // 0 - ISS, 1 - DCR, 2 - DCR Flight task, 3 - DCR status mem
 
+#define PART_ALL_MEM 127  // переменная для определения всей памяти
+
 // есть два типа памяти - постоянного размера (например для полетного задания)
 
 // Постоянная память: маппирование в конце физической памяти, по абсолютному размеру\
@@ -64,12 +66,15 @@ typedef struct
 int8_t ext_mem_init(type_MEM_CONTROL* mem_ptr, SPI_HandleTypeDef* spi_ptr);
 void ext_mem_any_write(type_MEM_CONTROL* mem_ptr, uint32_t frame_addr, uint8_t* buff);
 void ext_mem_any_read(type_MEM_CONTROL* mem_ptr, uint32_t frame_addr, uint8_t* buff);
+void ext_mem_any_read_8b_block(type_MEM_CONTROL* mem_ptr, uint32_t frame_addr, uint8_t offset, uint8_t* buff);
 void ext_mem_any_line_read(type_MEM_CONTROL* mem_ptr, uint8_t* buff);
+void ext_mem_any_line_read_8b_block(type_MEM_CONTROL* mem_ptr, uint8_t offset, uint8_t* buff);
 int32_t ext_mem_check(type_MEM_CONTROL* mem_ptr, uint8_t symbol);
 int32_t ext_mem_wr_param(type_MEM_CONTROL* mem_ptr, uint8_t *param);
 int32_t ext_mem_rd_param(type_MEM_CONTROL* mem_ptr, uint8_t *param);
 void ext_mem_wr_data_frame(type_MEM_CONTROL* mem_ptr, uint32_t addr, uint8_t *frame);
 void ext_mem_rd_data_frame(type_MEM_CONTROL* mem_ptr, uint32_t addr, uint8_t *frame);
+void ext_mem_rd_data_frame_8b_block(type_MEM_CONTROL* mem_ptr, uint32_t addr, uint8_t offset, uint8_t *frame);
 void ext_mem_wr_frame_to_part(type_MEM_CONTROL* mem_ptr, uint8_t *frame, uint8_t part_num);
 void ext_mem_rd_frame_from_part(type_MEM_CONTROL* mem_ptr, uint8_t *frame, uint8_t part_num);
 void ext_mem_rd_frame_from_part_by_addr(type_MEM_CONTROL* mem_ptr, uint8_t *frame, uint8_t fr_addr, uint8_t part_num);
@@ -77,6 +82,7 @@ void ext_mem_wr_frame_from_part_by_addr(type_MEM_CONTROL* mem_ptr, uint8_t *fram
 void ext_mem_full_erase(type_MEM_CONTROL* mem_ptr, uint8_t symbol);
 void ext_mem_format_part(type_MEM_CONTROL* mem_ptr, uint8_t part_num);
 int8_t ext_mem_set_rd_ptr_for_part(type_MEM_CONTROL* mem_ptr, uint8_t *part_num, uint32_t *rd_ptr);
+void ext_mem_read_from_part_8b(type_MEM_CONTROL* mem_ptr, uint8_t offset, uint8_t *frame_part, uint8_t part_num);
 //
 uint32_t part_rel_init(type_MEM_PART_CONTROL* part_ptr, uint8_t mode, uint16_t full_rel_vol, uint16_t rel_vol, uint32_t start_frame_addr);
 uint32_t part_const_init(type_MEM_PART_CONTROL* part_ptr, uint8_t mode, uint16_t const_vol, uint32_t start_frame_addr);
