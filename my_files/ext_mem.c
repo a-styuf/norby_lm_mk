@@ -322,7 +322,7 @@ void ext_mem_format_part(type_MEM_CONTROL* mem_ptr, uint8_t part_num)
   memset(frame, 0xFE, 128);
   frame[1] = part_num;
   for(uint32_t addr = 0; addr < mem_ptr->part[part_num].full_frame_num; addr++){
-    *(uint32_t*)&frame[2] = __REV(addr);
+    *(uint32_t*)&frame[2] = addr;
     ext_mem_wr_data_frame(mem_ptr, addr + mem_ptr->part[part_num].start_frame_num, frame);
   }
   mem_ptr->part[part_num].write_ptr = 0;

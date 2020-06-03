@@ -14,7 +14,7 @@ void lm_init(type_LM_DEVICE* lm_ptr)
 																				);
 	//
 	printf("DevId: %d\n", DEV_ID);
-	//инициализация времени
+		//инициализация времени
 	clock_init();
 	printf_time();
 	printf("Clock init %d s\n", clock_get_time_s());

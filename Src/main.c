@@ -152,6 +152,7 @@ int main(void)
   HAL_UART_Receive_IT(lm.pl._11B.interface.tr_lvl.huart, lm.pl._11B.interface.tr_lvl.rx_data, 1);
   HAL_UART_Receive_IT(lm.pl._12.interface.tr_lvl.huart, lm.pl._12.interface.tr_lvl.rx_data, 1);
   //
+  __HAL_DBGMCU_FREEZE_IWDG();
   /* USER CODE END 2 */
 
   /* Infinite loop */

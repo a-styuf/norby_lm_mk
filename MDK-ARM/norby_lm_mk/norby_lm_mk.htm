@@ -3,7 +3,7 @@
 <title>Static Call Graph - [norby_lm_mk\norby_lm_mk.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image norby_lm_mk\norby_lm_mk.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Wed Jun 03 19:11:21 2020
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Wed Jun 03 20:15:46 2020
 <BR><P>
 <H3>Maximum Stack Usage =       1088 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -504,8 +504,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[b2]"></a>__aeabi_memcpy</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, memcpya.o(.text))
-<BR><BR>[Called By]<UL><LI><a href="#[2f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp1075_init
-<LI><a href="#[273]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_set_cfg
+<BR><BR>[Called By]<UL><LI><a href="#[273]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_set_cfg
 <LI><a href="#[218]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_load_can_flight_task
 <LI><a href="#[241]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_get_last_status
 <LI><a href="#[244]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_get_last_frame
@@ -533,6 +532,7 @@ Global Symbols
 <LI><a href="#[1fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_lvl_get_rx_frame
 <LI><a href="#[1fd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_lvl_get_last_rx_frame
 <LI><a href="#[25c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ina226_init
+<LI><a href="#[2f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp1075_init
 <LI><a href="#[20f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;can_vcp_read_process
 <LI><a href="#[d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;can_vcp_packet_send
 <LI><a href="#[d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CAN_VCP_RX_Handler
@@ -593,8 +593,7 @@ Global Symbols
 <P><STRONG><a name="[b9]"></a>__aeabi_memclr</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, memseta.o(.text))
 <BR><BR>[Calls]<UL><LI><a href="#[ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memset
 </UL>
-<BR>[Called By]<UL><LI><a href="#[2f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp1075_init
-<LI><a href="#[24e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fill_tmi_and_beacon
+<BR>[Called By]<UL><LI><a href="#[24e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fill_tmi_and_beacon
 <LI><a href="#[24c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fill_pl_iss_last_frame
 <LI><a href="#[83]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_init
 <LI><a href="#[20a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_lvl_write
@@ -602,6 +601,7 @@ Global Symbols
 <LI><a href="#[2b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_report_reset
 <LI><a href="#[2b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_interface_reset
 <LI><a href="#[2b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_interface_init
+<LI><a href="#[2f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp1075_init
 <LI><a href="#[200]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_lvl_parameters_default
 <LI><a href="#[2c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_report_reset
 <LI><a href="#[2ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_report_reset
@@ -648,8 +648,8 @@ Global Symbols
 <P><STRONG><a name="[222]"></a>memcmp</STRONG> (Thumb, 26 bytes, Stack size 12 bytes, memcmp.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 12<LI>Call Chain = memcmp
 </UL>
-<BR>[Called By]<UL><LI><a href="#[2f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp1075_init
-<LI><a href="#[25c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ina226_init
+<BR>[Called By]<UL><LI><a href="#[25c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ina226_init
+<LI><a href="#[2f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp1075_init
 <LI><a href="#[21f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cy15_init
 <LI><a href="#[192]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_uart_rx_prcs_cb
 </UL>
@@ -1143,8 +1143,8 @@ Global Symbols
 <P><STRONG><a name="[ff]"></a>HAL_I2C_Init</STRONG> (Thumb, 446 bytes, Stack size 16 bytes, stm32f4xx_hal_i2c.o(i.HAL_I2C_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = HAL_I2C_Init &rArr; HAL_I2C_MspInit &rArr; HAL_NVIC_SetPriority &rArr; __NVIC_SetPriority
 </UL>
-<BR>[Calls]<UL><LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_MspInit
-<LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_GetPCLK1Freq
+<BR>[Calls]<UL><LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_GetPCLK1Freq
+<LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_MspInit
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_I2C3_Init
 <LI><a href="#[1a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_I2C2_Init
@@ -1184,8 +1184,8 @@ Global Symbols
 <LI><a href="#[105]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnFlagUntilTimeout
 <LI><a href="#[106]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_MasterRequestRead
 </UL>
-<BR>[Called By]<UL><LI><a href="#[2f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp1075_init
-<LI><a href="#[25c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ina226_init
+<BR>[Called By]<UL><LI><a href="#[25c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ina226_init
+<LI><a href="#[2f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp1075_init
 </UL>
 
 <P><STRONG><a name="[25e]"></a>HAL_I2C_Master_Receive_IT</STRONG> (Thumb, 248 bytes, Stack size 16 bytes, stm32f4xx_hal_i2c.o(i.HAL_I2C_Master_Receive_IT))
@@ -1204,8 +1204,8 @@ Global Symbols
 <LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnBTFFlagUntilTimeout
 <LI><a href="#[109]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_MasterRequestWrite
 </UL>
-<BR>[Called By]<UL><LI><a href="#[2f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp1075_init
-<LI><a href="#[25c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ina226_init
+<BR>[Called By]<UL><LI><a href="#[25c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ina226_init
+<LI><a href="#[2f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp1075_init
 </UL>
 
 <P><STRONG><a name="[25f]"></a>HAL_I2C_Master_Transmit_IT</STRONG> (Thumb, 234 bytes, Stack size 16 bytes, stm32f4xx_hal_i2c.o(i.HAL_I2C_Master_Transmit_IT))
@@ -1311,14 +1311,14 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[117]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__NVIC_SetPriority
 <LI><a href="#[116]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__NVIC_GetPriorityGrouping
 </UL>
-<BR>[Called By]<UL><LI><a href="#[147]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_MspInit
+<BR>[Called By]<UL><LI><a href="#[113]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_InitTick
+<LI><a href="#[147]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_MspInit
 <LI><a href="#[18e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_MspInit
 <LI><a href="#[172]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_MspInit
 <LI><a href="#[16d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_MspInit
 <LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_MspInit
 <LI><a href="#[1a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_GPIO_Init
 <LI><a href="#[1a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_DMA_Init
-<LI><a href="#[113]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_InitTick
 </UL>
 
 <P><STRONG><a name="[112]"></a>HAL_NVIC_SetPriorityGrouping</STRONG> (Thumb, 32 bytes, Stack size 0 bytes, stm32f4xx_hal_cortex.o(i.HAL_NVIC_SetPriorityGrouping))
@@ -1429,16 +1429,7 @@ Global Symbols
 <P><STRONG><a name="[12d]"></a>HAL_PCD_IRQHandler</STRONG> (Thumb, 1342 bytes, Stack size 48 bytes, stm32f4xx_hal_pcd.o(i.HAL_PCD_IRQHandler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 276<LI>Call Chain = HAL_PCD_IRQHandler &rArr; PCD_EP_OutXfrComplete_int &rArr; HAL_PCD_SetupStageCallback &rArr; USBD_LL_SetupStage &rArr; USBD_StdDevReq &rArr; USBD_GetDescriptor &rArr; USBD_CtlSendData &rArr; USBD_LL_Transmit &rArr; HAL_PCD_EP_Transmit &rArr; USB_EPStartXfer &rArr; USB_WritePacket
 </UL>
-<BR>[Calls]<UL><LI><a href="#[139]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_SuspendCallback
-<LI><a href="#[141]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_SOFCallback
-<LI><a href="#[138]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_ResumeCallback
-<LI><a href="#[13f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_ResetCallback
-<LI><a href="#[143]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_ISOOUTIncompleteCallback
-<LI><a href="#[142]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_ISOINIncompleteCallback
-<LI><a href="#[11e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_DisconnectCallback
-<LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_DataInStageCallback
-<LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_ConnectCallback
-<LI><a href="#[13e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_SetTurnaroundTime
+<BR>[Calls]<UL><LI><a href="#[13e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_SetTurnaroundTime
 <LI><a href="#[140]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_ReadPacket
 <LI><a href="#[12f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_ReadInterrupts
 <LI><a href="#[131]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_ReadDevOutEPInterrupt
@@ -1455,6 +1446,15 @@ Global Symbols
 <LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PCD_WriteEmptyTxFifo
 <LI><a href="#[132]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PCD_EP_OutXfrComplete_int
 <LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PCD_EP_OutSetupPacket_int
+<LI><a href="#[139]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_SuspendCallback
+<LI><a href="#[141]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_SOFCallback
+<LI><a href="#[138]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_ResumeCallback
+<LI><a href="#[13f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_ResetCallback
+<LI><a href="#[143]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_ISOOUTIncompleteCallback
+<LI><a href="#[142]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_ISOINIncompleteCallback
+<LI><a href="#[11e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_DisconnectCallback
+<LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_DataInStageCallback
+<LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_ConnectCallback
 </UL>
 <BR>[Called By]<UL><LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;OTG_FS_IRQHandler
 </UL>
@@ -1478,12 +1478,12 @@ Global Symbols
 <P><STRONG><a name="[146]"></a>HAL_PCD_Init</STRONG> (Thumb, 358 bytes, Stack size 56 bytes, stm32f4xx_hal_pcd.o(i.HAL_PCD_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 136<LI>Call Chain = HAL_PCD_Init &rArr; HAL_PCD_MspInit &rArr; HAL_NVIC_SetPriority &rArr; __NVIC_SetPriority
 </UL>
-<BR>[Calls]<UL><LI><a href="#[147]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_MspInit
-<LI><a href="#[14b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_SetCurrentMode
+<BR>[Calls]<UL><LI><a href="#[14b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_SetCurrentMode
 <LI><a href="#[148]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_DisableGlobalInt
 <LI><a href="#[14c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_DevInit
 <LI><a href="#[14d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_DevDisconnect
 <LI><a href="#[14a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_CoreInit
+<LI><a href="#[147]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_MspInit
 <LI><a href="#[149]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_LL_Init
@@ -1692,8 +1692,8 @@ Global Symbols
 <P><STRONG><a name="[169]"></a>HAL_SPI_IRQHandler</STRONG> (Thumb, 342 bytes, Stack size 24 bytes, stm32f4xx_hal_spi.o(i.HAL_SPI_IRQHandler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = HAL_SPI_IRQHandler
 </UL>
-<BR>[Calls]<UL><LI><a href="#[16b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_ErrorCallback
-<LI><a href="#[16a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort_IT
+<BR>[Calls]<UL><LI><a href="#[16a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort_IT
+<LI><a href="#[16b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_ErrorCallback
 </UL>
 <BR>[Called By]<UL><LI><a href="#[43]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SPI2_IRQHandler
 </UL>
@@ -1891,8 +1891,8 @@ Global Symbols
 <P><STRONG><a name="[188]"></a>HAL_UART_IRQHandler</STRONG> (Thumb, 336 bytes, Stack size 32 bytes, stm32f4xx_hal_uart.o(i.HAL_UART_IRQHandler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 84<LI>Call Chain = HAL_UART_IRQHandler &rArr; UART_Receive_IT &rArr; HAL_UART_RxCpltCallback &rArr; pn_dcr_uart_rx_prcs_cb &rArr; memcmp
 </UL>
-<BR>[Calls]<UL><LI><a href="#[186]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_ErrorCallback
-<LI><a href="#[16a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort_IT
+<BR>[Calls]<UL><LI><a href="#[16a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort_IT
+<LI><a href="#[186]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_ErrorCallback
 <LI><a href="#[18b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Transmit_IT
 <LI><a href="#[189]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Receive_IT
 <LI><a href="#[18c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_EndTransmit_IT
@@ -2885,10 +2885,10 @@ Global Symbols
 <P><STRONG><a name="[12b]"></a>USB_EP0_OutStart</STRONG> (Thumb, 106 bytes, Stack size 16 bytes, stm32f4xx_ll_usb.o(i.USB_EP0_OutStart))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = USB_EP0_OutStart
 </UL>
-<BR>[Called By]<UL><LI><a href="#[129]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_EP_SetStall
-<LI><a href="#[132]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PCD_EP_OutXfrComplete_int
+<BR>[Called By]<UL><LI><a href="#[132]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PCD_EP_OutXfrComplete_int
 <LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PCD_EP_OutSetupPacket_int
 <LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_IRQHandler
+<LI><a href="#[129]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_EP_SetStall
 </UL>
 
 <P><STRONG><a name="[123]"></a>USB_EPClearStall</STRONG> (Thumb, 142 bytes, Stack size 12 bytes, stm32f4xx_ll_usb.o(i.USB_EPClearStall))
@@ -3592,7 +3592,7 @@ Global Symbols
 <LI><a href="#[234]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ext_mem_wr_data_frame
 </UL>
 
-<P><STRONG><a name="[233]"></a>ext_mem_format_part</STRONG> (Thumb, 112 bytes, Stack size 144 bytes, ext_mem.o(i.ext_mem_format_part))
+<P><STRONG><a name="[233]"></a>ext_mem_format_part</STRONG> (Thumb, 110 bytes, Stack size 144 bytes, ext_mem.o(i.ext_mem_format_part))
 <BR><BR>[Stack]<UL><LI>Max Depth = 304<LI>Call Chain = ext_mem_format_part &rArr; ext_mem_wr_data_frame &rArr; ext_mem_any_write &rArr; cy15_write &rArr; HAL_SPI_Transmit &rArr; SPI_EndRxTxTransaction &rArr; SPI_WaitFlagStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[234]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ext_mem_wr_data_frame
@@ -3845,11 +3845,11 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[2e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pwr_ch_init
 <LI><a href="#[26c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp_init
 <LI><a href="#[26b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pwr_init
-<LI><a href="#[29c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_init
 <LI><a href="#[29b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_init
 <LI><a href="#[262]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;led_init
 <LI><a href="#[21f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cy15_init
 <LI><a href="#[29d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_init
+<LI><a href="#[29c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_init
 </UL>
 
 <P><STRONG><a name="[221]"></a>gpio_set</STRONG> (Thumb, 32 bytes, Stack size 16 bytes, my_gpio.o(i.gpio_set))
@@ -3858,13 +3858,13 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[1a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_WritePin
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pwr_ch_on_off
-<LI><a href="#[292]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_output_set
 <LI><a href="#[291]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_output_set
 <LI><a href="#[183]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;led_processor
 <LI><a href="#[224]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cy15_write
 <LI><a href="#[223]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cy15_read
 <LI><a href="#[21f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cy15_init
 <LI><a href="#[293]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_output_set
+<LI><a href="#[292]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_output_set
 </UL>
 
 <P><STRONG><a name="[258]"></a>ina226_body_read_queue</STRONG> (Thumb, 90 bytes, Stack size 8 bytes, ina226.o(i.ina226_body_read_queue))
@@ -4119,7 +4119,7 @@ Global Symbols
 <LI><a href="#[274]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_pl_inhibit_set
 </UL>
 
-<P><STRONG><a name="[6f]"></a>main</STRONG> (Thumb, 2206 bytes, Stack size 8 bytes, main.o(i.main))
+<P><STRONG><a name="[6f]"></a>main</STRONG> (Thumb, 2222 bytes, Stack size 8 bytes, main.o(i.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 1088<LI>Call Chain = main &rArr; fill_pl_iss_last_frame &rArr; pn_11_get_last_frame_in_128B_format &rArr; app_lvl_get_last_rx_frame
 </UL>
 <BR>[Calls]<UL><LI><a href="#[20c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
@@ -4143,7 +4143,6 @@ Global Symbols
 <LI><a href="#[245]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fill_gen_tmi
 <LI><a href="#[240]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fill_dcr_rx_frame
 <LI><a href="#[285]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_Start_IT
-<LI><a href="#[292]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_output_set
 <LI><a href="#[297]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_buff
 <LI><a href="#[28c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_process
 <LI><a href="#[291]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_output_set
@@ -4164,6 +4163,7 @@ Global Symbols
 <LI><a href="#[28d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cmd_check_to_process
 <LI><a href="#[286]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Receive_IT
 <LI><a href="#[293]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_output_set
+<LI><a href="#[292]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_output_set
 <LI><a href="#[296]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_uart_send
 <LI><a href="#[290]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_set_mode
 <LI><a href="#[28b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_process_rx_frames
@@ -4246,10 +4246,10 @@ Global Symbols
 <P><STRONG><a name="[26d]"></a>pl_init</STRONG> (Thumb, 134 bytes, Stack size 40 bytes, pl_cyclogram.o(i.pl_init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 144<LI>Call Chain = pl_init &rArr; pn_dcr_init &rArr; pn_dcr_set_cfg &rArr; pn_dcr_set_mode &rArr; pn_dcr_pwr_off &rArr; pwr_ch_on_off &rArr; gpio_set
 </UL>
-<BR>[Calls]<UL><LI><a href="#[29c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_init
-<LI><a href="#[29b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_init
+<BR>[Calls]<UL><LI><a href="#[29b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_init
 <LI><a href="#[29e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_init
 <LI><a href="#[29d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_init
+<LI><a href="#[29c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_init
 </UL>
 <BR>[Called By]<UL><LI><a href="#[26a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_init
 </UL>
@@ -4276,10 +4276,10 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 280<LI>Call Chain = pl_pn11A_check_and_save_tmi &rArr; result_write_tmi_slice &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
 </UL>
 <BR>[Calls]<UL><LI><a href="#[20c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
-<LI><a href="#[2a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_write_tmi_slice
 <LI><a href="#[2a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_tmi_slice_get_and_check
 <LI><a href="#[c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ui2d
 <LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
+<LI><a href="#[2a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_write_tmi_slice
 <LI><a href="#[de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
@@ -4397,10 +4397,10 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 280<LI>Call Chain = pl_pn11B_check_and_save_tmi &rArr; result_write_tmi_slice &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
 </UL>
 <BR>[Calls]<UL><LI><a href="#[20c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
-<LI><a href="#[2a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_write_tmi_slice
 <LI><a href="#[2a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_tmi_slice_get_and_check
 <LI><a href="#[c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ui2d
 <LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
+<LI><a href="#[2a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_write_tmi_slice
 <LI><a href="#[de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
@@ -4537,10 +4537,10 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 280<LI>Call Chain = pl_pn12_check_and_save_tmi &rArr; result_write_tmi_slice &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
 </UL>
 <BR>[Calls]<UL><LI><a href="#[20c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
-<LI><a href="#[2a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_write_tmi_slice
 <LI><a href="#[c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ui2d
 <LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
 <LI><a href="#[2aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_tmi_slice_get_and_check
+<LI><a href="#[2a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_write_tmi_slice
 <LI><a href="#[de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
@@ -4586,10 +4586,10 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 280<LI>Call Chain = pl_pn20_check_and_save_tmi &rArr; result_write_tmi_slice &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
 </UL>
 <BR>[Calls]<UL><LI><a href="#[20c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
-<LI><a href="#[2a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_write_tmi_slice
 <LI><a href="#[c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ui2d
 <LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
 <LI><a href="#[2ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_tmi_slice_get_and_check
+<LI><a href="#[2a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_write_tmi_slice
 <LI><a href="#[de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
@@ -4954,9 +4954,9 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 80<LI>Call Chain = pn_12_init &rArr; pn_12_interface_init &rArr; app_lvl_init &rArr; tr_lvl_init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[220]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gpio_parameters_set
-<LI><a href="#[292]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_output_set
 <LI><a href="#[2b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pwr_ch_set_bound
 <LI><a href="#[2b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp1075_set_bound
+<LI><a href="#[292]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_output_set
 <LI><a href="#[2c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_report_reset
 <LI><a href="#[2c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_interface_init
 <LI><a href="#[2c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_pn_12_error_collector
@@ -4978,8 +4978,8 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[221]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gpio_set
 </UL>
 <BR>[Called By]<UL><LI><a href="#[27c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_reset_state
-<LI><a href="#[29c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_init
 <LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn12_set_iku_default
+<LI><a href="#[29c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_init
 <LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
@@ -5033,8 +5033,8 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pn_12_reset_state &rArr; pn_12_pwr_off &rArr; pwr_ch_on_off &rArr; gpio_set
 </UL>
 <BR>[Calls]<UL><LI><a href="#[277]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_set_inh
-<LI><a href="#[292]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_output_set
 <LI><a href="#[2ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_pwr_off
+<LI><a href="#[292]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_output_set
 <LI><a href="#[2c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_report_reset
 <LI><a href="#[2c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_pn_12_error_collector
 </UL>
@@ -5667,10 +5667,10 @@ Global Symbols
 
 <P><STRONG><a name="[2b2]"></a>pwr_ch_set_bound</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, pwr_ch.o(i.pwr_ch_set_bound))
 <BR><BR>[Called By]<UL><LI><a href="#[2e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pwr_ch_init
-<LI><a href="#[29c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_init
 <LI><a href="#[29b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_init
 <LI><a href="#[29e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_init
 <LI><a href="#[29d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_init
+<LI><a href="#[29c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_init
 </UL>
 
 <P><STRONG><a name="[2ea]"></a>pwr_create_report</STRONG> (Thumb, 390 bytes, Stack size 40 bytes, lm.o(i.pwr_create_report))
@@ -5759,11 +5759,11 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[242]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;frame_create_header
 <LI><a href="#[243]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;frame_crc16_calc
 </UL>
-<BR>[Called By]<UL><LI><a href="#[2a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_write_tmi_slice
-<LI><a href="#[2a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_row_data_write
+<BR>[Called By]<UL><LI><a href="#[2a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_row_data_write
 <LI><a href="#[83]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_init
 <LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_finish
 <LI><a href="#[2a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_emergency_stop
+<LI><a href="#[2a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_write_tmi_slice
 </UL>
 
 <P><STRONG><a name="[2a6]"></a>result_row_data_write</STRONG> (Thumb, 172 bytes, Stack size 56 bytes, pl_cyclogram.o(i.result_row_data_write))
@@ -5922,9 +5922,9 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[2b3]"></a>tmp1075_set_bound</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, tmp1075.o(i.tmp1075_set_bound))
-<BR><BR>[Called By]<UL><LI><a href="#[29c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_init
-<LI><a href="#[29b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_init
+<BR><BR>[Called By]<UL><LI><a href="#[29b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_init
 <LI><a href="#[29d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_init
+<LI><a href="#[29c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_init
 </UL>
 
 <P><STRONG><a name="[2fb]"></a>tmp1075_start_read_queue</STRONG> (Thumb, 20 bytes, Stack size 8 bytes, tmp1075.o(i.tmp1075_start_read_queue))
@@ -5965,17 +5965,17 @@ Global Symbols
 <P><STRONG><a name="[26c]"></a>tmp_init</STRONG> (Thumb, 112 bytes, Stack size 24 bytes, lm.o(i.tmp_init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 176<LI>Call Chain = tmp_init &rArr; tmp1075_init &rArr; HAL_I2C_Master_Transmit &rArr; I2C_MasterRequestWrite &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp1075_init
-<LI><a href="#[220]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gpio_parameters_set
+<BR>[Calls]<UL><LI><a href="#[220]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gpio_parameters_set
+<LI><a href="#[2f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp1075_init
 </UL>
 <BR>[Called By]<UL><LI><a href="#[26a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_init
 </UL>
 
 <P><STRONG><a name="[288]"></a>tmp_process</STRONG> (Thumb, 56 bytes, Stack size 16 bytes, lm.o(i.tmp_process))
-<BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = tmp_process &rArr; tmp1075_start_read_queue &rArr; tmp1075_reg_addr_set &rArr; HAL_I2C_Master_Transmit_IT
+<BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = tmp_process &rArr; tmp_create_report &rArr; gpio_get
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp1075_start_read_queue
-<LI><a href="#[2fd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp_create_report
+<BR>[Calls]<UL><LI><a href="#[2fd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp_create_report
+<LI><a href="#[2fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp1075_start_read_queue
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -6163,8 +6163,8 @@ Local Symbols
 <P><STRONG><a name="[133]"></a>PCD_EP_OutSetupPacket_int</STRONG> (Thumb, 132 bytes, Stack size 32 bytes, stm32f4xx_hal_pcd.o(i.PCD_EP_OutSetupPacket_int))
 <BR><BR>[Stack]<UL><LI>Max Depth = 228<LI>Call Chain = PCD_EP_OutSetupPacket_int &rArr; HAL_PCD_SetupStageCallback &rArr; USBD_LL_SetupStage &rArr; USBD_StdDevReq &rArr; USBD_GetDescriptor &rArr; USBD_CtlSendData &rArr; USBD_LL_Transmit &rArr; HAL_PCD_EP_Transmit &rArr; USB_EPStartXfer &rArr; USB_WritePacket
 </UL>
-<BR>[Calls]<UL><LI><a href="#[154]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_SetupStageCallback
-<LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_EP0_OutStart
+<BR>[Calls]<UL><LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_EP0_OutStart
+<LI><a href="#[154]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_SetupStageCallback
 </UL>
 <BR>[Called By]<UL><LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_IRQHandler
 </UL>
@@ -6172,9 +6172,9 @@ Local Symbols
 <P><STRONG><a name="[132]"></a>PCD_EP_OutXfrComplete_int</STRONG> (Thumb, 374 bytes, Stack size 32 bytes, stm32f4xx_hal_pcd.o(i.PCD_EP_OutXfrComplete_int))
 <BR><BR>[Stack]<UL><LI>Max Depth = 228<LI>Call Chain = PCD_EP_OutXfrComplete_int &rArr; HAL_PCD_SetupStageCallback &rArr; USBD_LL_SetupStage &rArr; USBD_StdDevReq &rArr; USBD_GetDescriptor &rArr; USBD_CtlSendData &rArr; USBD_LL_Transmit &rArr; HAL_PCD_EP_Transmit &rArr; USB_EPStartXfer &rArr; USB_WritePacket
 </UL>
-<BR>[Calls]<UL><LI><a href="#[154]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_SetupStageCallback
+<BR>[Calls]<UL><LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_EP0_OutStart
+<LI><a href="#[154]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_SetupStageCallback
 <LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_DataOutStageCallback
-<LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_EP0_OutStart
 </UL>
 <BR>[Called By]<UL><LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_IRQHandler
 </UL>
@@ -6226,8 +6226,8 @@ Local Symbols
 <P><STRONG><a name="[ec]"></a>I2C_ITError</STRONG> (Thumb, 410 bytes, Stack size 16 bytes, stm32f4xx_hal_i2c.o(i.I2C_ITError))
 <BR><BR>[Stack]<UL><LI>Max Depth = 184<LI>Call Chain = I2C_ITError &rArr; HAL_I2C_ErrorCallback &rArr; pwr_cb_it_process &rArr; ina226_body_read_queue &rArr; ina226_read_data_process &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_ErrorCallback
-<LI><a href="#[16a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort_IT
+<BR>[Calls]<UL><LI><a href="#[16a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort_IT
+<LI><a href="#[fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_ErrorCallback
 <LI><a href="#[197]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_ListenCpltCallback
 <LI><a href="#[196]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_AbortCpltCallback
 </UL>
