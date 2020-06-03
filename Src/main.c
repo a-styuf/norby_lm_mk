@@ -22,6 +22,7 @@
 #include "main.h"
 #include "dma.h"
 #include "i2c.h"
+#include "iwdg.h"
 #include "rtc.h"
 #include "spi.h"
 #include "tim.h"
@@ -128,6 +129,7 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USART6_UART_Init();
   MX_DMA_Init();
+  MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
   lm_init(&lm);
   ProcCallbackCmds_Init();
@@ -149,7 +151,7 @@ int main(void)
   HAL_UART_Receive_IT(lm.pl._11A.interface.tr_lvl.huart, lm.pl._11A.interface.tr_lvl.rx_data, 1);
   HAL_UART_Receive_IT(lm.pl._11B.interface.tr_lvl.huart, lm.pl._11B.interface.tr_lvl.rx_data, 1);
   HAL_UART_Receive_IT(lm.pl._12.interface.tr_lvl.huart, lm.pl._12.interface.tr_lvl.rx_data, 1);
-
+  //
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -185,6 +187,8 @@ int main(void)
 			time_slot_flag_100ms = 0;
 		}
 		if (time_slot_flag_10ms){ // 10ms
+      //сброс WDG
+      HAL_IWDG_Refresh(&hiwdg);
       //обработка данных принятых от декор и последуещее заполнение памяти кадров ими
       pn_dcr_process_rx_frames(&lm.pl._dcr, 10);
       fill_dcr_rx_frame(&lm);
@@ -335,6 +339,16 @@ int main(void)
                                       (uint32_t*)&lm.interface.cmdreg.array[CMDREG_PART_MEM_RD_PTR_0]);
         
         break;
+      case CMDREG_SOFT_RESET:
+        #ifdef DEBUG
+          printf_time(); printf("cmdreg: soft reset key = %02X\n", lm.interface.cmdreg.array[CMDREG_SOFT_RESET]);
+        #endif
+        if (lm.interface.cmdreg.array[CMDREG_SOFT_RESET] == CMDREG_SOFT_RESET_VALUE){
+          printf_time(); printf("BB, sweety! ^_^\n\n");
+          while(1){};
+        }
+        else lm.interface.cmdreg.array[CMDREG_SOFT_RESET] = 0xFF;
+        break;
       case CMDREG_DBG_LED:
         led_alt_setup(&mcu_state_led, LED_BLINK, 1000, lm.interface.cmdreg.array[CMDREG_DBG_LED], 3000);
         #ifdef DEBUG
@@ -414,8 +428,9 @@ void SystemClock_Config(void)
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
   /** Initializes the CPU, AHB and APB busses clocks 
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 5;
@@ -460,18 +475,18 @@ void blocking_test(void)
 	// 	printf("\tPart=%d, Start=%d, stop=%d, vol=%d;\n", i, lm.mem.part[i].start_frame_num, lm.mem.part[i].finish_frame_num, lm.mem.part[i].full_frame_num);
 	// }
 	///*** test pn
-  // pn_11_a
+  // // pn_11_a
   // printf("\tPL_11A\n");
-  // pn_11_dbg_reset_state(&lm.pl._11A);
-  // pn_11_b
+  // pn_11_dbg_test(&lm.pl._11A);
+  // // pn_11_b
   // printf("\tPL_11B\n");
-  // pn_11_dbg_tr_lvl_test(&lm.pl._11B);
-  // pn_12
+  // pn_11_dbg_test(&lm.pl._11B);
+  // // pn_12
   // printf("\tPL_12\n");
-  // pn_12_dbg_reset_state(&lm.pl._12);
-  // pn_20
+  // pn_12_dbg_test(&lm.pl._12);
+  // // pn_20
   // printf("\tPL_20\n");
-  // pn_20_dbg_reset_state(&lm.pl._20);
+  // pn_20_dbg_test(&lm.pl._20);
   //
   // pn_11_dbg_tr_lvl_test(&lm.pl._11A);
   //

@@ -60,7 +60,7 @@ uint8_t frame_create_header(uint8_t* header_ptr, uint8_t dev_id, uint8_t type, u
       dcr_header = (type_DCRFrame_Header*)header_ptr;
       dcr_header->mark = FRAME_MARK;
       dcr_header->id_loc.fields.dev_id = dev_id & 0xF;
-      dcr_header->id_loc.fields.flags = (0x1 << 0) & 0xF;
+      dcr_header->id_loc.fields.flags = 0x0 & 0xF;
       dcr_header->id_loc.fields.data_code = d_code & 0xFF;
       return sizeof(type_DCRFrame_Header);
   }

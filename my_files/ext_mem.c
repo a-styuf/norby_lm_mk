@@ -47,7 +47,11 @@ void ext_mem_any_write(type_MEM_CONTROL* mem_ptr, uint32_t frame_addr, uint8_t* 
   for(uint8_t i=0; i<CY15B104_MEM_NUM; i++){
     if (((i*SINGLE_MEM_VOL_FRAMES) <= frame_addr) && (frame_addr < ((i+1)*SINGLE_MEM_VOL_FRAMES))){
       b_addr = 128*(frame_addr - (i*SINGLE_MEM_VOL_FRAMES));
+      //
+      set_lock();
       cy15_write(&mem_ptr->cy15b104[i], b_addr, buff, 128);
+      release_lock();
+      //
 			break;
     }
   }
@@ -65,7 +69,11 @@ void ext_mem_any_read(type_MEM_CONTROL* mem_ptr, uint32_t frame_addr, uint8_t* b
   for(uint8_t i=0; i<CY15B104_MEM_NUM; i++){
     if (((i*SINGLE_MEM_VOL_FRAMES) <= frame_addr) && (frame_addr < ((i+1)*SINGLE_MEM_VOL_FRAMES))){
       b_addr = 128*(frame_addr - (i*SINGLE_MEM_VOL_FRAMES));
+      //
+      set_lock();
       cy15_read(&mem_ptr->cy15b104[i], b_addr, buff, 128);
+      release_lock();
+      //
 			break;
     }
   }
@@ -457,7 +465,6 @@ uint8_t part_get_free_volume_in_percantage(type_MEM_PART_CONTROL* part_ptr)
   */
 uint8_t part_wr_rd_ptr_calc(type_MEM_PART_CONTROL* part_ptr, uint8_t mode)
 {
-  uint32_t prev_wr_ptr;
   int8_t report = 0;
   switch(part_ptr->mode){
     case PART_MODE_READ_BLOCK:  // указатель чтения доганяет указатель записи и блокается

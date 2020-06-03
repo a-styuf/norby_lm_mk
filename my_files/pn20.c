@@ -43,7 +43,8 @@ void pn_20_init(type_PN20_model* pn20_ptr, uint8_t num, type_PWR_CHANNEL* pwr_ch
 	//
 	_pn_20_error_collector(pn20_ptr, PN20_NO_ERROR, NULL);
 	pn_20_report_reset(pn20_ptr);
-	
+	//
+	pn_20_int_init(pn20_ptr, huart);
 }
 
 /**
@@ -343,8 +344,6 @@ void pn_20_int_init(type_PN20_model* pn20_ptr, UART_HandleTypeDef *uart_ptr)
 	int_ptr->tx_len = 0;
 	int_ptr->rx_len = 0;
 	int_ptr->rx_ptr = 0;
-	//запускаем первое чтение байта
-	HAL_UART_Receive_IT(int_ptr->huart, int_ptr->rx_buff + int_ptr->rx_ptr, 1);
 	// чистим буферы приема и структуры кадров на всякий случай
 	memset(int_ptr->tx_data, 0x00, sizeof(int_ptr->tx_data));
 	memset(int_ptr->rx_data, 0x00, sizeof(int_ptr->rx_data));
@@ -567,7 +566,7 @@ void _pn_20_error_collector(type_PN20_model* pn20_ptr, uint16_t error, int16_t d
   * @brief  функция для проверки переферии ПН20, !блокирующая! только для отладки
   * @note   проверка проводится при выходе информационного интерфейса с выхода на вход, при ИКУ подключенных к ТМ (по возможности)
 	* 				оставшиеся сигналы ТМ подключаются по желанию
-  * @param  pn20_ptr: указатель на структуру управления ПН1.1
+  * @param  pn20_ptr: указатель на структуру управления ПН
   */
 void pn_20_dbg_test(type_PN20_model* pn20_ptr)
 {
@@ -578,21 +577,23 @@ void pn_20_dbg_test(type_PN20_model* pn20_ptr)
 	HAL_Delay(500);
 	pn_20_output_set(pn20_ptr, 0x0F);
 	HAL_Delay(500);
-	printf("Check gpio 0xF:");
-	printf(": output 0x%02X, input 0x%02X\n", pn_20_get_outputs_state(pn20_ptr), pn_20_get_inputs_state(pn20_ptr));
+	printf("Check gpio 0xF: ");
+	printf("output 0x%02X, input 0x%02X\n", pn_20_get_outputs_state(pn20_ptr), pn_20_get_inputs_state(pn20_ptr));
 	//
 	HAL_Delay(500);
 	pn_20_output_set(pn20_ptr, 0x00);
 	HAL_Delay(500);
-	printf("Check gpio 0x0:");
-	printf(": output 0x%02X, input 0x%02X\n", pn_20_get_outputs_state(pn20_ptr), pn_20_get_inputs_state(pn20_ptr));
+	printf("Check gpio 0x0: ");
+	printf("output 0x%02X, input 0x%02X\n", pn_20_get_outputs_state(pn20_ptr), pn_20_get_inputs_state(pn20_ptr));
 	///***  проверка uart ***///
 	HAL_UART_Transmit_IT(pn20_ptr->interface.huart, test_data, 4);
 	HAL_UART_Receive(pn20_ptr->interface.huart, receive_data, 4, 200);
+
 	printf("Test UART:\n");
 	printf("rx_data: ");
 	printf_buff(test_data, 4, '\t');
 	printf("tx_data: ");
 	printf_buff(receive_data, 4, '\n');
+	pwr_ch_on_off_separatly(pn20_ptr->pwr_ch, 0x00);
 	HAL_Delay(2000);
 }

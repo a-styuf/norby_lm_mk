@@ -84,9 +84,13 @@
 #define CMDREG_PL12_OUT_SET       0x25
 #define CMDREG_PL20_OUT_SET       0x26
 //
+#define CMDREG_SOFT_RESET         0x27 // выполняется только при записи значениея CMDREG_SOFT_RESET_VALUE
+//
 #define CMDREG_DBG_LED            0x30
 //
-#define CMDREG_POOL_LEN            64
+#define CMDREG_POOL_LEN           64
+// cmd reg constatns
+#define CMDREG_SOFT_RESET_VALUE   0xA5
 //***DCR_Interface setup
 #define DCR_INTERFACE_INSTASEND_LENG_OFFSET   127
 
@@ -154,18 +158,19 @@ typedef struct {
   type_LM_TMI_Data_Frame tmi;           //+128
   //
   type_LM_GEN_TMI_Frame gen_tmi;        //+256
+  type_LM_LOAD_PARAM_Frame load_parameters;//+384
   //
-  type_DCR_STATUS_Frame dcr_status;     //+384
-  type_DCR_LONG_Frame dcr_frame;        //+512
+  type_DCR_STATUS_Frame dcr_status;     //+512
+  type_DCR_LONG_Frame dcr_frame;        //+640
   //
-  type_PL_ISS_INT_data pl11a_frame;   //+640
-  type_PL_ISS_INT_data pl11b_frame;   //+768
-  type_PL_ISS_INT_data pl12_frame;    //+896
-  type_PL_ISS_INT_data pl20_frame;    //+1024
+  type_PL_ISS_INT_data pl11a_frame;   //+768
+  type_PL_ISS_INT_data pl11b_frame;   //+896
+  type_PL_ISS_INT_data pl12_frame;    //+1024
+  type_PL_ISS_INT_data pl20_frame;    //+1152
   //
-  type_PL_CYCLOGRAMA_RESULT cyclograma_result; //+1152
+  type_PL_CYCLOGRAMA_RESULT cyclograma_result; //+1280
   //
-} type_IVar_TMI;                        //3328
+} type_IVar_TMI;                        //3456
 
 /**
   * @brief  Parameteres data

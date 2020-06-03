@@ -151,6 +151,8 @@ uint8_t pn_12_pwr_check(type_PN12_model* pn12_ptr);
 void pn_12_pwr_on(type_PN12_model* pn12_ptr);
 void pn_12_pwr_off(type_PN12_model* pn12_ptr);
 
+void pn_12_interface_init(type_PN12_model* pn12_ptr, UART_HandleTypeDef* huart);
+
 void pn_12_tmp_process(type_PN12_model* pn12_ptr, uint16_t period_ms);
 uint8_t pn_12_tmp_check(type_PN12_model* pn12_ptr);
 

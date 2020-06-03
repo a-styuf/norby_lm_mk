@@ -21,13 +21,13 @@
 #define CY15_WRSN_OPCODE 0xC2
 #define CY15_RDSN_OPCODE 0xC3
 
-
 #define VALIDATION_BUFF_VAL_RD_ID {0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0x7F, 0xC2, 0x26, 0x08}
 #define VALIDATION_SERIAL_NUMBER {0x00, 0x06, 0x00, 0x00, 0x00, 0x00, 0x01, 0xAA}
 
 #define ERROR_SPI  (0x01 << 0)
 #define ERROR_ADDR (0x01 << 1)
 #define ERROR_HAL (0x01 << 2)
+
 /** 
   * @brief  структура хранения настроек и параметров SPI памяти CY15B104QN
   */

@@ -24,6 +24,7 @@
 #define DATA_TYPE_PL12_INT_DATA       0x87
 #define DATA_TYPE_PL20_INT_DATA       0x88
 #define DATA_TYPE_CYCLOGRAM_RESULT    0x89
+#define DATA_TYPE_LOAD_PARAM          0x8A
 
 #define DATA_TYPE_LM_CONFIG           0x8F
 
@@ -157,6 +158,23 @@ typedef struct {
   //
   uint16_t crc16; //+126
 } type_LM_GEN_TMI_Frame; //128
+
+/**
+  * @brief  Load parameters of LM
+  */
+typedef struct {
+  type_SingleFrame_Header header; //+0
+  uint16_t version[3];          //+10
+  int16_t pwr_init_report;      //+16
+  int16_t tmp_init_report;      //+18
+  int16_t cycl_init_report;     //+20
+  int16_t int_init_report;      //+22
+  int16_t ext_mem_init_report;  //+24
+  //
+  uint8_t filler[100];          //+26
+  //
+  uint16_t crc16;               //+126
+} type_LM_LOAD_PARAM_Frame;      //128
 
 /**
   * @brief  DCR-data frame

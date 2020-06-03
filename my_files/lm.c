@@ -3,10 +3,18 @@
 //*** LM ***//
 void lm_init(type_LM_DEVICE* lm_ptr)
 {
-	int8_t report = 0;
+	type_LM_LOAD_PARAM_Frame *load_param_frame_ptr = &lm_ptr->interface.tmi_data.load_parameters;
+	//
+	frame_create_header((uint8_t*)&load_param_frame_ptr->header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_LOAD_PARAM ,lm_ptr->ctrl.rst_cnt, 0x00);
+	//
 	printf("Version: %s\n", SOFT_VERSION);
+	sscanf(SOFT_VERSION, "%hu.%hu.%hu", 	&load_param_frame_ptr->version[0],
+																				&load_param_frame_ptr->version[1],
+																				&load_param_frame_ptr->version[2]
+																				);
+	//
 	printf("DevId: %d\n", DEV_ID);
-		//инициализация времени
+	//инициализация времени
 	clock_init();
 	printf_time();
 	printf("Clock init %d s\n", clock_get_time_s());
@@ -17,23 +25,25 @@ void lm_init(type_LM_DEVICE* lm_ptr)
 	lm_ctrl_init(lm_ptr);
 	printf("\tLM-struct init\n");
 	//инициализируем питание
-	report = pwr_init(&lm_ptr->pwr, &hi2c3);
-	printf("\tPwr monitors init: %d\n", report);
+	load_param_frame_ptr->pwr_init_report = pwr_init(&lm_ptr->pwr, &hi2c3);
+	printf("\tPwr monitors init: %d\n", load_param_frame_ptr->pwr_init_report);
 	//инициализируем измерение температуры
-	report = tmp_init(&lm_ptr->tmp, &hi2c2);
-	printf("\tTemperature monitors init: %d\n", report);
+	load_param_frame_ptr->tmp_init_report = tmp_init(&lm_ptr->tmp, &hi2c2);
+	printf("\tTemperature monitors init: %d\n", load_param_frame_ptr->tmp_init_report);
 	//PL
 	pl_init(&lm_ptr->pl, lm_ptr->pwr.ch, lm_ptr->tmp.tmp1075, &huart2, &huart4, &huart1, &huart3, &huart6);
 	printf("\tPL init\n");
 	//Cyclogram
-	report = cyclogram_init(&lm_ptr->cyclogram, &lm_ptr->pl, DEV_ID);
-	printf("\tCyclogramms init: %d\n", report);
+	load_param_frame_ptr->cycl_init_report = cyclogram_init(&lm_ptr->cyclogram, &lm_ptr->pl, DEV_ID);
+	printf("\tCyclogramms init: %d\n", load_param_frame_ptr->cycl_init_report);
 	//interfaces init
-	report = interfaces_init(&lm_ptr->interface, DEV_ID);
-	printf("\tCAN init: %d\n", report);
+	load_param_frame_ptr->int_init_report = interfaces_init(&lm_ptr->interface, DEV_ID);
+	printf("\tCAN init: %d\n", load_param_frame_ptr->int_init_report);
 	//ext_mem
-	report = ext_mem_init(&lm_ptr->mem, &hspi2);
-	printf("\tExt-mem init: %d\n", report);
+	load_param_frame_ptr->ext_mem_init_report = ext_mem_init(&lm_ptr->mem, &hspi2);
+	printf("\tExt-mem init: %d\n", load_param_frame_ptr->ext_mem_init_report);
+	//
+	frame_crc16_calc((uint8_t *)load_param_frame_ptr);
 	//
 	printf_time();
 	printf("Finish init at %d s\n\n", clock_get_time_s());
@@ -685,7 +695,7 @@ void fill_dcr_rx_frame(type_LM_DEVICE* lm_ptr)
 		// сохраняем в сформированный кадр данные, полученные из модели DCR
 		memcpy((uint8_t*)long_dcr_fr.long_dcr_frame, data, 124);
 		//
-		frame_crc16_calc((uint8_t *)&long_dcr_fr);
+		// frame_crc16_calc((uint8_t *)&long_dcr_fr);
 		// сохраняем сформированный кадр в расшаренную can-память
 		memcpy((uint8_t*)&lm_ptr->interface.tmi_data.dcr_frame, (uint8_t*)&long_dcr_fr, sizeof(long_dcr_fr));
 		// дополнительно заполняем память Декор кадрами

@@ -78,6 +78,7 @@ int8_t cy15_write(type_CY15B104QN_CONTROL* cy15_ptr, uint32_t addr, uint8_t *buf
     cy15_ptr->error |= ERROR_ADDR;
     return report;
   }
+  //
   gpio_set(&cy15_ptr->cs, 0);
   cy15_ptr->out_buff[0] = CY15_WREN_OPCODE;
   if (HAL_SPI_Transmit(cy15_ptr->spi, cy15_ptr->out_buff, 1, 1) != HAL_OK) report = 0;
@@ -93,6 +94,7 @@ int8_t cy15_write(type_CY15B104QN_CONTROL* cy15_ptr, uint32_t addr, uint8_t *buf
   if (HAL_SPI_Transmit(cy15_ptr->spi, cy15_ptr->out_buff, 4+len, 2) != HAL_OK) report = 0;
   else cy15_ptr->error |=ERROR_SPI;
   gpio_set(&cy15_ptr->cs, 1);
+  //
   return report;
 }
 
@@ -119,6 +121,7 @@ int8_t cy15_read(type_CY15B104QN_CONTROL* cy15_ptr, uint32_t addr,uint8_t *buff,
   cy15_ptr->out_buff[4] = 0x00;
   //
   gpio_set(&cy15_ptr->cs, 0);
+  
   if (HAL_SPI_TransmitReceive(cy15_ptr->spi, cy15_ptr->out_buff, cy15_ptr->in_buff, 5+len, 2) != HAL_OK) report = 0;
   else cy15_ptr->error |= ERROR_SPI;
   gpio_set(&cy15_ptr->cs, 1);

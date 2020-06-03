@@ -681,20 +681,20 @@ void  _pn_11_error_collector(type_PN11_model* pn11_ptr, uint16_t error, int16_t 
 void pn_11_dbg_test(type_PN11_model* pn11_ptr)
 {
 	uint8_t test_data[16]={0xAA, 0x55, 0x02, 0x03}, receive_data[16]={0};
-		pwr_ch_on_off_separatly(pn11_ptr->pwr_ch, 0x07);
+	pwr_ch_on_off_separatly(pn11_ptr->pwr_ch, 0x07);
 	HAL_Delay(2000);
 	///***  проверка gpio ***///
 	HAL_Delay(500);
 	pn_11_output_set(pn11_ptr, 0x0F);
 	HAL_Delay(500);
-	printf("Check gpio 0xF:");
-	printf(" output 0x%02X, input 0x%02X\n", pn_11_get_outputs_state(pn11_ptr), pn_11_get_inputs_state(pn11_ptr));
+	printf("Check gpio 0xF: ");
+	printf("output 0x%02X, input 0x%02X\n", pn_11_get_outputs_state(pn11_ptr), pn_11_get_inputs_state(pn11_ptr));
 	//
 	HAL_Delay(500);
 	pn_11_output_set(pn11_ptr, 0x00);
 	HAL_Delay(500);
-	printf("Check gpio 0x0:");
-	printf(" output 0x%02X, input 0x%02X\n", pn_11_get_outputs_state(pn11_ptr), pn_11_get_inputs_state(pn11_ptr));
+	printf("Check gpio 0x0: ");
+	printf("output 0x%02X, input 0x%02X\n", pn_11_get_outputs_state(pn11_ptr), pn_11_get_inputs_state(pn11_ptr));
 	///***  проверка uart ***///
 	HAL_UART_Transmit_IT(pn11_ptr->interface.tr_lvl.huart, test_data, 4);
 	HAL_UART_Receive(pn11_ptr->interface.tr_lvl.huart, receive_data, 4, 200);
@@ -703,6 +703,7 @@ void pn_11_dbg_test(type_PN11_model* pn11_ptr)
 	printf_buff(test_data, 4, '\t');
 	printf("tx_data: ");
 	printf_buff(receive_data, 4, '\n');
+	pwr_ch_on_off_separatly(pn11_ptr->pwr_ch, 0x00);
 	HAL_Delay(2000);
 }
 

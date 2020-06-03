@@ -43,6 +43,8 @@ void pn_12_init(type_PN12_model* pn12_ptr, uint8_t num,  type_PWR_CHANNEL* pwr_c
 	//
 	_pn_12_error_collector(pn12_ptr, PN12_NO_ERROR, NULL);
 	pn_12_report_reset(pn12_ptr);
+	// инициализация интерфейса общения
+	pn_12_interface_init(pn12_ptr, huart);
 }
 
 /**
@@ -324,6 +326,18 @@ void pn_12_pwr_off(type_PN12_model* pn12_ptr)
 	//
 }
 
+///*** функции поддержки интерфейса ***///
+/**
+  * @brief  инициализация интерфейса общения с ПН
+  * @param  pn12_ptr: указатель на структуру управления полезной нагрузкой
+  */
+void pn_12_interface_init(type_PN12_model* pn12_ptr, UART_HandleTypeDef* huart)
+{
+	// инициализация уровня приложения и ниже
+	app_lvl_init(&pn12_ptr->interface, huart);
+	// инициализация параметров для последовательного чтения
+}
+
 ///*** Cfg ***///
 /**
   * @brief  получение параметров работы прибора для сохранения в ПЗУ
@@ -421,28 +435,28 @@ void  _pn_12_error_collector(type_PN12_model* pn12_ptr, uint16_t error, int16_t 
 void pn_12_dbg_test(type_PN12_model* pn12_ptr)
 {
 	uint8_t test_data[16]={0xAA, 0x55, 0x02, 0x03}, receive_data[16]={0};
-		pwr_ch_on_off_separatly(pn12_ptr->pwr_ch, 0x07);
+	pwr_ch_on_off_separatly(pn12_ptr->pwr_ch, 0x07);
 	HAL_Delay(2000);
 	///***  проверка gpio ***///
 	HAL_Delay(500);
 	pn_12_output_set(pn12_ptr, 0x0F);
 	HAL_Delay(500);
 	printf("Check gpio 0xF:");
-	printf(": output 0x%02X, input 0x%02X\n", pn_12_get_outputs_state(pn12_ptr), pn_12_get_inputs_state(pn12_ptr));
+	printf("output 0x%02X, input 0x%02X\n", pn_12_get_outputs_state(pn12_ptr), pn_12_get_inputs_state(pn12_ptr));
 	//
 	HAL_Delay(500);
 	pn_12_output_set(pn12_ptr, 0x00);
 	HAL_Delay(500);
-	printf("Check gpio 0x0:");
-	printf(": output 0x%02X, input 0x%02X\n", pn_12_get_outputs_state(pn12_ptr), pn_12_get_inputs_state(pn12_ptr));
+	printf("Check gpio 0x0: ");
+	printf("output 0x%02X, input 0x%02X\n", pn_12_get_outputs_state(pn12_ptr), pn_12_get_inputs_state(pn12_ptr));
 	///***  проверка uart ***///
 	HAL_UART_Transmit_IT(pn12_ptr->interface.tr_lvl.huart, test_data, 4);
 	HAL_UART_Receive(pn12_ptr->interface.tr_lvl.huart, receive_data, 4, 200);
-	printf("Test UART:\n");
 	printf("Test UART:\n");
 	printf("rx_data: ");
 	printf_buff(test_data, 4, '\t');
 	printf("tx_data: ");
 	printf_buff(receive_data, 4, '\n');
+	pwr_ch_on_off_separatly(pn12_ptr->pwr_ch, 0x00);
 	HAL_Delay(2000);
 }

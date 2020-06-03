@@ -5,6 +5,7 @@
 #include "my_gpio.h"
 #include "lm_interfaces_data.h"
 #include "crc16.h"
+#include "critical_lock.h"
 
 #define CY15B104_MEM_NUM 4  // кол-во микросхем памяти
 #define SINGLE_MEM_VOL_FRAMES (CY15_VOLUME_BYTES/128)  // кол-во кадров в отдельной микросхеме памяти
