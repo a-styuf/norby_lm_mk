@@ -424,7 +424,7 @@ void pn_11_interface_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
 				mem_addr = (rx_frame.addr - APP_LVL_ADDR_OFFSET) / 4; // на уровне приложения адрессация побайтова, а нам нужна по u32 (4-байта)
 				mem_leng = (rx_frame.ctrl_byte & 0x3F) + 1;
 				// проверяем корректность адреса и длины
-				if (((mem_addr + mem_leng)*4) < sizeof(type_PN_11_MEM)){
+				if (((mem_addr + mem_leng)*4) <= sizeof(type_PN_11_MEM)){
 					memcpy((uint8_t*)&pn11_ptr->mem.array.data[mem_addr], (uint8_t*)&rx_frame.data[0], mem_leng*4);
 				}
 				else{ // вылазим за допустиму робласть данных

@@ -32,8 +32,9 @@
 #define CYCLOGRAM_MODE_CYCLIC 	(2)
 
 //ошибки циклограмм
-#define CYCLOGRAM_STATUS_OK			(0<<0)
-#define CYCLOGRAM_STATUS_ERROR	(1<<0)
+#define CYCLOGRAM_STATUS_OK						(0x00<<0)
+#define CYCLOGRAM_STATUS_CCLNUM				(0x7F<<0)
+#define CYCLOGRAM_STATUS_FULL_ISS_MEM	(0x01<<7)
 
 typedef struct
 { 

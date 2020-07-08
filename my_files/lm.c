@@ -98,9 +98,13 @@ int8_t lm_load_parameters(type_LM_DEVICE* lm_ptr)
 	uint8_t retval = 0;
 		// отдельная загрузка полетного задания для ДеКоР (обязательно до записи остальных параметров ДеКоР)
 	for (uint8_t i=0; i<16; i++){
-		ext_mem_rd_frame_from_part_by_addr(&lm_ptr->mem, (uint8_t*)lm_ptr->interface.dcr_interface.FlightTask + i*128, i, PART_DCR_FLIGHT_TASK);
-		pn_dcr_load_can_flight_task(&lm_ptr->pl._dcr, (uint8_t*)lm_ptr->interface.dcr_interface.FlightTask);
+		ext_mem_rd_frame_from_part_by_addr(&lm_ptr->mem, (uint8_t*)lm_ptr->interface.dcr_interface.FlightTask_1+ i*128, i, PART_DCR_FLIGHT_TASK_1);
 	}
+	pn_dcr_load_can_flight_task(&lm_ptr->pl._dcr, (uint8_t*)lm_ptr->interface.dcr_interface.FlightTask_1, 1);
+	for (uint8_t i=0; i<16; i++){
+		ext_mem_rd_frame_from_part_by_addr(&lm_ptr->mem, (uint8_t*)lm_ptr->interface.dcr_interface.FlightTask_2+ i*128, i, PART_DCR_FLIGHT_TASK_2);
+	}
+	pn_dcr_load_can_flight_task(&lm_ptr->pl._dcr, (uint8_t*)lm_ptr->interface.dcr_interface.FlightTask_2, 2);
 	// загрузка параметров из специальной облости памяти
 	if (ext_mem_rd_param(&lm_ptr->mem, (uint8_t*)&lm_ptr->loaded_cfg_frame)){
 		#ifdef DEBUG
@@ -240,8 +244,8 @@ void lm_set_inh(type_LM_DEVICE* lm_ptr, uint8_t inh)
 {
 	lm_ptr->ctrl.inhibit = inh;
 	//
-	lm_ptr->ctrl.status &= ~(LM_STATUS_ERROR);
-	lm_ptr->ctrl.status |= ((inh << 4) & LM_STATUS_ERROR);
+	lm_ptr->ctrl.status &= ~(LM_STATUS_INH);
+	lm_ptr->ctrl.status |= ((inh << 4) & LM_STATUS_INH);
 	//
 }
 
@@ -272,8 +276,8 @@ void lm_cyclogram_process(type_LM_DEVICE* lm_ptr, uint16_t period_ms)
 	//
 	cyclogram_process(&lm_ptr->cyclogram, &lm_ptr->pl, lm_ptr->pl_cyclogram_stop_flag, period_ms);
 	//
-	lm_ptr->ctrl.status &= ~(0xFF << 8);
-	lm_ptr->ctrl.status |= ((lm_ptr->cyclogram.state & 0xFF) << 8);
+	lm_ptr->ctrl.status &= ~LM_STATUS_CCLGRM;
+	lm_ptr->ctrl.status |= ((lm_ptr->cyclogram.state << 8) & LM_STATUS_CCLGRM);
 }
 
 /**

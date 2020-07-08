@@ -14,8 +14,9 @@
 //
 #define DCR_MODE_OFF 								0
 #define DCR_MODE_DEFAULT 						1
-#define DCR_MODE_FLIGHT_TASK 				2
-#define DCR_MODE_PAUSE			 				3
+#define DCR_MODE_FLIGHT_TASK_1 			2
+#define DCR_MODE_FLIGHT_TASK_2 			3
+#define DCR_MODE_PAUSE			 				4
 
 #define DCR_MODE_SINGLE			 				0
 #define DCR_MODE_CYCLE			 				1
@@ -171,7 +172,8 @@ typedef struct
 typedef struct
 {
 	type_PNDCR_FlightTask default_flt;
-	type_PNDCR_FlightTask can;
+	type_PNDCR_FlightTask can1;
+	type_PNDCR_FlightTask can2;
 	type_PNDCR_FlightTask work;
 	uint8_t step_num;
 	uint32_t pause_ms;
@@ -237,7 +239,7 @@ void pn_dcr_set_mode(type_PN_DCR_model* pn_dcr_ptr, uint8_t mode);
 uint8_t pn_dcr_run_step_function(type_PN_DCR_model* pn_dcr_ptr);
 uint8_t _pn_dcr_form_frame(uint8_t frame_type, type_PN_DCR_frame *frame, uint8_t cmd_type, uint8_t cmd_header, uint8_t *data);
 uint8_t _pn_dcr_form_snc_time_frame(uint8_t frame_type, type_PN_DCR_frame *frame, uint32_t unix_time);
-void pn_dcr_load_can_flight_task(type_PN_DCR_model* pn_dcr_ptr, uint8_t *flight_task);
+void pn_dcr_load_can_flight_task(type_PN_DCR_model* pn_dcr_ptr, uint8_t *flight_task, uint8_t fl_task_num);
 void pn_dcr_fill_default_flight_task(type_PN_DCR_model* pn_dcr_ptr);
 void pn_dcr_fill_flight_task_step(type_PNDCR_FlightTask_Step* step, uint8_t type, uint8_t cmd, uint32_t pause_ms, uint16_t repeat_cnt, uint8_t *data);
 ///*** Cfg ***///

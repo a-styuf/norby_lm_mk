@@ -181,7 +181,8 @@ int main(void)
       fill_pl_cyclogramm_result(&lm);
       // работа с продолжительными функциями запускаемые через переменную команд (0x02)
       cmd_process_test_led(MODE_WORK, 100);
-      cmd_process_dcr_write_flight_task(MODE_WORK, 100);
+      cmd_process_dcr_write_flight_task(MODE_WORK, CMD_DCR_WRITE_FLIGHT_TASK_1, 100);
+      cmd_process_dcr_write_flight_task(MODE_WORK, CMD_DCR_WRITE_FLIGHT_TASK_2, 100);
       // работа с декор и полетным заданием для декор
       pn_dcr_process(&lm.pl._dcr, 100);
 			//reset flag
@@ -234,11 +235,17 @@ int main(void)
         #endif
         ext_mem_format_part(&lm.mem, PART_DCR);
         break;
-      case CMD_DCR_WRITE_FLIGHT_TASK:
+      case CMD_DCR_WRITE_FLIGHT_TASK_1:
         #ifdef DEBUG
-          printf_time(); printf("cmd: write dcr flight task from_can to dcr-model\n");
+          printf_time(); printf("cmd: write dcr flight task 1 from_can to dcr-model\n");
         #endif
-        cmd_process_dcr_write_flight_task(lm.interface.cmd.array[CMD_DCR_WRITE_FLIGHT_TASK], 0);
+        cmd_process_dcr_write_flight_task(lm.interface.cmd.array[CMD_DCR_WRITE_FLIGHT_TASK_1], CMD_DCR_WRITE_FLIGHT_TASK_1, 0);
+        break;
+      case CMD_DCR_WRITE_FLIGHT_TASK_2:
+        #ifdef DEBUG
+          printf_time(); printf("cmd: write dcr flight task 2 from_can to dcr-model\n");
+        #endif
+        cmd_process_dcr_write_flight_task(lm.interface.cmd.array[CMD_DCR_WRITE_FLIGHT_TASK_2], CMD_DCR_WRITE_FLIGHT_TASK_2, 0);
         break;
       case CMD_DBG_LED_TEST:
         #ifdef DEBUG

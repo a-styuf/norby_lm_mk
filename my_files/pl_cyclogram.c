@@ -85,6 +85,7 @@ int8_t cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t dev_id)
 	ccl_ptr->mode = 0;
 	ccl_ptr->num = 0;
 	ccl_ptr->time_ms = 0;
+	ccl_ptr->state = CYCLOGRAM_STATUS_OK;
 	//
 	ccl_ptr->result.lm_id = dev_id;
 	ccl_ptr->result.body_offset = 0;
@@ -343,7 +344,8 @@ int8_t cyclogram_start(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t mode, u
 		#endif
 	}
 	//
-	ccl_ptr->state = ccl_ptr->mode;
+	ccl_ptr->state &= ~CYCLOGRAM_STATUS_CCLNUM;
+	ccl_ptr->state = ((ccl_ptr->mode << 0) & CYCLOGRAM_STATUS_CCLNUM);
 	//
 	return 0;
 }
@@ -392,7 +394,8 @@ int8_t cyclogram_process(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t stop_
 		c_num = ccl_ptr->num;
 		s_num = ccl_ptr->array[c_num].step_num;
 		//
-		ccl_ptr->state = ccl_ptr->mode;
+		ccl_ptr->state &= ~CYCLOGRAM_STATUS_CCLNUM;
+		ccl_ptr->state = ((ccl_ptr->mode << 0) & CYCLOGRAM_STATUS_CCLNUM);
 		//
 		ccl_ptr->time_ms += period_ms;
 		//
@@ -433,7 +436,8 @@ int8_t cyclogram_process(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t stop_
 		else{
 			if (stop_flag){
 				//
-				ccl_ptr->state |= (1 << 8);
+				ccl_ptr->state &= ~CYCLOGRAM_STATUS_FULL_ISS_MEM;
+				ccl_ptr->state |= (1 << 7) & CYCLOGRAM_STATUS_FULL_ISS_MEM;
 			}
 			else{
 				#ifdef DEBUG
@@ -978,7 +982,7 @@ int8_t pl_pn12_pwr_on(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
 
 int8_t pl_pn12_pwr_off(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
 {
-	pn_12_pwr_on(&pl_ptr->_12);
+	pn_12_pwr_off(&pl_ptr->_12);
 	//debug
 	printf_time();
 	printf("--PL12 pwr_off\n");
@@ -1048,7 +1052,7 @@ int8_t pl_pn20_pwr_on(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
 
 int8_t pl_pn20_pwr_off(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
 {
-	pn_20_pwr_on(&pl_ptr->_20);
+	pn_20_pwr_off(&pl_ptr->_20);
 	//debug
 	printf_time();
 	printf("--PL20 pwr_off\n");

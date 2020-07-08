@@ -93,9 +93,12 @@ void ProcCallbackExtMems(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t leng, in
         ext_mem_read_from_part_8b(&lm.mem, offset, lm.interface.ext_mem.External_Mem_DCR_Frame + offset, PART_DCR);
       }
       else if((id.uf.Offset >= 128*3) && (id.uf.Offset < 128*4)){
-        ext_mem_read_from_part_8b(&lm.mem, offset, lm.interface.ext_mem.External_Mem_DCR_FlightTask + offset, PART_DCR_FLIGHT_TASK);
+        ext_mem_read_from_part_8b(&lm.mem, offset, lm.interface.ext_mem.External_Mem_DCR_FlightTask_1 + offset, PART_DCR_FLIGHT_TASK_1);
       }
       else if((id.uf.Offset >= 128*4) && (id.uf.Offset < 128*5)){
+        ext_mem_read_from_part_8b(&lm.mem, offset, lm.interface.ext_mem.External_Mem_DCR_FlightTask_2 + offset, PART_DCR_FLIGHT_TASK_2);
+      }
+      else if((id.uf.Offset >= 128*5) && (id.uf.Offset < 128*6)){
         ext_mem_read_from_part_8b(&lm.mem, offset, lm.interface.ext_mem.External_Mem_DCR_Status + offset, PART_DCR_STATUS);
       }
   }
@@ -211,13 +214,14 @@ void cmd_process_test_led(uint8_t mode, uint32_t period_ms)
 
 /**
   * @brief  функция для копирования полетного задания ДеКоР из памяти CAN в програмную модель ДеКоР
-  * @param  cmd: команда, записанная в командный регистр
+  * @param  mode: команда, записанная в командный регистр
+  * @param  cmd_code: номер полетного задания
   * @param  period_ms: период вызова обработчика в псевдопотоке
   */
-void cmd_process_dcr_write_flight_task(uint8_t mode, uint32_t period_ms)
+void cmd_process_dcr_write_flight_task(uint8_t mode, uint8_t cmd_code, uint32_t period_ms)
 {
-  uint8_t cmd_code = CMD_DCR_WRITE_FLIGHT_TASK;
-  //*** Прерывание работы ***//
+  uint8_t *fligt_task_ptr=0, mem_part_dcr=0, fl_task_num = 1;
+    //*** Прерывание работы ***//
   if (mode == MODE_CANCEL){
       cmd_set_status(&lm.interface, cmd_code, CMD_STATUS_CANCEL);
       lm.cmd_ctrl[cmd_code].main_counter = 0;
@@ -239,9 +243,26 @@ void cmd_process_dcr_write_flight_task(uint8_t mode, uint32_t period_ms)
     //*** Собственно тело процесса ***//
     else if (lm.cmd_ctrl[cmd_code].ena == 1){
       //
-      pn_dcr_load_can_flight_task(&lm.pl._dcr, (uint8_t*)lm.interface.dcr_interface.FlightTask);
+    switch(cmd_code){
+      case CMD_DCR_WRITE_FLIGHT_TASK_1:
+        fligt_task_ptr = (uint8_t*)lm.interface.dcr_interface.FlightTask_1;
+        mem_part_dcr = PART_DCR_FLIGHT_TASK_1;
+        fl_task_num = 1;
+        break;
+      case CMD_DCR_WRITE_FLIGHT_TASK_2:
+        fligt_task_ptr = (uint8_t*)lm.interface.dcr_interface.FlightTask_2;
+        mem_part_dcr = PART_DCR_FLIGHT_TASK_2;
+        fl_task_num = 2;
+        break;
+      default:
+        fligt_task_ptr = (uint8_t*)lm.interface.dcr_interface.FlightTask_1;
+        mem_part_dcr = PART_DCR_FLIGHT_TASK_1;
+        fl_task_num = 1;
+        break;
+    }
+      pn_dcr_load_can_flight_task(&lm.pl._dcr, fligt_task_ptr, fl_task_num);
       for (uint8_t i=0; i<16; i++){
-        ext_mem_wr_frame_from_part_by_addr(&lm.mem, (uint8_t*)lm.interface.dcr_interface.FlightTask + i*128, i, PART_DCR_FLIGHT_TASK);
+        ext_mem_wr_frame_from_part_by_addr(&lm.mem, fligt_task_ptr + i*128, i, mem_part_dcr);
       }
       //
       lm.cmd_ctrl[cmd_code].main_counter += 1;

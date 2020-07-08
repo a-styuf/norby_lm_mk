@@ -248,7 +248,8 @@ void pn_dcr_flight_task_process(type_PN_DCR_model* pn_dcr_ptr, uint16_t period_m
 	else{
 		switch(pn_dcr_ptr->mode & 0x000F){
 			case DCR_MODE_DEFAULT:
-			case DCR_MODE_FLIGHT_TASK:
+			case DCR_MODE_FLIGHT_TASK_1:
+			case DCR_MODE_FLIGHT_TASK_2:
 				if (pn_dcr_ptr->fl_task.pause_ms >= period_ms){
 					pn_dcr_ptr->fl_task.pause_ms -= period_ms;
 				}
@@ -292,8 +293,14 @@ void pn_dcr_set_mode(type_PN_DCR_model* pn_dcr_ptr, uint8_t mode)
 			pn_dcr_ptr->fl_task.pause_ms = 500;
 			pn_dcr_ptr->fl_task.step_repeat_cnt = 0;
 			break;
-		case DCR_MODE_FLIGHT_TASK:
-			memcpy((uint8_t*)&pn_dcr_ptr->fl_task.work, (uint8_t*)&pn_dcr_ptr->fl_task.can,  sizeof(type_PNDCR_FlightTask));
+		case DCR_MODE_FLIGHT_TASK_1:
+			memcpy((uint8_t*)&pn_dcr_ptr->fl_task.work, (uint8_t*)&pn_dcr_ptr->fl_task.can1,  sizeof(type_PNDCR_FlightTask));
+			pn_dcr_ptr->fl_task.step_num = 0;
+			pn_dcr_ptr->fl_task.pause_ms = 500;
+			pn_dcr_ptr->fl_task.step_repeat_cnt = 0;
+			break;
+		case DCR_MODE_FLIGHT_TASK_2:
+			memcpy((uint8_t*)&pn_dcr_ptr->fl_task.work, (uint8_t*)&pn_dcr_ptr->fl_task.can2,  sizeof(type_PNDCR_FlightTask));
 			pn_dcr_ptr->fl_task.step_num = 0;
 			pn_dcr_ptr->fl_task.pause_ms = 500;
 			pn_dcr_ptr->fl_task.step_repeat_cnt = 0;
@@ -457,13 +464,25 @@ uint8_t _pn_dcr_form_snc_time_frame(uint8_t frame_type, type_PN_DCR_frame *frame
   * @param  pn_dcr_ptr: указатель на структуру управления ПН_ДКР
 	* @param  flight_task: указатель на массив из sizeof(type_PNDCR_FlightTask)-байт, в котором содержится полетное задание
   */
-void pn_dcr_load_can_flight_task(type_PN_DCR_model* pn_dcr_ptr, uint8_t *flight_task)
+void pn_dcr_load_can_flight_task(type_PN_DCR_model* pn_dcr_ptr, uint8_t *flight_task, uint8_t fl_task_num)
 {
 	uint8_t i;
-	memcpy((uint8_t*)&pn_dcr_ptr->fl_task.can, flight_task, sizeof(type_PNDCR_FlightTask));
+	type_PNDCR_FlightTask *fl_task;
+	switch(fl_task_num){
+		case 1:
+			fl_task = &pn_dcr_ptr->fl_task.can1;
+			break;
+		case 2:
+			fl_task = &pn_dcr_ptr->fl_task.can2;
+			break;
+		default:
+			return;
+	}
+	
+	memcpy((uint8_t*)fl_task, flight_task, sizeof(type_PNDCR_FlightTask));
 	for (i=0; i<128; i++){
-		pn_dcr_ptr->fl_task.can.step[i].pause_ms = __REV(pn_dcr_ptr->fl_task.can.step[i].pause_ms);
-		pn_dcr_ptr->fl_task.can.step[i].repeate_cnt = __REV16(pn_dcr_ptr->fl_task.can.step[i].repeate_cnt);
+		fl_task->step[i].pause_ms = __REV(fl_task->step[i].pause_ms);
+		fl_task->step[i].repeate_cnt = __REV16(fl_task->step[i].repeate_cnt);
 	}
 
 }

@@ -15,9 +15,10 @@
 
 #define PART_ISS 0
 #define PART_DCR 1
-#define PART_DCR_FLIGHT_TASK 2
-#define PART_DCR_STATUS 3
-#define PART_NUM 4 // 0 - ISS, 1 - DCR, 2 - DCR Flight task, 3 - DCR status mem
+#define PART_DCR_FLIGHT_TASK_1 2
+#define PART_DCR_FLIGHT_TASK_2 3
+#define PART_DCR_STATUS 4
+#define PART_NUM 5 // 0 - ISS, 1 - DCR, 2 - DCR Flight task, 2 - DCR Flight task, 4 - DCR status mem
 
 #define PART_ALL_MEM 127  // переменная для определения всей памяти
 
@@ -25,9 +26,10 @@
 
 // Постоянная память: маппирование в конце физической памяти, по абсолютному размеру\
 // размер в блоках по 128-байт
-#define PART_DCR_FLIGHT_TASK_CONST      16
+#define PART_DCR_FLIGHT_TASK_1_CONST      16
+#define PART_DCR_FLIGHT_TASK_2_CONST      16
 #define PART_DCR_STATUS_CONST           16
-#define PART_FULL_CONST                 32 //общий размер памяти выделенной под постоянные блоки в 128-байтовых блоков
+#define PART_FULL_CONST                 48 //общий размер памяти выделенной под постоянные блоки в 128-байтовых блоков
 // Относительная память: маппирование частей памяти распределяемой относительно: сумма частей не должна превышать (полную память - постоянная часть)
 // относительный объем памяти выделенной под разные приборы высчитывается как: Vol_1(Fr) = AVLL_MEM_VOL_FRAMES * (Vol_1_rel / (PART_FULL_VOL_REL))
 #define PART_FULL_VOL_REL               256

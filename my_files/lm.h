@@ -40,7 +40,8 @@ typedef unsigned short uint16_t;
 
 
 // биты статуса
-#define LM_STATUS_ERROR						(0x0F << 4)
+#define LM_STATUS_INH							(0x0F << 4)
+#define LM_STATUS_CCLGRM					(0xFF << 8)
 
 // типы запретов работы ПН
 #define LM_INH_SELF 						(1 << 0)
