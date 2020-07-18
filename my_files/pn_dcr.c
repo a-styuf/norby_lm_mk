@@ -389,12 +389,12 @@ uint8_t pn_dcr_run_step_function(type_PN_DCR_model* pn_dcr_ptr)
 		}
 		//
 		#ifdef DEBUG_DCR
-			printf_time(); printf("DCR: FlTask %d; Step %02d num %02d: type=%d, cmd=%d, pause_ms=%d\n",	pn_dcr_ptr->status & PN_DCR_STATUS_MODE,
-																																											pn_dcr_ptr->fl_task.step_num,
-																																											pn_dcr_ptr->fl_task.step_repeat_cnt,
-																																											type,
-																																											cmd,
-																																											pause_ms);
+			printf_time(); printf("DCR: FT%d st%02d N%02d tp%d cmd%d ps%d\n",	pn_dcr_ptr->status & PN_DCR_STATUS_MODE,
+																																				pn_dcr_ptr->fl_task.step_num,
+																																				pn_dcr_ptr->fl_task.step_repeat_cnt,
+																																				type,
+																																				cmd,
+																																				pause_ms);
 		#endif
 		// обработка перехода на новый шаг задания или повторение последнего задания
 		if (pn_dcr_ptr->fl_task.step_repeat_cnt > 0){
@@ -478,13 +478,11 @@ void pn_dcr_load_can_flight_task(type_PN_DCR_model* pn_dcr_ptr, uint8_t *flight_
 		default:
 			return;
 	}
-	
 	memcpy((uint8_t*)fl_task, flight_task, sizeof(type_PNDCR_FlightTask));
 	for (i=0; i<128; i++){
 		fl_task->step[i].pause_ms = __REV(fl_task->step[i].pause_ms);
 		fl_task->step[i].repeate_cnt = __REV16(fl_task->step[i].repeate_cnt);
 	}
-
 }
 
 /**
@@ -498,22 +496,36 @@ void pn_dcr_fill_default_flight_task(type_PN_DCR_model* pn_dcr_ptr)
 	memset((uint8_t*)&pn_dcr_ptr->fl_task.default_flt, 0x00, sizeof(type_PNDCR_FlightTask));
 	// Задание циклограммы по умолчанию
 	// Включаем питание МК ДеКоР
-	_pn_dcr_fill_data_array(data, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-	pn_dcr_fill_flight_task_step(&pn_dcr_ptr->fl_task.default_flt.step[0], DCR_PN_FLT_TYPE_PWR, 0x01, 10000,	0, data);
-	// Синхронизуем время
-	_pn_dcr_fill_data_array(data, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-	pn_dcr_fill_flight_task_step(&pn_dcr_ptr->fl_task.default_flt.step[1], DCR_PN_FLT_TYPE_PRST_CMD, DCR_PN_PRST_CMD_SNC_TIME, 1000,	0, data);
+	_pn_dcr_fill_data_array(data, PN_DCR_PWR_MCU, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+	pn_dcr_fill_flight_task_step(&pn_dcr_ptr->fl_task.default_flt.step[0], DCR_PN_FLT_TYPE_PWR, 0x01, 5000,	0, data);
 	// Заправшиваем статут
 	_pn_dcr_fill_data_array(data, 0x72, 0xC7, 0, 0, 0, 0, 0, 0);
-	pn_dcr_fill_flight_task_step(&pn_dcr_ptr->fl_task.default_flt.step[2], DCR_PN_FLT_TYPE_UART, 0x01, 10000,	10, data);
-	// Отключаем ДеКоР на 5 секунд
-	_pn_dcr_fill_data_array(data, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-	pn_dcr_fill_flight_task_step(&pn_dcr_ptr->fl_task.default_flt.step[3], DCR_PN_FLT_TYPE_PWR, 0x00, 1000,	0, data);
+	pn_dcr_fill_flight_task_step(&pn_dcr_ptr->fl_task.default_flt.step[1], DCR_PN_FLT_TYPE_UART, 0x01, 3000,	0, data);
+	// Синхронизуем время
+	_pn_dcr_fill_data_array(data, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+	pn_dcr_fill_flight_task_step(&pn_dcr_ptr->fl_task.default_flt.step[2], DCR_PN_FLT_TYPE_PRST_CMD, DCR_PN_PRST_CMD_SNC_TIME, 3000,	0, data);
+	// Заправшиваем статут
+	_pn_dcr_fill_data_array(data, 0x72, 0xC7, 0, 0, 0, 0, 0, 0);
+	pn_dcr_fill_flight_task_step(&pn_dcr_ptr->fl_task.default_flt.step[3], DCR_PN_FLT_TYPE_UART, 0x01, 3000,	0, data);
+	// Заправшиваем данные
+	_pn_dcr_fill_data_array(data, 0x72, 0xC1, 0, 0, 0, 0, 0, 0);
+	pn_dcr_fill_flight_task_step(&pn_dcr_ptr->fl_task.default_flt.step[4], DCR_PN_FLT_TYPE_UART, 0x01, 10000, 100-1, data);
+	// Заправшиваем статут
+	_pn_dcr_fill_data_array(data, 0x72, 0xC7, 0, 0, 0, 0, 0, 0);
+	pn_dcr_fill_flight_task_step(&pn_dcr_ptr->fl_task.default_flt.step[5], DCR_PN_FLT_TYPE_UART, 0x01, 3000,	0, data);
+	// Отключаем ДеКоР на 1 секунду
+	_pn_dcr_fill_data_array(data, PN_DCR_PWR_ALL, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+	pn_dcr_fill_flight_task_step(&pn_dcr_ptr->fl_task.default_flt.step[6], DCR_PN_FLT_TYPE_PWR, 0x00, 1000,	0, data);
 }
 
 /**
   * @brief  создание отдельного шага для полетного задания ДеКоР
-  * @param  pn_dcr_ptr: указатель на отдельный шаг полетного задания
+  * @param  step: указатель на отдельный шаг полетного задания типа type_PNDCR_FlightTask_Step
+  * @param  type: указатель на отдельный шаг полетного задания
+  * @param  cmd: тип команды полетного задания
+  * @param  pause_ms: пауза до выполнения следующего шага
+  * @param  repeat_cnt: количество повторений текущего шага
+  * @param  data: указатель на данные для отедльного шага
   */
 void pn_dcr_fill_flight_task_step(type_PNDCR_FlightTask_Step* step, uint8_t type, uint8_t cmd, uint32_t pause_ms, uint16_t repeat_cnt, uint8_t *data)
 {

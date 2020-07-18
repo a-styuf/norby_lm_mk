@@ -124,8 +124,8 @@
   */
 typedef struct {
   type_PL_CYCLOGRAMA_RESULT_HEADER header;      //+0
-  type_PL_CYCLOGRAMA_RESULT_BODY   body[16];    //+128  //здесь с запасом на любую из циклограмм, возможно нужно меньше
-} type_PL_CYCLOGRAMA_RESULT;                    //2176
+  type_PL_CYCLOGRAMA_RESULT_BODY   body[32];    //+128  //здесь с запасом на любую из циклограмм, возможно нужно меньше
+} type_PL_CYCLOGRAMA_RESULT;                    //4224
 
 /*------ Interface variables --------*/
 
@@ -171,7 +171,7 @@ typedef struct {
   //
   type_PL_CYCLOGRAMA_RESULT cyclograma_result; //+1280
   //
-} type_IVar_TMI;                        //3456
+} type_IVar_TMI;                        //5504
 
 /**
   * @brief  Parameteres data
@@ -199,7 +199,7 @@ typedef struct {
   uint8_t InstaMessage[128];  //+0
   uint8_t FlightTask_1[128][16];  //+128
   uint8_t FlightTask_2[128][16];  //+2176
-} type_IVar_DCR_Interface; //3200
+} type_IVar_DCR_Interface; //4224
 
 /**
   * @brief  IVar for PL_ISS-interface

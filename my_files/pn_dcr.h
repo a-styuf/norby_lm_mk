@@ -26,7 +26,7 @@
 #define DCR_PRELODED_FL_TASK_FROM_CAN			0xFF
 
 // типы команды для полетного задания
-#define DCR_PN_FLT_NO_ONE		 							0x01
+#define DCR_PN_FLT_NO_ONE		 							0x00
 #define DCR_PN_FLT_TYPE_PWR 							0x01
 #define DCR_PN_FLT_TYPE_UART							0x02
 #define DCR_PN_FLT_TYPE_PRST_CMD					0x03

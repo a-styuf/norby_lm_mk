@@ -15,8 +15,6 @@
 #define APP_LVL_TIMEOUT_ERROR   (0x1 << 2)
 #define APP_LVL_OTHER_ERROR     (0x1 << 3)
 
-#define APP_LVL_ADDR_OFFSET     0xB0000000
-
 #define APP_LVL_MAX_U32_DATA         30  //принципиальное ограничение из-за работы через 128-байтные массивы
 
 #define APP_LVL_DEFAULT_TIMEOUT_MS     100

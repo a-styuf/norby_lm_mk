@@ -123,7 +123,6 @@ void ProcCallbackDCRInterface(CAN_TypeDef *can_ptr, typeIdxMask id, uint16_t len
   }
 }
 
-
 /**
   * @brief  регистрация колбэков для обработки команд CAN
   * @param  can_ptr: указатель на структуру управления CAN

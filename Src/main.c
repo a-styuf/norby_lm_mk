@@ -172,7 +172,7 @@ int main(void)
 			//формирование кадров телеметрии
       fill_tmi_and_beacon(&lm);
       fill_gen_tmi(&lm);
-			//опрос мониторов питания и температур
+			//опрос мониторов питания
 			pwr_process(&lm.pwr, 100);
 			//опрос тремодатчиков
 			tmp_process(&lm.tmp, 100);
@@ -203,6 +203,7 @@ int main(void)
       //поддрежка работы программной модели ПН_�?СС (включая уровень приложения и транспортный уровень, а также процедуры вычитывания больших объемов данных)
 			pn_11_process(&lm.pl._11A, 5);
       pn_11_process(&lm.pl._11B, 5);
+      pn_12_process(&lm.pl._12, 5);
 			//reset flag
 			time_slot_flag_5ms = 0;
 		}
@@ -374,17 +375,16 @@ int main(void)
     switch(int16_val){
       case DCR_INTERFACE_INSTASEND_LENG_OFFSET:
         pn_dcr_uart_send(&lm.pl._dcr.uart, lm.interface.dcr_interface.InstaMessage, lm.interface.dcr_interface.InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET]);
-        lm.interface.dcr_interface.InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET] = 0;  // обнуляем для проверки отправки
-        printf("dcr_int:Instasend 0x%2X\n", lm.interface.dcr_interface.InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET]);
+        printf("dcr_int:Instasend 0x%02X\n", lm.interface.dcr_interface.InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET]);
         printf_buff(lm.interface.dcr_interface.InstaMessage, lm.interface.dcr_interface.InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET], '\n');
-				lm.interface.dcr_interface.InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET] = 0;
+        lm.interface.dcr_interface.InstaMessage[DCR_INTERFACE_INSTASEND_LENG_OFFSET] = 0;  // обнуляем для проверки отправки
         break;
       case CMD_NO_ONE:
       default:
         // NULL;
         break;
     }
-    //* обработка команды для интерфейса к ПН_�?СС *//
+    //* обработка команды для интерфейса к ПН_ИСС *//
     int16_val = pl_iss_inerface_check_to_process(&lm.interface);
     if (int16_val != CMD_NO_ONE) led_alt_setup(&con_state_led, LED_BLINK, 700, 150, 2800);
     switch(int16_val){
@@ -401,6 +401,7 @@ int main(void)
       case PL12_INTERFACE_INSTASEND_LENG_OFFSET:
         pl_iss_get_app_lvl_reprot(PL12, lm.interface.pl_iss_interface.InstaMessage[PL12-1], str);
         printf("%s", str);
+        pn_12_can_instasend(&lm.pl._12, lm.interface.pl_iss_interface.InstaMessage[PL12-1]);
         break;
       case PL20_INTERFACE_INSTASEND_LENG_OFFSET:
         pl_iss_get_app_lvl_reprot(PL20, lm.interface.pl_iss_interface.InstaMessage[PL20-1], str);

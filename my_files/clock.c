@@ -75,10 +75,8 @@ uint32_t clock_get_unix_time_s(void)
 }
 
 /**
-  * @brief  вывод на экран массива hex-значений
-  * @param  buff: указатель на блок памяти
-  * @param  len: длина данных
-  * @param  end_char: символ окончания вывода
+  * @brief  установка времени в HAL_RTC
+  * @param  time_s: время в секундах от 2000 года
   */
 void clock_set_time_s(uint32_t time_s)
 {

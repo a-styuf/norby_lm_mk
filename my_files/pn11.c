@@ -358,14 +358,7 @@ void pn_11_interface_init(type_PN11_model* pn11_ptr, UART_HandleTypeDef* huart)
 	// инициализация уровня приложения и ниже
 	app_lvl_init(&pn11_ptr->interface, huart);
 	// инициализация параметров для последовательного чтения
-	pn11_ptr->rd_seq_start_addr = 0;
-	pn11_ptr->rd_seq_stop_addr = 0;
-	pn11_ptr->rd_seq_leng = 0;
-	pn11_ptr->rd_seq_mode = 0;
-	pn11_ptr->rd_seq_curr_addr = 0;
-	pn11_ptr->rd_seq_part_leng = 0;
-	// зачищаем память для хранения памяти ПН
-	memset((uint8_t*)&pn11_ptr->mem, 0x00, sizeof(type_PN_11_MEM));
+	pn_11_interface_reset(pn11_ptr);
 }
 
 /**
@@ -398,7 +391,7 @@ void pn_11_interface_synch(type_PN11_model* pn11_ptr)
 
 /**
   * @brief  поддержка работы интерфейса к ПН
-  * @param  pn11_ptr: указатель на структуру управления транспортным уровнем
+  * @param  pn11_ptr: указатель на структуру управления ПН
   * @param  period_ms: период, с которым вызавается данный обработчик
   */
 void pn_11_interface_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
@@ -421,7 +414,7 @@ void pn_11_interface_process(type_PN11_model* pn11_ptr, uint16_t period_ms)
 			leng = app_lvl_get_rx_frame(&pn11_ptr->interface, &rx_frame);
 			if (leng){
 				// printf("addr %08X, ctrl %08X, data %08X\n", rx_frame.addr, rx_frame.ctrl_byte, rx_frame.data[0]);
-				mem_addr = (rx_frame.addr - APP_LVL_ADDR_OFFSET) / 4; // на уровне приложения адрессация побайтова, а нам нужна по u32 (4-байта)
+				mem_addr = (rx_frame.addr - PN_11_APP_LVL_ADDR_OFFSET) / 4; // на уровне приложения адрессация побайтова, а нам нужна по u32 (4-байта)
 				mem_leng = (rx_frame.ctrl_byte & 0x3F) + 1;
 				// проверяем корректность адреса и длины
 				if (((mem_addr + mem_leng)*4) <= sizeof(type_PN_11_MEM)){
@@ -461,7 +454,7 @@ void pn_11_seq_read_start(type_PN11_model* pn11_ptr, uint32_t start_addr, uint32
 	pn11_ptr->rd_seq_mode = 1;
 	pn11_ptr->rd_seq_timeout = 0;
 	//чистим память под запрос
-	memset((uint8_t*)&pn11_ptr->mem.array.data[(start_addr - APP_LVL_ADDR_OFFSET)/4], 0x00, u32_leng*4);
+	memset((uint8_t*)&pn11_ptr->mem.array.data[(start_addr - PN_11_APP_LVL_ADDR_OFFSET)/4], 0x00, u32_leng*4);
 	//делаем первый запрос в серии
 	pn11_ptr->rd_seq_curr_addr = pn11_ptr->rd_seq_start_addr;
   _pn_11_seq_read_request(pn11_ptr);
@@ -484,7 +477,7 @@ void _pn_11_seq_read_request(type_PN11_model* pn11_ptr)
 			pn_11_read_req_u32_data(pn11_ptr, (pn11_ptr->rd_seq_curr_addr << 2), pn11_ptr->rd_seq_part_leng);
 			pn11_ptr->rd_seq_curr_addr += pn11_ptr->rd_seq_part_leng;
 			#ifdef DEBUG
-			printf("start_addr=%04X, stop_addr=%04X, curr_addr=%04X, curr_leng=%04X, leng=%04X\n", 
+			printf("PN11: start_addr=%04X, stop_addr=%04X, curr_addr=%04X, curr_leng=%04X, leng=%04X\n", 
 																																		pn11_ptr->rd_seq_start_addr,
 																																		pn11_ptr->rd_seq_stop_addr,
 																																		pn11_ptr->rd_seq_curr_addr,

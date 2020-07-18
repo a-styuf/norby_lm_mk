@@ -7,9 +7,9 @@
 #include "pn_11_interface_app_lvl.h"
 #include "debug.h"
 
-#define PN12_OUTPUT_DEFAULT 0x0F
-#define PN12_OUTPUT_FPGA_ON 0x02
-#define PN12_OUTPUT_FPGA_MCU_ON 0x00
+#define PN12_OUTPUT_DEFAULT 0x00
+#define PN12_OUTPUT_FPGA_SPI_SET 0x02
+#define PN12_OUTPUT_FPGA_SPI_RESET 0x00
 //
 #define PN12_TEMP_MAX (85<<8)
 #define PN12_TEMP_MIN (-30<<8)
@@ -42,7 +42,7 @@
 #define PN_12_VOLT_MAX 		5.5
 #define PN_12_VOLT_MIN 		4.5
 // границы мощности Вт
-#define PN_12_PWR_MAX 		12.0
+#define PN_12_PWR_MAX 		15.0
 #define PN_12_PWR_MIN 		0.5
 
 // задержка для определения ошибки питания - устанавливается каждый раз, когда происходит изменение состояния питания
@@ -51,6 +51,13 @@
 
 // задержка для для проверок температуры, что бы не долбить модуль температуры очень часто
 #define PN_12_TMP_PERIODICAL_TIMEOUT_MS 	1000
+
+// шаг обработки чтения памяти ПН
+#define PN_12_READ_MEM_TIMEOUT_MS 	100
+
+// объем данных для полного вычитывания
+#define PN_12_APP_LVL_ADDR_OFFSET     0x00000000
+#define PN_12_MEM_ADDR_START_MEM  		(PN_12_APP_LVL_ADDR_OFFSET + 0x0)
 
 // типы запретов работы ПН
 #define PN_12_INH_SELF 						(1 << 0)
@@ -92,6 +99,14 @@ typedef struct{
 } type_PN12_TMI_slice;	//12  //SLICE - срез
 
 /** 
+  * @brief  структура памяти для взаимодействия с ПН_1.2
+  */
+typedef struct
+{
+	uint32_t data[600]; 
+} type_PN_12_MEM; //2400
+
+/** 
   * @brief  структура формирования параметров для хранения в ПЗУ ПН (18 байт) для последующей упаковки всех состаяний в один кадр из 116 байт
   */
 typedef struct
@@ -119,6 +134,12 @@ typedef struct
 	//
 	type_PN11_INTERFACE_APP_LVL interface;
 	//
+	uint32_t rd_seq_start_addr, rd_seq_stop_addr, rd_seq_leng;
+	uint32_t rd_seq_curr_addr, rd_seq_part_leng;
+	uint16_t rd_seq_timeout;
+	uint8_t rd_seq_mode;  // режим последовательного чтения данных: 0 - нет чтения, 1 - чтение в процессе
+	type_PN_12_MEM mem;
+	//
 	type_PN12_report report;
 	type_PN12_TMI_slice tmi_slice;
 	uint8_t tmi_slice_number;
@@ -126,7 +147,7 @@ typedef struct
 	type_PN12_сfg loaded_cfg;
 	type_PN12_сfg cfg;
 	//
-	uint8_t self_num; // собственный номе ПН
+	uint8_t self_num; // собственный номер ПН
 	uint16_t status, error_flags;
 	uint8_t error_cnt;
 } type_PN12_model;
@@ -152,6 +173,16 @@ void pn_12_pwr_on(type_PN12_model* pn12_ptr);
 void pn_12_pwr_off(type_PN12_model* pn12_ptr);
 
 void pn_12_interface_init(type_PN12_model* pn12_ptr, UART_HandleTypeDef* huart);
+void pn_12_interface_reset(type_PN12_model* pn12_ptr);
+void pn_12_interface_synch(type_PN12_model* pn12_ptr);
+void pn_12_interface_process(type_PN12_model* pn12_ptr, uint16_t period_ms);
+uint8_t pn_12_get_last_frame(type_PN12_model* pn12_ptr, uint8_t *data);
+uint8_t pn_12_get_last_frame_in_128B_format(type_PN12_model* pn12_ptr, uint8_t *data);
+void pn_12_read_req_u32_data(type_PN12_model* pn12_ptr, uint32_t addr, uint8_t u32_len);
+void pn_12_write_u32_data(type_PN12_model* pn12_ptr, uint32_t addr, uint32_t *u32_data, uint8_t u32_len);
+uint8_t pn_12_can_instasend(type_PN12_model* pn12_ptr, uint8_t* insta_send_data);
+void pn_12_seq_read_start(type_PN12_model* pn12_ptr, uint32_t start_addr, uint32_t u32_leng);
+void _pn_12_seq_read_request(type_PN12_model* pn12_ptr);
 
 void pn_12_tmp_process(type_PN12_model* pn12_ptr, uint16_t period_ms);
 uint8_t pn_12_tmp_check(type_PN12_model* pn12_ptr);

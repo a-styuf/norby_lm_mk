@@ -397,7 +397,6 @@ void pwr_process(type_PWR_CONTROL* pwr_ptr, uint16_t period_ms)
 		pwr_create_report(pwr_ptr);
 	}
 	ina226_start_read_queue(&pwr_ptr->ch[pwr_ptr->ch_read_queue].ina226);
-	
 }
 
 /**
@@ -681,7 +680,7 @@ void fill_dcr_rx_frame(type_LM_DEVICE* lm_ptr)
 		frame_create_header((uint8_t*)&status_dcr_fr.header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_DCR_LAST_RX_STATUS, lm_ptr->pl._dcr.status_cnt, 0x00);
 		lm_ptr->pl._dcr.status_cnt += 1;
 		// сохраняем в сформированный кадр данные, полученные из модели DCR
-		memcpy((uint8_t*)status_dcr_fr.status_dcr_data, data, sizeof(leng));
+		memcpy((uint8_t*)status_dcr_fr.status_dcr_data, data, leng);
 		//
 		frame_crc16_calc((uint8_t *)&status_dcr_fr);
 		// сохраняем сформированный кадр в расшаренную can-память
@@ -699,7 +698,7 @@ void fill_dcr_rx_frame(type_LM_DEVICE* lm_ptr)
 		// сохраняем в сформированный кадр данные, полученные из модели DCR
 		memcpy((uint8_t*)long_dcr_fr.long_dcr_frame, data, 124);
 		//
-		// frame_crc16_calc((uint8_t *)&long_dcr_fr);
+		frame_crc16_calc((uint8_t *)&long_dcr_fr);
 		// сохраняем сформированный кадр в расшаренную can-память
 		memcpy((uint8_t*)&lm_ptr->interface.tmi_data.dcr_frame, (uint8_t*)&long_dcr_fr, sizeof(long_dcr_fr));
 		// дополнительно заполняем память Декор кадрами
@@ -721,7 +720,7 @@ void fill_pl_iss_last_frame(type_LM_DEVICE* lm_ptr)
 	leng = pn_11_get_last_frame_in_128B_format(&lm_ptr->pl._11A, data);
 	if (leng) {
 		// формируем заголовок для кадра
-		frame_create_header((uint8_t*)&last_frame[PL11A-1].header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_PL11A_INT_DATA, lm_ptr->pl._dcr.rx_status_cnt, 0x00);
+		frame_create_header((uint8_t*)&last_frame[PL11A-1].header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_PL11A_INT_DATA, 0x00, 0x00); //todo: необходимо сделать номер кадра!
 		// сохраняем в сформированный кадр данные, полученные из модели ПН1.1
 		memcpy((uint8_t*)&last_frame[PL11A-1].data, data, 116);
 		//
@@ -738,7 +737,7 @@ void fill_pl_iss_last_frame(type_LM_DEVICE* lm_ptr)
 	leng = pn_11_get_last_frame_in_128B_format(&lm_ptr->pl._11B, data);
 	if (leng) {
 		// формируем заголовок для кадра
-		frame_create_header((uint8_t*)&last_frame[PL11B-1].header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_PL11B_INT_DATA, lm_ptr->pl._dcr.rx_status_cnt, 0x00);
+		frame_create_header((uint8_t*)&last_frame[PL11B-1].header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_PL11B_INT_DATA,0x00, 0x00); //todo: необходимо сделать номер кадра!
 		// сохраняем в сформированный кадр данные, полученные из модели ПН1.1
 		memcpy((uint8_t*)&last_frame[PL11B-1].data, data, 116);
 		//
@@ -748,6 +747,22 @@ void fill_pl_iss_last_frame(type_LM_DEVICE* lm_ptr)
 		memcpy((uint8_t*)&lm_ptr->interface.pl_iss_interface.InstaMessage[PL11B-1][0], data, 128);
 		// сохраняем сформированный кадр в расшаренную can-память
 		memcpy((uint8_t*)&lm_ptr->interface.tmi_data.pl11a_frame, (uint8_t*)&last_frame[PL11B-1], sizeof(type_PL_ISS_INT_data));
+	}
+	// pl1.2
+	memset((uint8_t*)&last_frame[PL12-1], 0x00, sizeof(type_PL_ISS_INT_data));
+	leng = pn_12_get_last_frame_in_128B_format(&lm_ptr->pl._12, data);
+	if (leng) {
+		// формируем заголовок для кадра
+		frame_create_header((uint8_t*)&last_frame[PL12-1].header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_PL11B_INT_DATA, 0x00, 0x00); //todo: необходимо сделать номер кадра!
+		// сохраняем в сформированный кадр данные, полученные из модели ПН1.1
+		memcpy((uint8_t*)&last_frame[PL12-1].data, data, 116);
+		//
+		frame_crc16_calc((uint8_t*)&last_frame[PL12-1]);
+		// сохраняем данные дополнительно в переменную с запросом
+		data[124] = 3;
+		memcpy((uint8_t*)&lm_ptr->interface.pl_iss_interface.InstaMessage[PL12-1][0], data, 128);
+		// сохраняем сформированный кадр в расшаренную can-память
+		memcpy((uint8_t*)&lm_ptr->interface.tmi_data.pl12_frame, (uint8_t*)&last_frame[PL12-1], sizeof(type_PL_ISS_INT_data));
 	}
 	//
 }

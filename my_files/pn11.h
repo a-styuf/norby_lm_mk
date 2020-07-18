@@ -63,8 +63,9 @@
 #define PN_11_READ_MEM_TIMEOUT_MS 	100
 
 // объем данных для полного вычитывания
-#define PN_11_MEM_ADDR_MODE       (APP_LVL_ADDR_OFFSET + 0x0)
-#define PN_11_MEM_ADDR_START_MEM  (APP_LVL_ADDR_OFFSET + 0x0)
+#define PN_11_APP_LVL_ADDR_OFFSET     0xB0000000
+#define PN_11_MEM_ADDR_MODE       (PN_11_APP_LVL_ADDR_OFFSET + 0x0)
+#define PN_11_MEM_ADDR_START_MEM  (PN_11_APP_LVL_ADDR_OFFSET + 0x0)
 
 // типы запретов работы ПН
 #define PN_11_INH_SELF 						(1 << 0)

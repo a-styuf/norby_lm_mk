@@ -60,6 +60,7 @@ void pn_12_reset_state(type_PN12_model* pn12_ptr)
 	//
 	_pn_12_error_collector(pn12_ptr, PN12_NO_ERROR, NULL);
 	pn_12_report_reset(pn12_ptr);
+	pn_12_interface_reset(pn12_ptr);
 	pn_12_output_set(pn12_ptr, PN12_OUTPUT_DEFAULT);
 	pn_12_pwr_off(pn12_ptr);
 	pn_12_set_inh(pn12_ptr, 0x00);
@@ -77,6 +78,7 @@ void pn_12_process(type_PN12_model* pn12_ptr, uint16_t period_ms)
 	//проверка питания
 	pn_12_tmp_process(pn12_ptr, period_ms);
 	// поддержка протокола общения
+	pn_12_interface_process(pn12_ptr, period_ms);
 }
 
 /**
@@ -336,8 +338,226 @@ void pn_12_interface_init(type_PN12_model* pn12_ptr, UART_HandleTypeDef* huart)
 	// инициализация уровня приложения и ниже
 	app_lvl_init(&pn12_ptr->interface, huart);
 	// инициализация параметров для последовательного чтения
+	pn_12_interface_reset(pn12_ptr);
 }
 
+/**
+  * @brief  старт последовательного вычитывания данных из памяти ПН
+  * @param  pn12_ptr: указатель на структуру управления полезной нагрузкой
+  */
+void pn_12_interface_reset(type_PN12_model* pn12_ptr)
+{
+	// инициализация уровня приложения и ниже
+	app_lvl_reset(&pn12_ptr->interface);
+	// инициализация параметров для последовательного чтения
+	pn12_ptr->rd_seq_start_addr = 0;
+	pn12_ptr->rd_seq_stop_addr = 0;
+	pn12_ptr->rd_seq_leng = 0;
+	pn12_ptr->rd_seq_mode = 0;
+	pn12_ptr->rd_seq_curr_addr = 0;
+	pn12_ptr->rd_seq_part_leng = 0;
+	// зачищаем память для хранения памяти ПН
+	memset((uint8_t*)&pn12_ptr->mem, 0x00, sizeof(type_PN_12_MEM));
+}
+
+
+/**
+  * @brief  синхронизация транспортного протокола
+  * @param  pn12_ptr: указатель на структуру управления ПН
+  */
+void pn_12_interface_synch(type_PN12_model* pn12_ptr)
+{
+	tr_lvl_synch(&pn12_ptr->interface.tr_lvl);
+}
+
+/**
+  * @brief  поддержка работы интерфейса к ПН
+  * @param  pn12_ptr: указатель на структуру управления ПН
+  * @param  period_ms: период, с которым вызавается данный обработчик
+  */
+void pn_12_interface_process(type_PN12_model* pn12_ptr, uint16_t period_ms)
+{
+	uint8_t leng;
+	type_APP_LVL_PCT rx_frame;
+	uint32_t mem_addr, mem_leng;
+	//поддрежка работы транспортного уровня
+  tr_lvl_process(&pn12_ptr->interface.tr_lvl, period_ms); //todo: доделать проверку ошибок из транспортного уровня
+  //поддрежка работы уровня приложения
+  app_lvl_process(&pn12_ptr->interface, period_ms); //todo: доделать проверку ошибок из уровня приложения
+  //поддержка работы с памятью ПН
+	if(pn12_ptr->rd_seq_mode == 0){
+			//
+	}
+	else if(pn12_ptr->rd_seq_mode == 1){
+		//поддержка периодичности провреки состояния чтения памяти ПН
+		if ((pn12_ptr->rd_seq_timeout > PN_12_READ_MEM_TIMEOUT_MS)){
+			// читаем старый запрос
+			leng = app_lvl_get_rx_frame(&pn12_ptr->interface, &rx_frame);
+			if (leng){
+				// #ifdef DEBUG
+				// 	printf("PN12: addr %08X, ctrl %08X, data %08X\n", rx_frame.addr, rx_frame.ctrl_byte, rx_frame.data[0]);
+				// #endif
+				mem_addr = (rx_frame.addr - PN_12_APP_LVL_ADDR_OFFSET) / 4; // на уровне приложения адрессация побайтова, а нам нужна по u32 (4-байта)
+				mem_leng = (rx_frame.ctrl_byte & 0x3F) + 1;
+				// проверяем корректность адреса и длины
+				if (((mem_addr + mem_leng)*4) <= sizeof(type_PN_12_MEM)){
+					memcpy((uint8_t*)&pn12_ptr->mem.data[mem_addr], (uint8_t*)&rx_frame.data[0], mem_leng*4);
+				}
+				else{ // вылазим за допустиму робласть данных
+					_pn_12_error_collector(pn12_ptr, PN12_INTERFACE_ERROR, NULL);
+					pn12_ptr->rd_seq_mode = 0;
+				}
+			}
+			else{
+				_pn_12_error_collector(pn12_ptr, PN12_INTERFACE_ERROR, NULL);
+			}
+			// делаем новый запрос на чтение данных
+			_pn_12_seq_read_request(pn12_ptr);
+			// перезапускаем таймаут
+			pn12_ptr->rd_seq_timeout = 0;
+		}
+		else{
+			pn12_ptr->rd_seq_timeout += period_ms;
+		}
+	}
+}
+
+/**
+  * @brief  старт последовательного вычитывания данных из памяти ПН
+  * @param  pn12_ptr: указатель на структуру управления полезной нагрузкой
+	* @param  start_addr: адрес для записи данных (байтовый адрес)
+	* @param  u32_leng: длина данных
+  */
+void pn_12_seq_read_start(type_PN12_model* pn12_ptr, uint32_t start_addr, uint32_t u32_leng)
+{
+	//записываем общие настройки чтения
+	pn12_ptr->rd_seq_start_addr = start_addr/4;
+	pn12_ptr->rd_seq_stop_addr = start_addr/4 + u32_leng;
+	pn12_ptr->rd_seq_leng = u32_leng;
+	pn12_ptr->rd_seq_mode = 1;
+	pn12_ptr->rd_seq_timeout = 0;
+	//чистим память под запрос
+	memset((uint8_t*)&pn12_ptr->mem.data, 0x00, u32_leng*4);
+	//делаем первый запрос в серии
+	pn12_ptr->rd_seq_curr_addr = pn12_ptr->rd_seq_start_addr;
+  _pn_12_seq_read_request(pn12_ptr);
+}
+
+/**
+  * @brief  старт последовательного вычитывания данных из памяти ПН
+  * @param  pn12_ptr: указатель на структуру управления полезной нагрузкой
+  */
+void _pn_12_seq_read_request(type_PN12_model* pn12_ptr)
+{
+		if ((pn12_ptr->rd_seq_stop_addr - pn12_ptr->rd_seq_curr_addr) > APP_LVL_MAX_U32_DATA){ //если данные не влезут в минимальный пакет - будем запрашивать максимально возможную длину
+			pn12_ptr->rd_seq_part_leng = APP_LVL_MAX_U32_DATA;
+		}
+		else{ // если влазят, запрашиваем все данные сразу
+			pn12_ptr->rd_seq_part_leng = (pn12_ptr->rd_seq_stop_addr - pn12_ptr->rd_seq_curr_addr);
+		}
+		//
+		if ((pn12_ptr->rd_seq_part_leng > 0) && (pn12_ptr->rd_seq_curr_addr < pn12_ptr->rd_seq_stop_addr)){
+			pn_12_read_req_u32_data(pn12_ptr, (pn12_ptr->rd_seq_curr_addr << 2), pn12_ptr->rd_seq_part_leng);
+			pn12_ptr->rd_seq_curr_addr += pn12_ptr->rd_seq_part_leng;
+			#ifdef DEBUG
+				printf("PN12: start_addr=%04X, stop_addr=%04X, curr_addr=%04X, curr_leng=%04X, leng=%04X\n", 
+																																			pn12_ptr->rd_seq_start_addr,
+																																			pn12_ptr->rd_seq_stop_addr,
+																																			pn12_ptr->rd_seq_curr_addr,
+																																			pn12_ptr->rd_seq_part_leng,
+																																			pn12_ptr->rd_seq_leng
+																																			);
+			#endif
+		}
+		else{
+			pn12_ptr->rd_seq_mode = 0;
+		}
+}
+
+/**
+  * @brief  получение последнего пакета принятого интерфейсом полезной
+  * @param  pn12_ptr: указатель на структуру управления полезной нагрузкой
+  * @retval >0 длина последнего принятого пакета, 0 - пакет уже прочитан, или нулевой длины
+  */
+uint8_t pn_12_get_last_frame(type_PN12_model* pn12_ptr, uint8_t *data)
+{
+	return app_lvl_get_last_rx_frame(&pn12_ptr->interface, data);
+}
+
+/**
+  * @brief  получение последнего пакета принятого интерфейсом полезной нагрузки, для выставления на подадрес CAN
+  * @param  pn12_ptr: указатель на структуру управления полезной нагрузкой
+  * @retval >0 длина последнего принятого пакета, 0 - пакет уже прочитан, или нулевой длины
+  */
+uint8_t pn_12_get_last_frame_in_128B_format(type_PN12_model* pn12_ptr, uint8_t *data)
+{
+	uint8_t leng = 0, u8_data[128]={0};
+	uint32_t u32_data[32]  = {0};
+	leng = app_lvl_get_last_rx_frame(&pn12_ptr->interface, u8_data);
+	if (leng){
+		for (uint8_t i=0; i<128/4; i++){
+			u32_data[i] = __REV(*(uint32_t*)&u8_data[4*i]);
+		}
+		memcpy(data, (uint8_t*)u32_data, 128);
+	}
+	return leng;
+}
+
+/**
+  * @brief  отправка запроса на чтение данных через app_lvl
+  * @param  pn12_ptr: указатель на структуру управления полезной нагрузкой
+	* @param  addr: адрес для записи данных
+	* @param  u32_len: длинна данных для записи в uint32_t словах
+  */
+void pn_12_read_req_u32_data(type_PN12_model* pn12_ptr, uint32_t addr, uint8_t u32_len)
+{
+	app_lvl_read_req(&pn12_ptr->interface, addr, u32_len);
+}
+
+/**
+  * @brief  запись данных через app_lvl
+  * @param  pn12_ptr: указатель на структуру управления полезной нагрузкой
+	* @param  addr: адрес для записи данных
+	* @param  data: указатель на структуру управления полезной нагрузкой
+	* @param  len: указатель на структуру управления полезной нагрузкой
+  */
+void pn_12_write_u32_data(type_PN12_model* pn12_ptr, uint32_t addr, uint32_t *u32_data, uint8_t u32_len)
+{
+	app_lvl_write(&pn12_ptr->interface, addr, u32_data, u32_len);
+}
+
+/**
+  * @brief  запись данных или запроса данных через app_lvl
+  * @param  pn12_ptr: указатель на структуру управления полезной нагрузкой
+	* @param  insta_send_data: данные (128Б) из переменной СФТ по следующему шаблону: 0-3 - адрес, 4-123 данные, 127 - ctrl_byte
+  */
+uint8_t pn_12_can_instasend(type_PN12_model* pn12_ptr, uint8_t* insta_send_data)
+{
+	uint8_t u32_len, mode;
+	uint32_t u32_data[APP_LVL_MAX_U32_DATA], addr;
+	//
+	u32_len = (insta_send_data[127] & 0x3F) + 1;
+	if (u32_len > APP_LVL_MAX_U32_DATA) u32_len = APP_LVL_MAX_U32_DATA;
+	for (uint8_t i=0; i < u32_len; i++){
+		u32_data[i] = __REV(*(uint32_t*)&insta_send_data[4+4*i]);  // 4 - сдвиг из-за адреса, 4*i - сдвиг указателя по 4 байта
+	}
+	//
+	addr = __REV(*(uint32_t*)&insta_send_data[0]);
+	//
+	mode = insta_send_data[127] >> 6;
+	//
+	switch(mode){
+		case APP_LVL_MODE_READ:
+			pn_12_read_req_u32_data(pn12_ptr, addr, u32_len);
+			insta_send_data[124] = 0x01;
+		break;
+		case APP_LVL_MODE_WRITE:
+			pn_12_write_u32_data(pn12_ptr, addr, u32_data, u32_len);
+			insta_send_data[124] = 0x01;
+		break;
+	}
+	return 0;
+}
 ///*** Cfg ***///
 /**
   * @brief  получение параметров работы прибора для сохранения в ПЗУ

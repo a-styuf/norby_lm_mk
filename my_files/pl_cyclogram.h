@@ -142,13 +142,19 @@ int8_t pl_pn11B_stop(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn11_A_B_write_mode(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn11_A_B_stop(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 
-// pl_1.2
+// pl1.2
 int8_t pl_pn12_pwr_on(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn12_pwr_off(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn12_set_iku_default(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn12_set_iku_test(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn12_set_iku_spi_on(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn12_set_iku_spi_off(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn12_check_and_save_tmi(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn12_read_req_all(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn12_read_all(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn12_stop(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 
+// pl2.0
 int8_t pl_pn20_pwr_on(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn20_pwr_off(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn20_set_iku_default(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
