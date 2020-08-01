@@ -92,7 +92,7 @@ void blocking_test(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+ 
   /* USER CODE END 1 */
   
 
@@ -151,6 +151,7 @@ int main(void)
   HAL_UART_Receive_IT(lm.pl._11A.interface.tr_lvl.huart, lm.pl._11A.interface.tr_lvl.rx_data, 1);
   HAL_UART_Receive_IT(lm.pl._11B.interface.tr_lvl.huart, lm.pl._11B.interface.tr_lvl.rx_data, 1);
   HAL_UART_Receive_IT(lm.pl._12.interface.tr_lvl.huart, lm.pl._12.interface.tr_lvl.rx_data, 1);
+  HAL_UART_Receive_IT(lm.pl._20.interface.huart, lm.pl._20.interface.rx_data, 1);
   //
   __HAL_DBGMCU_FREEZE_IWDG();
   /* USER CODE END 2 */
@@ -204,6 +205,7 @@ int main(void)
 			pn_11_process(&lm.pl._11A, 5);
       pn_11_process(&lm.pl._11B, 5);
       pn_12_process(&lm.pl._12, 5);
+      pn_20_process(&lm.pl._20, 5);
 			//reset flag
 			time_slot_flag_5ms = 0;
 		}
@@ -384,7 +386,7 @@ int main(void)
         // NULL;
         break;
     }
-    //* обработка команды для интерфейса к ПН_ИСС *//
+    //* обработка команды для интерфейса к ПН_�?СС *//
     int16_val = pl_iss_inerface_check_to_process(&lm.interface);
     if (int16_val != CMD_NO_ONE) led_alt_setup(&con_state_led, LED_BLINK, 700, 150, 2800);
     switch(int16_val){
@@ -406,6 +408,7 @@ int main(void)
       case PL20_INTERFACE_INSTASEND_LENG_OFFSET:
         pl_iss_get_app_lvl_reprot(PL20, lm.interface.pl_iss_interface.InstaMessage[PL20-1], str);
         printf("%s", str);
+        pn_20_instasend(&lm.pl._20, lm.interface.pl_iss_interface.InstaMessage[PL20-1]);
         break;
       case CMD_NO_ONE:
       default:
@@ -576,7 +579,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart_req)
 		rx_uart_data(&lm.pl._12.interface.tr_lvl);
 	}
   if(huart_req == &huart3){ // PL2.0
-	//	rx_uart_data(&lm.pl._20.interface.huart);
+		pn_20_int_rx_huart_cb(&lm.pl._20);
 	}
 	if(huart_req == &huart6){ // PL_DCR
 		pn_dcr_uart_rx_prcs_cb(&lm.pl._dcr.uart);
@@ -595,7 +598,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart_req)
 		tr_lvl_set_timeout(&lm.pl._12.interface.tr_lvl);
 	}
   if(huart_req == &huart3){ // PL2.0
-	//	tr_lvl_set_timeout(&lm.pl._20.interface.tr_lvl, 1);
+	  pn_20_int_tx_prcs_cb(&lm.pl._20);
 	}
 	if(huart_req == &huart6){ // PL_DCR
 		pn_dcr_uart_tx_prcs_cb(&lm.pl._dcr.uart);
@@ -606,6 +609,9 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart_req)
 {
   if(huart_req == &huart6){ // PL_DCR
 		pn_dcr_uart_err_prcs_cb(&lm.pl._dcr.uart);
+	}
+  if(huart_req == &huart6){ // PL2.0
+		pn_20_int_err_prcs_cb(&lm.pl._20);
 	}
 }
 

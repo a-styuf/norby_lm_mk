@@ -157,7 +157,23 @@ int8_t pl_pn12_stop(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 // pl2.0
 int8_t pl_pn20_pwr_on(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn20_pwr_off(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
-int8_t pl_pn20_set_iku_default(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn20_check_and_save_tmi(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn20_set_iku_default(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn20_set_iku_pl_on(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn20_read_sw_tmi_1(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn20_read_sw_tmi_2(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn20_tas_start_1(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn20_tas_read_1(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn20_tas_start_2(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn20_tas_read_2(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn20_tas_start_3(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn20_tas_read_3(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn20_sd_start_1(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn20_sd_read_1(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn20_sd_start_2(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn20_sd_read_2(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn20_sd_start_3(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn20_sd_read_3(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn20_write_result(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn20_stop(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 #endif

@@ -501,7 +501,7 @@ int8_t tmp_init(type_TMP_CONTROL* tmp_ptr, I2C_HandleTypeDef* hi2c_ptr)
 	// 3 - ПН1.2
 	report += tmp1075_init(&tmp_ptr->tmp1075[3], hi2c_ptr, 0x4A); 
 	// 4 - ПН2.0
-	report += tmp1075_init(&tmp_ptr->tmp1075[4], hi2c_ptr, 0x40); 
+	report += tmp1075_init(&tmp_ptr->tmp1075[4], hi2c_ptr, 0x48); 
 	return report;
 }
 
@@ -764,6 +764,23 @@ void fill_pl_iss_last_frame(type_LM_DEVICE* lm_ptr)
 		// сохраняем сформированный кадр в расшаренную can-память
 		memcpy((uint8_t*)&lm_ptr->interface.tmi_data.pl12_frame, (uint8_t*)&last_frame[PL12-1], sizeof(type_PL_ISS_INT_data));
 	}
+	// pl2.0
+	memset((uint8_t*)&last_frame[PL20-1], 0x00, sizeof(type_PL_ISS_INT_data));
+	leng = pn_20_int_get_last_data(&lm_ptr->pl._20, data);
+	if (leng) {
+		// формируем заголовок для кадра
+		frame_create_header((uint8_t*)&last_frame[PL20-1].header, DEV_ID, SINGLE_FRAME_TYPE, DATA_TYPE_PL20_INT_DATA, 0x00, 0x00); //todo: необходимо сделать номер кадра!
+		// сохраняем в сформированный кадр данные, полученные из модели ПН1.1
+		memcpy((uint8_t*)&last_frame[PL20-1].data, data, 116);
+		//
+		frame_crc16_calc((uint8_t*)&last_frame[PL12-1]);
+		// сохраняем данные дополнительно в переменную с запросом
+		data[124] = 3;
+		data[127] = leng & 0xFF;
+		memcpy((uint8_t*)&lm_ptr->interface.pl_iss_interface.InstaMessage[PL20-1][0], data, 128);
+		// сохраняем сформированный кадр в расшаренную can-память
+		memcpy((uint8_t*)&lm_ptr->interface.tmi_data.pl20_frame, (uint8_t*)&last_frame[PL20-1], sizeof(type_PL_ISS_INT_data));
+	}
 	//
 }
 
@@ -819,9 +836,20 @@ uint32_t get_uint32_val_from_bound(uint32_t val, uint32_t min, uint32_t max) //�
 void pl_iss_get_app_lvl_reprot(uint8_t pl_type, uint8_t *instasend_data, char *report_ctr)
 {
 	uint8_t ctrl_byte;
+	char b_data_str[128] = {0};
 	uint32_t addr;
 	char mode[4][8]={"0x00", "0x01", "rd", "wr"}, pl_name[8][8] = {"_", "1.1_A", "1.1_B", "1.2", "2.0"};
-	addr = __REV(*(uint32_t*)&instasend_data[0]);
-	ctrl_byte = instasend_data[124];
-	sprintf(report_ctr, "PL%s: mode %s, u32_len %d addr 0x%08X\n", pl_name[pl_type], mode[ctrl_byte>>6], (ctrl_byte&0x3F) + 1, addr);
+	if (pl_type == PL20){
+		for (uint8_t i=0; i<6; i++){
+			sprintf(b_data_str + 3*i, "%02X ", instasend_data[i]);
+		}
+		ctrl_byte = instasend_data[127];
+		sprintf(report_ctr, "PL%s: cmd 0x%02X, b_len %d, data %s\n", pl_name[pl_type], instasend_data[3], ctrl_byte, b_data_str);
+	}
+	else{
+		addr = __REV(*(uint32_t*)&instasend_data[0]);
+		ctrl_byte = instasend_data[127];
+		sprintf(report_ctr, "PL%s: mode %s, u32_len %d addr 0x%08X\n", pl_name[pl_type], mode[ctrl_byte>>6], (ctrl_byte&0x3F) + 1, addr);
+	}
+	
 }

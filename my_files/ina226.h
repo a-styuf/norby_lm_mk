@@ -66,7 +66,7 @@ typedef struct
 	uint16_t rx_data;
 	uint8_t rx_reg_addr;
 	uint8_t validate_data[16];
-	uint16_t voltage, current, power;
+	int16_t voltage, current, power;
 	uint8_t queue_state; 
 	uint8_t error_cnt;
 } type_INA226_DEVICE;

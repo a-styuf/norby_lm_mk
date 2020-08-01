@@ -94,25 +94,38 @@ int8_t cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t dev_id)
 	ccl_ptr->result.result_num = 0;
 	ccl_ptr->result.cyclogram_result_ready_flag = 0;
 	//
-	// Циклограмма 0: 0x00 - Тестовая
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, result_init, 100); 
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn12_check_and_save_tmi, 500); 		//s1
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn12_set_iku_default, 500); 				//s2
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn12_set_iku_test, 500); 					//s2
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn12_set_iku_spi_off, 500); 					//s2
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn12_check_and_save_tmi, 100);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn12_pwr_on, 1500);								//s3
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn12_check_and_save_tmi, 2000);		//s5
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn12_check_and_save_tmi, 580000);	//s8
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn12_check_and_save_tmi, 1000);		//s11
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn12_read_req_all, 5000);					//s12
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn12_read_all, 5000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn12_check_and_save_tmi, 1000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn12_pwr_off, 1500);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn12_check_and_save_tmi, 1000);
+	// Циклограмма 0: 0x04 - ПН2.0
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, result_init, 100);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_set_iku_default, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_pwr_on, 6000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_check_and_save_tmi, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_set_iku_pl_on, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_read_sw_tmi_1, 5000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_tas_start_1, 16000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_check_and_save_tmi, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_tas_read_1, 3000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_tas_start_2, 16000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_check_and_save_tmi, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_tas_read_2, 3000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_tas_start_3, 16000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_check_and_save_tmi, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_tas_read_3, 3000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_sd_start_1, 16000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_check_and_save_tmi, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_sd_read_1, 3000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_sd_start_2, 16000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_check_and_save_tmi, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_sd_read_2, 3000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_sd_start_3, 16000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_check_and_save_tmi, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_sd_read_3, 3000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_read_sw_tmi_2, 5000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_pwr_off, 6000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_check_and_save_tmi, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_write_result, 1000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 0, result_finish, 100);
 	//
-	cyclogram_stop_step_init(ccl_ptr, pl_ptr, 0, pl_pn12_stop, 1000);
+	cyclogram_stop_step_init(ccl_ptr, pl_ptr, 0, pl_pn20_stop, 1000);
 	
 	// Циклограмма 1: 0x01 - ПН1.1A
 	cyclogram_step_init(ccl_ptr, pl_ptr, 1, result_init, 100);
@@ -161,31 +174,53 @@ int8_t cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t dev_id)
 	cyclogram_stop_step_init(ccl_ptr, pl_ptr, 2, pl_pn11B_stop, 1000);
 
 	// Циклограмма 3: 0x03 - ПН1.2
-	cyclogram_step_init(ccl_ptr, pl_ptr, 3, result_init, 100);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_check_and_save_tmi, 500);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_set_iku_default, 500);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_pwr_on, 6000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 3, result_init, 100); 
+	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_check_and_save_tmi, 500); 		//s1
+	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_set_iku_default, 1000); 			//s2
+	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_check_and_save_tmi, 100);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_pwr_on, 2000);								//s3
+	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_check_and_save_tmi, 1000);		//s5
+	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_check_and_save_tmi, 1000);		//s5
+	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_check_and_save_tmi, 580000);	//s8
+	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_check_and_save_tmi, 1000);		//s11
+	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_read_req_all, 5000);					//s12
+	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_read_all, 5000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_check_and_save_tmi, 1000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_set_iku_spi_on, 1000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_set_iku_spi_off, 1000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_check_and_save_tmi, 580000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_read_req_all, 5000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_read_all, 1000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_check_and_save_tmi, 1000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_pwr_off, 6000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_pwr_off, 2000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_check_and_save_tmi, 1000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 3, result_finish, 100);
 	//
 	cyclogram_stop_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_stop, 1000);
-
+	
 	// Циклограмма 4: 0x04 - ПН2.0
 	cyclogram_step_init(ccl_ptr, pl_ptr, 4, result_init, 100);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_set_iku_default, 1000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_check_and_save_tmi, 1000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_pwr_on, 6000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_check_and_save_tmi, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_set_iku_pl_on, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_read_sw_tmi_1, 5000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_tas_start_1, 16000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_check_and_save_tmi, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_tas_read_1, 3000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_tas_start_2, 16000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_check_and_save_tmi, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_tas_read_2, 3000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_tas_start_3, 16000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_check_and_save_tmi, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_tas_read_3, 3000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_sd_start_1, 16000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_check_and_save_tmi, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_sd_read_1, 3000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_sd_start_2, 16000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_check_and_save_tmi, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_sd_read_2, 3000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_sd_start_3, 16000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_check_and_save_tmi, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_sd_read_3, 3000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_read_sw_tmi_2, 5000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_pwr_off, 6000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_check_and_save_tmi, 1000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_write_result, 1000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 4, result_finish, 100);
 	//
 	cyclogram_stop_step_init(ccl_ptr, pl_ptr, 4, pl_pn20_stop, 1000);
@@ -1144,7 +1179,7 @@ int8_t pl_pn20_check_and_save_tmi(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl
 
 int8_t pl_pn20_set_iku_default(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
 {
-	pn_20_output_set(&pl_ptr->_20, 0x0f);
+	pn_20_output_set(&pl_ptr->_20, PN20_OUTPUT_DEFAULT);
 	//
 	#ifdef DEBUG
 		printf_time();
@@ -1154,8 +1189,199 @@ int8_t pl_pn20_set_iku_default(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_pt
 	return 0;
 }
 
+int8_t pl_pn20_set_iku_pl_on(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
+{
+	pn_20_output_set(&pl_ptr->_20, PN20_PL_ON);
+	//
+	#ifdef DEBUG
+		printf_time();
+		printf("--PL20 output set RST On\n");
+	#endif
+	//
+	return 0;
+}
+
+int8_t pl_pn20_read_sw_tmi_1(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
+{
+	pn_20_comm_queue_start(&pl_ptr->_20, pl_ptr->_20.interface.sw_tmi_comm, PN_20_SW_TEST_U16_LENG, pl_ptr->_20.mem.sw_tmi_start, 300);
+	//
+	#ifdef DEBUG
+		printf_time();
+		printf("--PL20 sw_tmi start\n");
+	#endif
+	//
+	return 0;
+}
+
+int8_t pl_pn20_read_sw_tmi_2(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
+{
+	pn_20_comm_queue_start(&pl_ptr->_20, pl_ptr->_20.interface.sw_tmi_comm, PN_20_SW_TEST_U16_LENG, pl_ptr->_20.mem.sw_tmi_stop, 300);
+	//
+	#ifdef DEBUG
+		printf_time();
+		printf("--PL20 sw_tmi stop\n");
+	#endif
+	//
+	return 0;
+}
+
+int8_t pl_pn20_tas_start_1(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
+{
+	pn_20_comm_queue_start(&pl_ptr->_20, pl_ptr->_20.interface.tas_start_comm, PN_20_TAS_START_U16_LENG, pl_ptr->_20.mem.tas_start_1, 300);
+	//
+	#ifdef DEBUG
+		printf_time();
+		printf("--PL20 tas_start 1\n");
+	#endif
+	//
+	return 0;
+}
+
+int8_t pl_pn20_tas_read_1(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
+{
+	pn_20_comm_queue_start(&pl_ptr->_20, pl_ptr->_20.interface.tas_result_comm, PN_20_TAS_RESULT_U16_LENG, pl_ptr->_20.mem.tas_result_1, 300);
+	//
+	#ifdef DEBUG
+		printf_time();
+		printf("--PL20 tas_read 1\n");
+	#endif
+	//
+	return 0;
+}
+
+int8_t pl_pn20_tas_start_2(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
+{
+	pn_20_comm_queue_start(&pl_ptr->_20, pl_ptr->_20.interface.tas_start_comm, PN_20_TAS_START_U16_LENG, pl_ptr->_20.mem.tas_start_2, 300);
+	//
+	#ifdef DEBUG
+		printf_time();
+		printf("--PL20 tas_start 2\n");
+	#endif
+	//
+	return 0;
+}
+
+int8_t pl_pn20_tas_read_2(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
+{
+	pn_20_comm_queue_start(&pl_ptr->_20, pl_ptr->_20.interface.tas_result_comm, PN_20_TAS_RESULT_U16_LENG, pl_ptr->_20.mem.tas_result_2, 300);
+	//
+	#ifdef DEBUG
+		printf_time();
+		printf("--PL20 tas_read 2\n");
+	#endif
+	//
+	return 0;
+}
+
+int8_t pl_pn20_tas_start_3(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
+{
+	pn_20_comm_queue_start(&pl_ptr->_20, pl_ptr->_20.interface.tas_start_comm, PN_20_TAS_START_U16_LENG, pl_ptr->_20.mem.tas_start_3, 300);
+	//
+	#ifdef DEBUG
+		printf_time();
+		printf("--PL20 tas_start 3\n");
+	#endif
+	//
+	return 0;
+}
+
+int8_t pl_pn20_tas_read_3(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
+{
+	pn_20_comm_queue_start(&pl_ptr->_20, pl_ptr->_20.interface.tas_result_comm, PN_20_TAS_RESULT_U16_LENG, pl_ptr->_20.mem.tas_result_3, 300);
+	//
+	#ifdef DEBUG
+		printf_time();
+		printf("--PL20 tas_read 3\n");
+	#endif
+	//
+	return 0;
+}
+
+int8_t pl_pn20_sd_start_1(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
+{
+	pn_20_comm_queue_start(&pl_ptr->_20, pl_ptr->_20.interface.sd_start_comm, PN_20_SD_START_U16_LENG, pl_ptr->_20.mem.sd_start_1, 300);
+	//
+	#ifdef DEBUG
+		printf_time();
+		printf("--PL20 sd_start 1\n");
+	#endif
+	//
+	return 0;
+}
+
+int8_t pl_pn20_sd_read_1(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
+{
+	pn_20_comm_queue_start(&pl_ptr->_20, pl_ptr->_20.interface.sd_result_comm, PN_20_SD_RESULT_U16_LENG, pl_ptr->_20.mem.sd_result_1, 300);
+	//
+	#ifdef DEBUG
+		printf_time();
+		printf("--PL20 sd_read 1\n");
+	#endif
+	//
+	return 0;
+}
+
+int8_t pl_pn20_sd_start_2(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
+{
+	pn_20_comm_queue_start(&pl_ptr->_20, pl_ptr->_20.interface.sd_start_comm, PN_20_SD_START_U16_LENG, pl_ptr->_20.mem.sd_start_2, 300);
+	//
+	#ifdef DEBUG
+		printf_time();
+		printf("--PL20 sd_start 2\n");
+	#endif
+	//
+	return 0;
+}
+
+int8_t pl_pn20_sd_read_2(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
+{
+	pn_20_comm_queue_start(&pl_ptr->_20, pl_ptr->_20.interface.sd_result_comm, PN_20_SD_RESULT_U16_LENG, pl_ptr->_20.mem.sd_result_2, 300);
+	//
+	#ifdef DEBUG
+		printf_time();
+		printf("--PL20 sd_read 2\n");
+	#endif
+	//
+	return 0;
+}
+
+int8_t pl_pn20_sd_start_3(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
+{
+	pn_20_comm_queue_start(&pl_ptr->_20, pl_ptr->_20.interface.sd_start_comm, PN_20_SD_START_U16_LENG, pl_ptr->_20.mem.sd_start_3, 300);
+	//
+	#ifdef DEBUG
+		printf_time();
+		printf("--PL20 sd_start 3\n");
+	#endif
+	//
+	return 0;
+}
+
+int8_t pl_pn20_sd_read_3(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
+{
+	pn_20_comm_queue_start(&pl_ptr->_20, pl_ptr->_20.interface.sd_result_comm, PN_20_SD_RESULT_U16_LENG, pl_ptr->_20.mem.sd_result_3, 300);
+	//
+	#ifdef DEBUG
+		printf_time();
+		printf("--PL20 sd_read 3\n");
+	#endif
+	//
+	return 0;
+}
+
+int8_t pl_pn20_write_result(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
+{
+	result_row_data_write(result_ptr, pl_ptr, (uint8_t*)&pl_ptr->_20.mem, sizeof(type_PN20_Mem));
+	#ifdef DEBUG
+		printf_time();
+		printf("--PL20 write result\n");
+	#endif
+	return 0;
+}
+
 int8_t pl_pn20_stop(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
 {
+	pn_20_output_set(&pl_ptr->_20, PN20_OUTPUT_DEFAULT);
 	pn_20_pwr_off(&pl_ptr->_20);
 	result_emergency_stop(result_ptr, pl_ptr);
 	//debug

@@ -7,9 +7,9 @@
 #include "pn_11_interface_app_lvl.h"
 #include "debug.h"
 
-#define PN12_OUTPUT_DEFAULT 0x00
-#define PN12_OUTPUT_FPGA_SPI_SET 0x02
-#define PN12_OUTPUT_FPGA_SPI_RESET 0x00
+#define PN12_OUTPUT_DEFAULT 0x03
+#define PN12_OUTPUT_FPGA_SPI_SET 0x03
+#define PN12_OUTPUT_FPGA_SPI_RESET 0x01
 //
 #define PN12_TEMP_MAX (85<<8)
 #define PN12_TEMP_MIN (-30<<8)

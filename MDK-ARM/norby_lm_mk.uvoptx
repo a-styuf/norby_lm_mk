@@ -213,27 +213,7 @@
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>\\norby_lm_mk\../Src/main.c\lm.interface.tmi_data.cyclograma_result</ItemText>
-        </Ww>
-        <Ww>
-          <count>1</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>\\norby_lm_mk\../Src/main.c\lm.mem</ItemText>
-        </Ww>
-        <Ww>
-          <count>2</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>\\norby_lm_mk\../Src/main.c\lm.interface.tmi_data.tmi</ItemText>
-        </Ww>
-        <Ww>
-          <count>3</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>status_dcr_fr</ItemText>
-        </Ww>
-        <Ww>
-          <count>4</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>\\norby_lm_mk\../Src/main.c\lm.pl._dcr</ItemText>
+          <ItemText>\\norby_lm_mk\../Src/main.c\lm.pl._20</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -241,21 +221,6 @@
           <count>0</count>
           <WinNumber>2</WinNumber>
           <ItemText>lm</ItemText>
-        </Ww>
-        <Ww>
-          <count>1</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>mcu_state_led</ItemText>
-        </Ww>
-        <Ww>
-          <count>2</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>con_state_led</ItemText>
-        </Ww>
-        <Ww>
-          <count>3</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>status_dcr_fr</ItemText>
         </Ww>
       </WatchWindow2>
       <MemoryWindow1>

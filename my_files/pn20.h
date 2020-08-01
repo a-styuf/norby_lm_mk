@@ -9,10 +9,8 @@
 
 #include "rtc.h"
 
-#define PN20_OUTPUT_DEFAULT 0x00
-//
-#define PN20_TEMP_MAX (60<<8)
-#define PN20_TEMP_MIN (-50<<8)
+#define PN20_OUTPUT_DEFAULT 		0x00
+#define PN20_PL_ON 							0x01
 
 //Статусы работы
 #define PN20_STATUS_WORK		 		(0x01<<0)
@@ -33,17 +31,17 @@
 #define PN20_OTHER_ERROR 				(1<<15)
 
 // пороговые значения для определения ошибки температуры: в 1/256°C
-#define PN_20_TEMP_HIGH 	(80*256)
-#define PN_20_TEMP_LOW 		(-30*256)
-#define PN_20_TEMP_HYST		(1*256)
+#define PN_20_TEMP_HIGH 				(80*256)
+#define PN_20_TEMP_LOW 					(-30*256)
+#define PN_20_TEMP_HYST					(1*256)
 
 // пороговые значения для определения ошибки питания: напряжение в В, ток в А, мощность в Вт
 // пороги напряжения В	
-#define PN_20_VOLT_MAX 		5.5
-#define PN_20_VOLT_MIN 		4.5
+#define PN_20_VOLT_MAX 					5.5
+#define PN_20_VOLT_MIN 					4.5
 // границы мощности Вт
-#define PN_20_PWR_MAX 		15.0
-#define PN_20_PWR_MIN 		0.5
+#define PN_20_PWR_MAX 					15.0
+#define PN_20_PWR_MIN 					0.5
 
 // задержка для определения ошибки питания - устанавливается каждый раз, когда происходит изменение состояния питания
 #define PN_20_PWR_PERIODICAL_TIMEOUT_MS 	1000
@@ -53,12 +51,23 @@
 #define PN_20_TMP_PERIODICAL_TIMEOUT_MS 	1000
 
 // типы запретов работы ПН
-#define PN_20_INH_SELF 						(1 << 0)
-#define PN_20_INH_PWR							(1 << 1)
-#define PN_20_INH_TMP							(1 << 2)
+#define PN_20_INH_SELF 											(1 << 0)
+#define PN_20_INH_PWR												(1 << 1)
+#define PN_20_INH_TMP												(1 << 2)
 
-//
-#define PN_20_UART_TIMEOUT_MS				100
+// дефайны для переменных
+#define PN_20_UART_TIMEOUT_MS								250
+
+#define PN_20_UART_RX_STATUS_OK							1
+#define PN_20_UART_RX_STATUS_SHORT					0
+#define PN_20_UART_RX_STATUS_BAD_EOT_SOF		-1
+#define PN_20_UART_RX_STATUS_BAD_CRC				-2
+
+#define PN_20_SW_TEST_U16_LENG							10
+#define PN_20_TAS_START_U16_LENG						1
+#define PN_20_TAS_RESULT_U16_LENG						5
+#define PN_20_SD_START_U16_LENG							1
+#define PN_20_SD_RESULT_U16_LENG						5
 
 
 #pragma pack(2)
@@ -121,7 +130,28 @@ typedef union
 	struct {
 		uint8_t frame[6];
 	} array;
-} type_PN20_frame;
+} type_PN20_frame; //6
+
+/** 
+  * @brief  результаты чтения данных ПН20
+  */
+typedef struct
+{
+	uint16_t sw_tmi_start[PN_20_SW_TEST_U16_LENG];
+	uint16_t tas_start_1[PN_20_TAS_START_U16_LENG];
+	uint16_t tas_result_1[PN_20_TAS_RESULT_U16_LENG];
+	uint16_t tas_start_2[PN_20_TAS_START_U16_LENG];
+	uint16_t tas_result_2[PN_20_TAS_RESULT_U16_LENG];
+	uint16_t tas_start_3[PN_20_TAS_START_U16_LENG];
+	uint16_t tas_result_3[PN_20_TAS_RESULT_U16_LENG];
+	uint16_t sd_start_1[PN_20_SD_START_U16_LENG];
+	uint16_t sd_result_1[PN_20_SD_RESULT_U16_LENG];
+	uint16_t sd_start_2[PN_20_SD_START_U16_LENG];
+	uint16_t sd_result_2[PN_20_SD_RESULT_U16_LENG];
+	uint16_t sd_start_3[PN_20_SD_START_U16_LENG];
+	uint16_t sd_result_3[PN_20_SD_RESULT_U16_LENG];
+	uint16_t sw_tmi_stop[PN_20_SW_TEST_U16_LENG];	
+} type_PN20_Mem; //6
 
 /** 
   * @brief  структура хранения параметров информационного интерфейса
@@ -130,9 +160,22 @@ typedef struct
 {
 	UART_HandleTypeDef* huart;
 	uint8_t tx_data[256], tx_len, tx_cnt;
-	uint8_t rx_data[256], rx_buff[256], rx_len, rx_cnt, rx_ptr;
+	uint8_t rx_data[256], rx_len, rx_cnt, rx_ptr, rx_ptr_offset, row_rx_data[128], row_rx_len;
 	uint16_t rx_timeout;
+	uint8_t rx_timeout_flag, rx_data_ready;
 	type_PN20_frame rx_msg, tx_msg;
+	//управление очередью чтения
+	uint8_t sw_tmi_comm[PN_20_SW_TEST_U16_LENG];
+	uint8_t tas_start_comm[PN_20_TAS_START_U16_LENG];
+	uint8_t tas_result_comm[PN_20_TAS_RESULT_U16_LENG];
+	uint8_t sd_start_comm[PN_20_SD_START_U16_LENG];
+	uint8_t sd_result_comm[PN_20_SD_RESULT_U16_LENG];
+	uint8_t comm_queue_array[64], comm_queue_cnt, comm_queue_flg, comm_queue_leng;
+	uint16_t queue_interval_ms, queue_step_time_ms;
+	uint16_t *array_to_save;
+	uint16_t array_to_save_trash;
+	uint8_t array_to_save_index;
+	//
 	uint8_t error_flags;
 	uint8_t error_cnt;
 } type_PN20_interface;
@@ -155,6 +198,7 @@ typedef struct
 	uint8_t	inhibit; 	//флаги для запрета: 0 - включения ПН, 1 - отключения по питанию, 2 - отключению по температуре.
 	//
 	type_PN20_interface interface;
+	type_PN20_Mem mem;
 	//
 	type_PN20_report report;
 	type_PN20_TMI_slice tmi_slice;
@@ -192,11 +236,18 @@ void pn_20_tmp_process(type_PN20_model* pn20_ptr, uint16_t period_ms);
 uint8_t pn_20_tmp_check(type_PN20_model* pn20_ptr);
 
 void pn_20_int_init(type_PN20_model* pn20_ptr, UART_HandleTypeDef *uart_ptr);
-void pn_20_int_send(type_PN20_model* pn20_ptr, uint8_t* data, uint8_t len);
+void pn_20_interface_process(type_PN20_model* pn20_ptr, uint16_t period_ms);
+void pn_20_int_rx_ptr_reset(type_PN20_model* pn20_ptr);
 void pn_20_int_send_frame(type_PN20_model* pn20_ptr, uint8_t data_len, uint8_t data_hb, uint8_t data_lb);
+uint8_t pn_20_instasend(type_PN20_model* pn20_ptr, uint8_t* insta_send_data);
+void pn_20_send_start_tas_test(type_PN20_model* pn20_ptr);
+void pn_20_send_start_sd_test(type_PN20_model* pn20_ptr);
+void pn_20_comm_queue_start(type_PN20_model* pn20_ptr, uint8_t* comm_queue, uint8_t comm_queue_leng, uint16_t* mem_to_save, uint16_t interval_ms);
+void pn_20_comm_queue_process(type_PN20_model* pn20_ptr, uint16_t pause_ms);
 void pn_20_int_rx_huart_cb(type_PN20_model* pn20_ptr);
 void pn_20_int_rx_timeout_cb(type_PN20_model* pn20_ptr, uint16_t period_ms);
-void pn_20_int_check_frame(type_PN20_model* pn20_ptr, uint8_t data, uint8_t len);
+int8_t pn_20_int_check_frame(type_PN20_model* pn20_ptr, uint8_t* data, uint8_t len);
+int8_t pn_20_int_get_last_data(type_PN20_model* pn20_ptr, uint8_t* data);
 void pn_20_int_tx_prcs_cb(type_PN20_model* pn20_ptr);
 void pn_20_int_err_prcs_cb(type_PN20_model* pn20_ptr);
 
