@@ -215,6 +215,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>\\norby_lm_mk\../Src/main.c\lm.pl._20</ItemText>
         </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>\\norby_lm_mk\../Src/main.c\lm.pwr.ch[4]</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>

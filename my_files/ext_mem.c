@@ -202,8 +202,8 @@ int32_t ext_mem_rd_param(type_MEM_CONTROL* mem_ptr, uint8_t *param)
   for(uint8_t num=0; num < CY15B104_MEM_NUM; num++){
     ext_mem_any_read(mem_ptr, num*SINGLE_MEM_VOL_FRAMES, buff);
     memcpy(param, buff, 128);
-		crc16 = norby_crc16_calc(param, 128);
-    if(crc16 == 0){
+		crc16 = norby_crc16_calc(param, 126);
+    if(crc16 == *(uint16_t*)&param[126]){
       return 1;
     }
   }

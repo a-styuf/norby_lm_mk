@@ -14,7 +14,7 @@ uint16_t crc16_ccitt(uint8_t *buf, uint8_t len);
 unsigned char reverse_byte(unsigned char x);
 uint8_t crc8_rmap_data(uint8_t* data, uint8_t len);
 uint8_t crc8_rmap_header(uint8_t* data, uint8_t len);
-uint16_t norby_crc16_calc(uint8_t *buf, uint8_t len);
+uint16_t norby_crc16_calc(uint8_t *buffer, uint16_t len);
 uint8_t сrc8_calc_for_pn_20(uint8_t *data, uint8_t len);
 
 #endif
