@@ -3,7 +3,7 @@
 <title>Static Call Graph - [norby_lm_mk\norby_lm_mk.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image norby_lm_mk\norby_lm_mk.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Mon Aug 03 19:09:31 2020
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Tue Aug 04 12:56:01 2020
 <BR><P>
 <H3>Maximum Stack Usage =       1088 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1037,11 +1037,11 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[17e]"></a>HAL_DMA_Abort_IT</STRONG> (Thumb, 40 bytes, Stack size 0 bytes, stm32f4xx_hal_dma.o(i.HAL_DMA_Abort_IT))
-<BR><BR>[Called By]<UL><LI><a href="#[198]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_AbortReceive_IT
+<BR><BR>[Called By]<UL><LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_Slave_STOPF
+<LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_ITError
+<LI><a href="#[198]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_AbortReceive_IT
 <LI><a href="#[19d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_IRQHandler
 <LI><a href="#[17d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_IRQHandler
-<LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_Slave_STOPF
-<LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_ITError
 </UL>
 
 <P><STRONG><a name="[1b6]"></a>HAL_DMA_GetState</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, stm32f4xx_hal_dma.o(i.HAL_DMA_GetState))
@@ -1116,6 +1116,11 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
 <LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_Master_Transmit
 <LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_Master_Receive
+<LI><a href="#[11e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnTXEFlagUntilTimeout
+<LI><a href="#[11b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnRXNEFlagUntilTimeout
+<LI><a href="#[1b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnMasterAddressFlagUntilTimeout
+<LI><a href="#[119]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnFlagUntilTimeout
+<LI><a href="#[11f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnBTFFlagUntilTimeout
 <LI><a href="#[184]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_TransmitReceive
 <LI><a href="#[182]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_Transmit
 <LI><a href="#[f5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Init
@@ -1123,11 +1128,6 @@ Global Symbols
 <LI><a href="#[172]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_OscConfig
 <LI><a href="#[16f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_ClockConfig
 <LI><a href="#[16e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCCEx_PeriphCLKConfig
-<LI><a href="#[11e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnTXEFlagUntilTimeout
-<LI><a href="#[11b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnRXNEFlagUntilTimeout
-<LI><a href="#[1b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnMasterAddressFlagUntilTimeout
-<LI><a href="#[119]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnFlagUntilTimeout
-<LI><a href="#[11f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnBTFFlagUntilTimeout
 <LI><a href="#[1d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SPI_WaitFlagStateUntilTimeout
 <LI><a href="#[178]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_EnterInitMode
 <LI><a href="#[179]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_WaitForSynchro
@@ -1223,10 +1223,10 @@ Global Symbols
 <P><STRONG><a name="[118]"></a>HAL_I2C_Master_Receive</STRONG> (Thumb, 748 bytes, Stack size 32 bytes, stm32f4xx_hal_i2c.o(i.HAL_I2C_Master_Receive))
 <BR><BR>[Stack]<UL><LI>Max Depth = 88<LI>Call Chain = HAL_I2C_Master_Receive &rArr; I2C_MasterRequestRead &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
 </UL>
-<BR>[Calls]<UL><LI><a href="#[f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
-<LI><a href="#[11b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnRXNEFlagUntilTimeout
+<BR>[Calls]<UL><LI><a href="#[11b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnRXNEFlagUntilTimeout
 <LI><a href="#[119]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnFlagUntilTimeout
 <LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_MasterRequestRead
+<LI><a href="#[f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
 </UL>
 <BR>[Called By]<UL><LI><a href="#[277]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ina226_init
 <LI><a href="#[327]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp1075_init
@@ -1242,11 +1242,11 @@ Global Symbols
 <P><STRONG><a name="[11c]"></a>HAL_I2C_Master_Transmit</STRONG> (Thumb, 360 bytes, Stack size 32 bytes, stm32f4xx_hal_i2c.o(i.HAL_I2C_Master_Transmit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 88<LI>Call Chain = HAL_I2C_Master_Transmit &rArr; I2C_MasterRequestWrite &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
 </UL>
-<BR>[Calls]<UL><LI><a href="#[f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
-<LI><a href="#[11e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnTXEFlagUntilTimeout
+<BR>[Calls]<UL><LI><a href="#[11e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnTXEFlagUntilTimeout
 <LI><a href="#[119]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnFlagUntilTimeout
 <LI><a href="#[11f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnBTFFlagUntilTimeout
 <LI><a href="#[11d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_MasterRequestWrite
+<LI><a href="#[f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
 </UL>
 <BR>[Called By]<UL><LI><a href="#[277]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ina226_init
 <LI><a href="#[327]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp1075_init
@@ -1309,9 +1309,9 @@ Global Symbols
 <P><STRONG><a name="[125]"></a>HAL_Init</STRONG> (Thumb, 54 bytes, Stack size 8 bytes, stm32f4xx_hal.o(i.HAL_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = HAL_Init &rArr; HAL_InitTick &rArr; HAL_NVIC_SetPriority &rArr; __NVIC_SetPriority
 </UL>
-<BR>[Calls]<UL><LI><a href="#[128]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_MspInit
+<BR>[Calls]<UL><LI><a href="#[126]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_NVIC_SetPriorityGrouping
+<LI><a href="#[128]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_MspInit
 <LI><a href="#[127]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_InitTick
-<LI><a href="#[126]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_NVIC_SetPriorityGrouping
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -1319,8 +1319,8 @@ Global Symbols
 <P><STRONG><a name="[127]"></a>HAL_InitTick</STRONG> (Thumb, 64 bytes, Stack size 16 bytes, stm32f4xx_hal.o(i.HAL_InitTick))
 <BR><BR>[Stack]<UL><LI>Max Depth = 64<LI>Call Chain = HAL_InitTick &rArr; HAL_NVIC_SetPriority &rArr; __NVIC_SetPriority
 </UL>
-<BR>[Calls]<UL><LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_NVIC_SetPriority
-<LI><a href="#[129]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SYSTICK_Config
+<BR>[Calls]<UL><LI><a href="#[129]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SYSTICK_Config
+<LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_NVIC_SetPriority
 </UL>
 <BR>[Called By]<UL><LI><a href="#[16f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_ClockConfig
 <LI><a href="#[125]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Init
@@ -6741,8 +6741,8 @@ Local Symbols
 <P><STRONG><a name="[12b]"></a>__NVIC_SetPriority</STRONG> (Thumb, 32 bytes, Stack size 8 bytes, stm32f4xx_hal_cortex.o(i.__NVIC_SetPriority))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = __NVIC_SetPriority
 </UL>
-<BR>[Called By]<UL><LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_NVIC_SetPriority
-<LI><a href="#[129]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SYSTICK_Config
+<BR>[Called By]<UL><LI><a href="#[129]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SYSTICK_Config
+<LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_NVIC_SetPriority
 </UL>
 
 <P><STRONG><a name="[102]"></a>I2C_ConvertOtherXferOptions</STRONG> (Thumb, 28 bytes, Stack size 0 bytes, stm32f4xx_hal_i2c.o(i.I2C_ConvertOtherXferOptions))
@@ -6766,8 +6766,8 @@ Local Symbols
 <LI><a href="#[1ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_ListenCpltCallback
 <LI><a href="#[1ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_AbortCpltCallback
 </UL>
-<BR>[Called By]<UL><LI><a href="#[fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_ER_IRQHandler
-<LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_Slave_STOPF
+<BR>[Called By]<UL><LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_Slave_STOPF
+<LI><a href="#[fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_ER_IRQHandler
 </UL>
 
 <P><STRONG><a name="[1b7]"></a>I2C_IsAcknowledgeFailed</STRONG> (Thumb, 62 bytes, Stack size 0 bytes, stm32f4xx_hal_i2c.o(i.I2C_IsAcknowledgeFailed))
@@ -6814,8 +6814,8 @@ Local Symbols
 <P><STRONG><a name="[107]"></a>I2C_MasterTransmit_BTF</STRONG> (Thumb, 176 bytes, Stack size 16 bytes, stm32f4xx_hal_i2c.o(i.I2C_MasterTransmit_BTF))
 <BR><BR>[Stack]<UL><LI>Max Depth = 184<LI>Call Chain = I2C_MasterTransmit_BTF &rArr; HAL_I2C_MasterTxCpltCallback &rArr; pwr_cb_it_process &rArr; ina226_body_read_queue &rArr; ina226_read_data_process &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[117]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_MasterTxCpltCallback
-<LI><a href="#[1b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_MemoryTransmit_TXE_BTF
+<BR>[Calls]<UL><LI><a href="#[1b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_MemoryTransmit_TXE_BTF
+<LI><a href="#[117]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_MasterTxCpltCallback
 <LI><a href="#[1b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_MemTxCpltCallback
 </UL>
 <BR>[Called By]<UL><LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_EV_IRQHandler
@@ -6824,8 +6824,8 @@ Local Symbols
 <P><STRONG><a name="[106]"></a>I2C_MasterTransmit_TXE</STRONG> (Thumb, 216 bytes, Stack size 24 bytes, stm32f4xx_hal_i2c.o(i.I2C_MasterTransmit_TXE))
 <BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = I2C_MasterTransmit_TXE &rArr; HAL_I2C_MasterTxCpltCallback &rArr; pwr_cb_it_process &rArr; ina226_body_read_queue &rArr; ina226_read_data_process &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[117]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_MasterTxCpltCallback
-<LI><a href="#[1b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_MemoryTransmit_TXE_BTF
+<BR>[Calls]<UL><LI><a href="#[1b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_MemoryTransmit_TXE_BTF
+<LI><a href="#[117]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_MasterTxCpltCallback
 <LI><a href="#[1b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_MemTxCpltCallback
 </UL>
 <BR>[Called By]<UL><LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_EV_IRQHandler
@@ -6894,9 +6894,9 @@ Local Symbols
 <P><STRONG><a name="[10b]"></a>I2C_Slave_STOPF</STRONG> (Thumb, 386 bytes, Stack size 16 bytes, stm32f4xx_hal_i2c.o(i.I2C_Slave_STOPF))
 <BR><BR>[Stack]<UL><LI>Max Depth = 200<LI>Call Chain = I2C_Slave_STOPF &rArr; I2C_ITError &rArr; HAL_I2C_ErrorCallback &rArr; pwr_cb_it_process &rArr; ina226_body_read_queue &rArr; ina226_read_data_process &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_GetState
+<BR>[Calls]<UL><LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_ITError
+<LI><a href="#[1b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_GetState
 <LI><a href="#[17e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort_IT
-<LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_ITError
 <LI><a href="#[1b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_SlaveRxCpltCallback
 <LI><a href="#[1ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_ListenCpltCallback
 </UL>
@@ -6906,8 +6906,8 @@ Local Symbols
 <P><STRONG><a name="[11f]"></a>I2C_WaitOnBTFFlagUntilTimeout</STRONG> (Thumb, 92 bytes, Stack size 16 bytes, stm32f4xx_hal_i2c.o(i.I2C_WaitOnBTFFlagUntilTimeout))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = I2C_WaitOnBTFFlagUntilTimeout
 </UL>
-<BR>[Calls]<UL><LI><a href="#[f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
-<LI><a href="#[1b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_IsAcknowledgeFailed
+<BR>[Calls]<UL><LI><a href="#[1b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_IsAcknowledgeFailed
+<LI><a href="#[f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
 </UL>
 <BR>[Called By]<UL><LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_Master_Transmit
 </UL>
@@ -6943,8 +6943,8 @@ Local Symbols
 <P><STRONG><a name="[11e]"></a>I2C_WaitOnTXEFlagUntilTimeout</STRONG> (Thumb, 92 bytes, Stack size 16 bytes, stm32f4xx_hal_i2c.o(i.I2C_WaitOnTXEFlagUntilTimeout))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = I2C_WaitOnTXEFlagUntilTimeout
 </UL>
-<BR>[Calls]<UL><LI><a href="#[f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
-<LI><a href="#[1b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_IsAcknowledgeFailed
+<BR>[Calls]<UL><LI><a href="#[1b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_IsAcknowledgeFailed
+<LI><a href="#[f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
 </UL>
 <BR>[Called By]<UL><LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_Master_Transmit
 </UL>
