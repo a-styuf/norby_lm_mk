@@ -96,7 +96,7 @@ void pn_20_tmi_slice_create(type_PN20_model* pn20_ptr)
 	pn20_ptr->tmi_slice.outputs 			= pn_20_get_outputs_state(pn20_ptr);
 	pn20_ptr->tmi_slice.inputs 				= pn_20_get_inputs_state(pn20_ptr);
 	pn20_ptr->tmi_slice.temp 					= (pn20_ptr->tmp_ch->temp >> 8) & 0xFF;
-	pn20_ptr->tmi_slice.pl_error_cnt 	= (pn20_ptr->error_cnt >> 8) & 0xFF;
+	pn20_ptr->tmi_slice.pl_error_cnt 	= pn20_ptr->error_cnt;
 	pn20_ptr->tmi_slice.pl_errors 		= pn20_ptr->error_flags;
 	pn20_ptr->tmi_slice.pl_status 		= pn20_ptr->status;
 }

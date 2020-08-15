@@ -47,7 +47,7 @@
 
 // задержка для определения ошибки питания - устанавливается каждый раз, когда происходит изменение состояния питания
 #define PN_12_PWR_PERIODICAL_TIMEOUT_MS 	1000
-#define PN_12_PWR_ON_OFF_TIMEOUT_MS 			5000
+#define PN_12_PWR_ON_OFF_TIMEOUT_MS 			6000
 
 // задержка для для проверок температуры, что бы не долбить модуль температуры очень часто
 #define PN_12_TMP_PERIODICAL_TIMEOUT_MS 	1000

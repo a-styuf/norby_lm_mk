@@ -116,7 +116,7 @@ void pn_11_tmi_slice_create(type_PN11_model* pn11_ptr)
 	pn11_ptr->tmi_slice.outputs 			= pn_11_get_outputs_state(pn11_ptr);
 	pn11_ptr->tmi_slice.inputs 				= pn_11_get_inputs_state(pn11_ptr);
 	pn11_ptr->tmi_slice.temp 					= (pn11_ptr->tmp_ch->temp >> 8) & 0xFF;
-	pn11_ptr->tmi_slice.pl_error_cnt 	= (pn11_ptr->error_cnt >> 8) & 0xFF;
+	pn11_ptr->tmi_slice.pl_error_cnt 	= pn11_ptr->error_cnt;
 	pn11_ptr->tmi_slice.pl_errors 		= pn11_ptr->error_flags;
 	pn11_ptr->tmi_slice.pl_status 		= pn11_ptr->status;
 }

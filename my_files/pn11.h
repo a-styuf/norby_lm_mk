@@ -28,10 +28,10 @@
 
 //Ошибки работы
 #define PN11_NO_ERROR			 		(0)
-#define PN11_CPU_ERROR 				(1<<0)
-#define PN11_FPGA_ERROR 			(1<<1)
-#define PN11_INT_ERROR	 			(1<<2)
-#define PN11_NU_ERROR		 			(1<<3)
+#define PN11_CPU_ERROR 				(1<<0) // NU
+#define PN11_FPGA_ERROR 			(1<<1) // NU
+#define PN11_INT_ERROR	 			(1<<2) // NU
+#define PN11_NU_ERROR		 			(1<<3) // NU
 #define PN11_ERR_PWR					(1<<4) //длина 4 бита
 #define PN11_TEMP_ERROR		 		(1<<8) //длина 4 бита
 #define PN11_INTERFACE_ERROR	(1<<12)

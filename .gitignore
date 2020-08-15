@@ -55,6 +55,7 @@ dkms.conf
 .vscode/cquery_cached_index/*
 !*.uvprojx
 /MDK-ARM/*
+!/MDK-ARM/norby_lm_mk/*.hex
 *.crf
 *.bin
 

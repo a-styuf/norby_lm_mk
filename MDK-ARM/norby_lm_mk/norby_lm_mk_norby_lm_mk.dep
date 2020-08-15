@@ -99,7 +99,7 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h)(0x5E29AD89)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h)(0x5E29AD8A)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h)(0x5E29AD89)
 F (..\my_files\lm.c)(0x5F202DDC)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\my_files -I ..\aa_can-ID:\YandexDisk\Work\Microcontrolers\STM32\Projects\norby_lm_mk\MDK-ARM\RTE\_norby_lm_mk-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F405xx -DUSE_HAL_DRIVER -DSTM32F405xx-o norby_lm_mk\lm.o --omf_browse norby_lm_mk\lm.crf --depend norby_lm_mk\lm.d)
-I (..\my_files\lm.h)(0x5F28F869)
+I (..\my_files\lm.h)(0x5F37908F)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x57F614C8)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x57F614C8)
 I (..\my_files\my_gpio.h)(0x5E33FA3C)
@@ -150,17 +150,17 @@ I (..\my_files\crc16.h)(0x5F27F2D4)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x57F614C8)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x57F614C6)
 I (..\my_files\tmp1075.h)(0x5ECE548A)
-I (..\my_files\pn11.h)(0x5F071F6A)
+I (..\my_files\pn11.h)(0x5F320678)
 I (..\my_files\pwr_ch.h)(0x5EC1FF78)
 I (..\my_files\ina226.h)(0x5F250710)
-I (..\my_files\debug.h)(0x5EBB932B)
+I (..\my_files\debug.h)(0x5F37A615)
 I (..\my_files\pn_11_interface_app_lvl.h)(0x5F0713BC)
 I (../Inc/usart.h)(0x5F195517)
 I (..\my_files\pn_11_interface_tr_lvl.h)(0x5EBB9338)
-I (..\my_files\pn12.h)(0x5F15432F)
+I (..\my_files\pn12.h)(0x5F37A603)
 I (..\my_files\pn20.h)(0x5F22D42B)
-I (..\my_files\pl_cyclogram.h)(0x5F22D212)
-I (..\my_files\pn_dcr.h)(0x5F0713BC)
+I (..\my_files\pl_cyclogram.h)(0x5F3217D1)
+I (..\my_files\pn_dcr.h)(0x5F37951D)
 I (..\my_files\ext_mem.h)(0x5F05CE5F)
 I (..\my_files\cy15b104qn_spi.h)(0x5ED79119)
 I (../Inc/spi.h)(0x5F195516)
@@ -260,7 +260,7 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h)(0x5E29AD89)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h)(0x5E29AD8A)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h)(0x5E29AD89)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x57F614C8)
-I (..\my_files\debug.h)(0x5EBB932B)
+I (..\my_files\debug.h)(0x5F37A615)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x57F614C8)
 I (../Inc/rtc.h)(0x5F195516)
 F (..\my_files\tmp1075.c)(0x5EC1FF81)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\my_files -I ..\aa_can-ID:\YandexDisk\Work\Microcontrolers\STM32\Projects\norby_lm_mk\MDK-ARM\RTE\_norby_lm_mk-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F405xx -DUSE_HAL_DRIVER -DSTM32F405xx-o norby_lm_mk\tmp1075.o --omf_browse norby_lm_mk\tmp1075.crf --depend norby_lm_mk\tmp1075.d)
@@ -307,8 +307,8 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h)(0x5E29AD89)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h)(0x5E29AD8A)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h)(0x5E29AD89)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x57F614C8)
-F (..\my_files\pn11.c)(0x5F0713BC)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\my_files -I ..\aa_can-ID:\YandexDisk\Work\Microcontrolers\STM32\Projects\norby_lm_mk\MDK-ARM\RTE\_norby_lm_mk-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F405xx -DUSE_HAL_DRIVER -DSTM32F405xx-o norby_lm_mk\pn11.o --omf_browse norby_lm_mk\pn11.crf --depend norby_lm_mk\pn11.d)
-I (..\my_files\pn11.h)(0x5F071F6A)
+F (..\my_files\pn11.c)(0x5F320E76)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\my_files -I ..\aa_can-ID:\YandexDisk\Work\Microcontrolers\STM32\Projects\norby_lm_mk\MDK-ARM\RTE\_norby_lm_mk-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F405xx -DUSE_HAL_DRIVER -DSTM32F405xx-o norby_lm_mk\pn11.o --omf_browse norby_lm_mk\pn11.crf --depend norby_lm_mk\pn11.d)
+I (..\my_files\pn11.h)(0x5F320678)
 I (..\my_files\my_gpio.h)(0x5E33FA3C)
 I (../Inc/gpio.h)(0x5F195513)
 I (../Inc/main.h)(0x5F195519)
@@ -355,7 +355,7 @@ I (..\my_files\pwr_ch.h)(0x5EC1FF78)
 I (..\my_files\ina226.h)(0x5F250710)
 I (../Inc/i2c.h)(0x5F195516)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x57F614C8)
-I (..\my_files\debug.h)(0x5EBB932B)
+I (..\my_files\debug.h)(0x5F37A615)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x57F614C8)
 I (../Inc/rtc.h)(0x5F195516)
 I (..\my_files\tmp1075.h)(0x5ECE548A)
@@ -408,14 +408,14 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h)(0x5E29AD89)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h)(0x5E29AD8A)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h)(0x5E29AD89)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x57F614C8)
-I (..\my_files\debug.h)(0x5EBB932B)
+I (..\my_files\debug.h)(0x5F37A615)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x57F614C8)
 I (../Inc/rtc.h)(0x5F195516)
 I (..\my_files\my_gpio.h)(0x5E33FA3C)
 I (../Inc/gpio.h)(0x5F195513)
-F (..\my_files\pl_cyclogram.c)(0x5F22E2BB)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\my_files -I ..\aa_can-ID:\YandexDisk\Work\Microcontrolers\STM32\Projects\norby_lm_mk\MDK-ARM\RTE\_norby_lm_mk-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F405xx -DUSE_HAL_DRIVER -DSTM32F405xx-o norby_lm_mk\pl_cyclogram.o --omf_browse norby_lm_mk\pl_cyclogram.crf --depend norby_lm_mk\pl_cyclogram.d)
-I (..\my_files\pl_cyclogram.h)(0x5F22D212)
-I (..\my_files\pn11.h)(0x5F071F6A)
+F (..\my_files\pl_cyclogram.c)(0x5F33ED67)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\my_files -I ..\aa_can-ID:\YandexDisk\Work\Microcontrolers\STM32\Projects\norby_lm_mk\MDK-ARM\RTE\_norby_lm_mk-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F405xx -DUSE_HAL_DRIVER -DSTM32F405xx-o norby_lm_mk\pl_cyclogram.o --omf_browse norby_lm_mk\pl_cyclogram.crf --depend norby_lm_mk\pl_cyclogram.d)
+I (..\my_files\pl_cyclogram.h)(0x5F3217D1)
+I (..\my_files\pn11.h)(0x5F320678)
 I (..\my_files\my_gpio.h)(0x5E33FA3C)
 I (../Inc/gpio.h)(0x5F195513)
 I (../Inc/main.h)(0x5F195519)
@@ -462,7 +462,7 @@ I (..\my_files\pwr_ch.h)(0x5EC1FF78)
 I (..\my_files\ina226.h)(0x5F250710)
 I (../Inc/i2c.h)(0x5F195516)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x57F614C8)
-I (..\my_files\debug.h)(0x5EBB932B)
+I (..\my_files\debug.h)(0x5F37A615)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x57F614C8)
 I (../Inc/rtc.h)(0x5F195516)
 I (..\my_files\tmp1075.h)(0x5ECE548A)
@@ -470,9 +470,9 @@ I (..\my_files\pn_11_interface_app_lvl.h)(0x5F0713BC)
 I (../Inc/usart.h)(0x5F195517)
 I (..\my_files\crc16.h)(0x5F27F2D4)
 I (..\my_files\pn_11_interface_tr_lvl.h)(0x5EBB9338)
-I (..\my_files\pn12.h)(0x5F15432F)
+I (..\my_files\pn12.h)(0x5F37A603)
 I (..\my_files\pn20.h)(0x5F22D42B)
-I (..\my_files\pn_dcr.h)(0x5F0713BC)
+I (..\my_files\pn_dcr.h)(0x5F37951D)
 I (..\my_files\ext_mem.h)(0x5F05CE5F)
 I (..\my_files\cy15b104qn_spi.h)(0x5ED79119)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x57F614C6)
@@ -530,7 +530,7 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h)(0x5E29AD8A)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h)(0x5E29AD89)
 I (..\my_files\crc16.h)(0x5F27F2D4)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x57F614C8)
-I (..\my_files\debug.h)(0x5EBB932B)
+I (..\my_files\debug.h)(0x5F37A615)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x57F614C8)
 I (../Inc/rtc.h)(0x5F195516)
 F (..\my_files\pn_11_interface_app_lvl.c)(0x5EBB9341)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\my_files -I ..\aa_can-ID:\YandexDisk\Work\Microcontrolers\STM32\Projects\norby_lm_mk\MDK-ARM\RTE\_norby_lm_mk-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F405xx -DUSE_HAL_DRIVER -DSTM32F405xx-o norby_lm_mk\pn_11_interface_app_lvl.o --omf_browse norby_lm_mk\pn_11_interface_app_lvl.crf --depend norby_lm_mk\pn_11_interface_app_lvl.d)
@@ -579,7 +579,7 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h)(0x5E29AD89)
 I (..\my_files\crc16.h)(0x5F27F2D4)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x57F614C8)
 I (..\my_files\pn_11_interface_tr_lvl.h)(0x5EBB9338)
-I (..\my_files\debug.h)(0x5EBB932B)
+I (..\my_files\debug.h)(0x5F37A615)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x57F614C8)
 I (../Inc/rtc.h)(0x5F195516)
 F (..\my_files\lm_interfaces.c)(0x5EBD143A)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\my_files -I ..\aa_can-ID:\YandexDisk\Work\Microcontrolers\STM32\Projects\norby_lm_mk\MDK-ARM\RTE\_norby_lm_mk-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F405xx -DUSE_HAL_DRIVER -DSTM32F405xx-o norby_lm_mk\lm_interfaces.o --omf_browse norby_lm_mk\lm_interfaces.crf --depend norby_lm_mk\lm_interfaces.d)
@@ -634,7 +634,7 @@ I (..\aa_can\canv.h)(0x5EBB9333)
 I (..\aa_can\flash_lib.h)(0x5EBB932C)
 F (..\my_files\lm_int_cb.c)(0x5F102FF6)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\my_files -I ..\aa_can-ID:\YandexDisk\Work\Microcontrolers\STM32\Projects\norby_lm_mk\MDK-ARM\RTE\_norby_lm_mk-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F405xx -DUSE_HAL_DRIVER -DSTM32F405xx-o norby_lm_mk\lm_int_cb.o --omf_browse norby_lm_mk\lm_int_cb.crf --depend norby_lm_mk\lm_int_cb.d)
 I (..\my_files\lm_int_cb.h)(0x5F05D598)
-I (..\my_files\lm.h)(0x5F28F869)
+I (..\my_files\lm.h)(0x5F37908F)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x57F614C8)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x57F614C8)
 I (..\my_files\my_gpio.h)(0x5E33FA3C)
@@ -685,17 +685,17 @@ I (..\my_files\crc16.h)(0x5F27F2D4)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x57F614C8)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x57F614C6)
 I (..\my_files\tmp1075.h)(0x5ECE548A)
-I (..\my_files\pn11.h)(0x5F071F6A)
+I (..\my_files\pn11.h)(0x5F320678)
 I (..\my_files\pwr_ch.h)(0x5EC1FF78)
 I (..\my_files\ina226.h)(0x5F250710)
-I (..\my_files\debug.h)(0x5EBB932B)
+I (..\my_files\debug.h)(0x5F37A615)
 I (..\my_files\pn_11_interface_app_lvl.h)(0x5F0713BC)
 I (../Inc/usart.h)(0x5F195517)
 I (..\my_files\pn_11_interface_tr_lvl.h)(0x5EBB9338)
-I (..\my_files\pn12.h)(0x5F15432F)
+I (..\my_files\pn12.h)(0x5F37A603)
 I (..\my_files\pn20.h)(0x5F22D42B)
-I (..\my_files\pl_cyclogram.h)(0x5F22D212)
-I (..\my_files\pn_dcr.h)(0x5F0713BC)
+I (..\my_files\pl_cyclogram.h)(0x5F3217D1)
+I (..\my_files\pn_dcr.h)(0x5F37951D)
 I (..\my_files\ext_mem.h)(0x5F05CE5F)
 I (..\my_files\cy15b104qn_spi.h)(0x5ED79119)
 I (../Inc/spi.h)(0x5F195516)
@@ -803,7 +803,7 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h)(0x5E29AD8A)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h)(0x5E29AD89)
 I (..\my_files\my_gpio.h)(0x5E33FA3C)
 I (../Inc/gpio.h)(0x5F195513)
-I (..\my_files\debug.h)(0x5EBB932B)
+I (..\my_files\debug.h)(0x5F37A615)
 I (../Inc/rtc.h)(0x5F195516)
 F (..\my_files\ext_mem.c)(0x5F27FD54)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\my_files -I ..\aa_can-ID:\YandexDisk\Work\Microcontrolers\STM32\Projects\norby_lm_mk\MDK-ARM\RTE\_norby_lm_mk-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F405xx -DUSE_HAL_DRIVER -DSTM32F405xx-o norby_lm_mk\ext_mem.o --omf_browse norby_lm_mk\ext_mem.crf --depend norby_lm_mk\ext_mem.d)
 I (..\my_files\ext_mem.h)(0x5F05CE5F)
@@ -854,7 +854,7 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h)(0x5E29AD8A)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h)(0x5E29AD89)
 I (..\my_files\my_gpio.h)(0x5E33FA3C)
 I (../Inc/gpio.h)(0x5F195513)
-I (..\my_files\debug.h)(0x5EBB932B)
+I (..\my_files\debug.h)(0x5F37A615)
 I (../Inc/rtc.h)(0x5F195516)
 I (..\my_files\lm_interfaces_data.h)(0x5F071438)
 I (..\my_files\crc16.h)(0x5F27F2D4)
@@ -917,7 +917,7 @@ I (../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h)(0x5E29AC9F)
 I (../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h)(0x5E29ACA0)
 I (..\aa_can\canv.h)(0x5EBB9333)
 F (..\my_files\pn_dcr.c)(0x5F09CAF3)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\my_files -I ..\aa_can-ID:\YandexDisk\Work\Microcontrolers\STM32\Projects\norby_lm_mk\MDK-ARM\RTE\_norby_lm_mk-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F405xx -DUSE_HAL_DRIVER -DSTM32F405xx-o norby_lm_mk\pn_dcr.o --omf_browse norby_lm_mk\pn_dcr.crf --depend norby_lm_mk\pn_dcr.d)
-I (..\my_files\pn_dcr.h)(0x5F0713BC)
+I (..\my_files\pn_dcr.h)(0x5F37951D)
 I (..\my_files\my_gpio.h)(0x5E33FA3C)
 I (../Inc/gpio.h)(0x5F195513)
 I (../Inc/main.h)(0x5F195519)
@@ -964,7 +964,7 @@ I (..\my_files\pwr_ch.h)(0x5EC1FF78)
 I (..\my_files\ina226.h)(0x5F250710)
 I (../Inc/i2c.h)(0x5F195516)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x57F614C8)
-I (..\my_files\debug.h)(0x5EBB932B)
+I (..\my_files\debug.h)(0x5F37A615)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x57F614C8)
 I (../Inc/rtc.h)(0x5F195516)
 I (../Inc/usart.h)(0x5F195517)
@@ -979,7 +979,7 @@ I (..\my_files\xtime.h)(0x5EC3B53D)
 I (..\my_files\critical_lock.h)(0x5ED790EC)
 I (../Inc/iwdg.h)(0x5F195516)
 F (..\my_files\debug.c)(0x5EC65821)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\my_files -I ..\aa_can-ID:\YandexDisk\Work\Microcontrolers\STM32\Projects\norby_lm_mk\MDK-ARM\RTE\_norby_lm_mk-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F405xx -DUSE_HAL_DRIVER -DSTM32F405xx-o norby_lm_mk\debug.o --omf_browse norby_lm_mk\debug.crf --depend norby_lm_mk\debug.d)
-I (..\my_files\debug.h)(0x5EBB932B)
+I (..\my_files\debug.h)(0x5F37A615)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x57F614C8)
 I (../Inc/rtc.h)(0x5F195516)
 I (../Inc/main.h)(0x5F195519)
@@ -1022,7 +1022,7 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x5E29AD8A)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h)(0x5E29AD89)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h)(0x5E29AD8A)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h)(0x5E29AD89)
-F (..\my_files\pn20.c)(0x5F22C5E1)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\my_files -I ..\aa_can-ID:\YandexDisk\Work\Microcontrolers\STM32\Projects\norby_lm_mk\MDK-ARM\RTE\_norby_lm_mk-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F405xx -DUSE_HAL_DRIVER -DSTM32F405xx-o norby_lm_mk\pn20.o --omf_browse norby_lm_mk\pn20.crf --depend norby_lm_mk\pn20.d)
+F (..\my_files\pn20.c)(0x5F320E62)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\my_files -I ..\aa_can-ID:\YandexDisk\Work\Microcontrolers\STM32\Projects\norby_lm_mk\MDK-ARM\RTE\_norby_lm_mk-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F405xx -DUSE_HAL_DRIVER -DSTM32F405xx-o norby_lm_mk\pn20.o --omf_browse norby_lm_mk\pn20.crf --depend norby_lm_mk\pn20.d)
 I (..\my_files\pn20.h)(0x5F22D42B)
 I (..\my_files\my_gpio.h)(0x5E33FA3C)
 I (../Inc/gpio.h)(0x5F195513)
@@ -1070,7 +1070,7 @@ I (..\my_files\pwr_ch.h)(0x5EC1FF78)
 I (..\my_files\ina226.h)(0x5F250710)
 I (../Inc/i2c.h)(0x5F195516)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x57F614C8)
-I (..\my_files\debug.h)(0x5EBB932B)
+I (..\my_files\debug.h)(0x5F37A615)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x57F614C8)
 I (../Inc/rtc.h)(0x5F195516)
 I (..\my_files\tmp1075.h)(0x5ECE548A)
@@ -1078,8 +1078,8 @@ I (..\my_files\pn_11_interface_app_lvl.h)(0x5F0713BC)
 I (../Inc/usart.h)(0x5F195517)
 I (..\my_files\crc16.h)(0x5F27F2D4)
 I (..\my_files\pn_11_interface_tr_lvl.h)(0x5EBB9338)
-F (..\my_files\pn12.c)(0x5F1172F9)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\my_files -I ..\aa_can-ID:\YandexDisk\Work\Microcontrolers\STM32\Projects\norby_lm_mk\MDK-ARM\RTE\_norby_lm_mk-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F405xx -DUSE_HAL_DRIVER -DSTM32F405xx-o norby_lm_mk\pn12.o --omf_browse norby_lm_mk\pn12.crf --depend norby_lm_mk\pn12.d)
-I (..\my_files\pn12.h)(0x5F15432F)
+F (..\my_files\pn12.c)(0x5F33ED93)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ..\my_files -I ..\aa_can-ID:\YandexDisk\Work\Microcontrolers\STM32\Projects\norby_lm_mk\MDK-ARM\RTE\_norby_lm_mk-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F405xx -DUSE_HAL_DRIVER -DSTM32F405xx-o norby_lm_mk\pn12.o --omf_browse norby_lm_mk\pn12.crf --depend norby_lm_mk\pn12.d)
+I (..\my_files\pn12.h)(0x5F37A603)
 I (..\my_files\my_gpio.h)(0x5E33FA3C)
 I (../Inc/gpio.h)(0x5F195513)
 I (../Inc/main.h)(0x5F195519)
@@ -1126,7 +1126,7 @@ I (..\my_files\pwr_ch.h)(0x5EC1FF78)
 I (..\my_files\ina226.h)(0x5F250710)
 I (../Inc/i2c.h)(0x5F195516)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x57F614C8)
-I (..\my_files\debug.h)(0x5EBB932B)
+I (..\my_files\debug.h)(0x5F37A615)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x57F614C8)
 I (../Inc/rtc.h)(0x5F195516)
 I (..\my_files\tmp1075.h)(0x5ECE548A)
@@ -1277,21 +1277,21 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x57F614C8)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x57F614C8)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x57F614C8)
 I (../Inc/gpio.h)(0x5F195513)
-I (..\my_files\lm.h)(0x5F28F869)
+I (..\my_files\lm.h)(0x5F37908F)
 I (..\my_files\my_gpio.h)(0x5E33FA3C)
 I (..\my_files\crc16.h)(0x5F27F2D4)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x57F614C6)
 I (..\my_files\tmp1075.h)(0x5ECE548A)
-I (..\my_files\pn11.h)(0x5F071F6A)
+I (..\my_files\pn11.h)(0x5F320678)
 I (..\my_files\pwr_ch.h)(0x5EC1FF78)
 I (..\my_files\ina226.h)(0x5F250710)
-I (..\my_files\debug.h)(0x5EBB932B)
+I (..\my_files\debug.h)(0x5F37A615)
 I (..\my_files\pn_11_interface_app_lvl.h)(0x5F0713BC)
 I (..\my_files\pn_11_interface_tr_lvl.h)(0x5EBB9338)
-I (..\my_files\pn12.h)(0x5F15432F)
+I (..\my_files\pn12.h)(0x5F37A603)
 I (..\my_files\pn20.h)(0x5F22D42B)
-I (..\my_files\pl_cyclogram.h)(0x5F22D212)
-I (..\my_files\pn_dcr.h)(0x5F0713BC)
+I (..\my_files\pl_cyclogram.h)(0x5F3217D1)
+I (..\my_files\pn_dcr.h)(0x5F37951D)
 I (..\my_files\ext_mem.h)(0x5F05CE5F)
 I (..\my_files\cy15b104qn_spi.h)(0x5ED79119)
 I (..\my_files\lm_interfaces_data.h)(0x5F071438)

@@ -144,6 +144,7 @@ int8_t pl_pn11_A_B_stop(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 
 // pl1.2
 int8_t pl_pn12_pwr_on(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
+int8_t pl_pn12_interface_init(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn12_pwr_off(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn12_set_iku_default(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);
 int8_t pl_pn12_set_iku_test(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr);

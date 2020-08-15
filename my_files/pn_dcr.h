@@ -9,7 +9,7 @@
 
 #include "rtc.h"
 
-#define DEBUG_DCR
+//#define DEBUG_DCR
 
 //
 #define DCR_MODE_OFF 								0

@@ -175,6 +175,7 @@ int8_t cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t dev_id)
 
 	// Циклограмма 3: 0x03 - ПН1.2
 	cyclogram_step_init(ccl_ptr, pl_ptr, 3, result_init, 100); 
+	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_interface_init, 100);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_check_and_save_tmi, 500); 		//s1
 	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_set_iku_default, 1000); 			//s2
 	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_check_and_save_tmi, 100);
@@ -186,7 +187,7 @@ int8_t cyclogram_init(type_CYCLOGRAM* ccl_ptr, type_PL* pl_ptr, uint8_t dev_id)
 	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_read_req_all, 5000);					//s12
 	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_read_all, 5000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_check_and_save_tmi, 1000);
-	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_pwr_off, 2000);
+	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_pwr_off, 4000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 3, pl_pn12_check_and_save_tmi, 1000);
 	cyclogram_step_init(ccl_ptr, pl_ptr, 3, result_finish, 100);
 	//
@@ -1003,6 +1004,7 @@ int8_t pl_pn12_pwr_on(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
 
 int8_t pl_pn12_interface_init(type_CYCLOGRAM_RESULT* result_ptr, type_PL* pl_ptr)
 {
+	pn_12_interface_init(&pl_ptr->_12, pl_ptr->_12.interface.tr_lvl.huart);
 	//debug
 	printf_time();
 	printf("--PL12 pwr_on\n");
