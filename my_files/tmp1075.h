@@ -18,9 +18,9 @@
 #define ALARM_LLIM_DEFAULT (80*256)  //80°C
 #define TMP_DEV_ID 0x0075
 
-#define ERROR_TEMP_HIGH 	(80*256)
+#define ERROR_TEMP_HIGH 	(30*256)
 #define ERROR_TEMP_LOW 		(-30*256)
-#define ERROR_TEMP_HYST 	(5*256)
+#define ERROR_TEMP_HYST 	(2*256)
 
 //типы ошибки температуры
 #define TMP_CH_ERR_NO_ERR		(0x00)
