@@ -3,66 +3,80 @@
 <pre>
 <h1>µVision Build Log</h1>
 <h2>Tool Versions:</h2>
-IDE-Version: µVision V5.22.0.0
-Copyright (C) 2016 ARM Ltd and ARM Germany GmbH. All rights reserved.
-License Information: Vasya Pupkin, Home, LIC=BL2BS-LT2RL-WKSB8-3T4QT-QE6B1-TPHPR
+IDE-Version: µVision V5.32.0.0
+Copyright (C) 2020 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: Vasya a-styuf@yandex.ru, Pupk, LIC=WHYH9-47SJE-Y8VFK-Z2M7J-BRK7L-12XCV
  
 Tool Versions:
-Toolchain:       MDK-ARM Professional  Version: 5.22
+Toolchain:       MDK-ARM Plus  Version: 5.32.0.0
 Toolchain Path:  C:\Keil_v5\ARM\ARMCC\Bin
-C Compiler:      Armcc.exe V5.06 update 4 (build 422)
-Assembler:       Armasm.exe V5.06 update 4 (build 422)
-Linker/Locator:  ArmLink.exe V5.06 update 4 (build 422)
-Library Manager: ArmAr.exe V5.06 update 4 (build 422)
-Hex Converter:   FromElf.exe V5.06 update 4 (build 422)
-CPU DLL:         SARMCM3.DLL V5.22
-Dialog DLL:      DCM.DLL V1.13.9.0
-Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V2.0.18.0
-Dialog DLL:      TCM.DLL V1.21.0.0
+C Compiler:      Armcc.exe V5.06 update 7 (build 960)
+Assembler:       Armasm.exe V5.06 update 7 (build 960)
+Linker/Locator:  ArmLink.exe V5.06 update 7 (build 960)
+Library Manager: ArmAr.exe V5.06 update 7 (build 960)
+Hex Converter:   FromElf.exe V5.06 update 7 (build 960)
+CPU DLL:         SARMCM3.DLL V5.32.0.0
+Dialog DLL:      DCM.DLL V1.17.3.0
+Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V3.0.8.0
+Dialog DLL:      TCM.DLL V1.46.0.0
  
 <h2>Project:</h2>
 D:\YandexDisk\Work\Microcontrolers\STM32\Projects\norby_lm_mk\MDK-ARM\norby_lm_mk.uvprojx
-Project File Date:  07/23/2020
+Project File Date:  03/19/2021
 
 <h2>Output:</h2>
-*** Using Compiler 'V5.06 update 4 (build 422)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
+*** Using Compiler 'V5.06 update 7 (build 960)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'norby_lm_mk'
-"norby_lm_mk\norby_lm_mk.axf" - 0 Error(s), 0 Warning(s).
+compiling lm.c...
+compiling lm_int_cb.c...
+..\my_files\lm_int_cb.c(86): warning:  #186-D: pointless comparison of unsigned integer with zero
+        if((id.uf.Offset >= 128*0) && (id.uf.Offset < 128*1)){
+..\my_files\lm_int_cb.c: 1 warning, 0 errors
+compiling main.c...
+linking...
+Program Size: Code=89180 RO-data=2304 RW-data=1200 ZI-data=61256  
+FromELF: creating hex file...
+"norby_lm_mk\norby_lm_mk.axf" - 0 Error(s), 1 Warning(s).
 
 <h2>Software Packages used:</h2>
 
 Package Vendor: ARM
-                http://www.keil.com/pack/ARM.CMSIS.5.4.0.pack
-                ARM::CMSIS:CORE:5.1.2
+                http://www.keil.com/pack/ARM.CMSIS.5.7.0.pack
+                ARM.CMSIS.5.7.0
                 CMSIS (Cortex Microcontroller Software Interface Standard)
-   * Component: CORE Version: 5.1.2
+   * Component: CORE Version: 5.4.0
 
 Package Vendor: Keil
-                http://www.keil.com/pack/Keil.ARM_Compiler.1.2.0.pack
-                Keil.ARM Compiler::Compiler:I/O:STDIN:ITM:1.1.0
-                Keil ARM Compiler extensions
-   * Component: STDIN Variant: ITM Version: 1.1.0
-   * Component: STDOUT Variant: ITM Version: 1.1.0
-   * Component: STDERR Variant: ITM Version: 1.1.0
+                http://www.keil.com/pack/Keil.ARM_Compiler.1.6.3.pack
+                Keil.ARM_Compiler.1.6.3
+                Keil ARM Compiler extensions for ARM Compiler 5 and ARM Compiler 6
+   * Component: STDERR Variant: ITM Version: 1.2.0
+   * Component: STDIN Variant: ITM Version: 1.2.0
+   * Component: STDOUT Variant: ITM Version: 1.2.0
+
+Package Vendor: Keil
+                http://www.keil.com/pack/Keil.STM32F4xx_DFP.2.15.0.pack
+                Keil.STM32F4xx_DFP.2.15.0
+                STMicroelectronics STM32F4 Series Device Support, Drivers and Examples
 
 <h2>Collection of Component include folders:</h2>
-  D:\YandexDisk\Work\Microcontrolers\STM32\Projects\norby_lm_mk\MDK-ARM\RTE\_norby_lm_mk
-  C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Include
-  C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
+  .\RTE\_norby_lm_mk
+  C:\Users\a-sty\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include
+  C:\Users\a-sty\AppData\Local\Arm\Packs\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
 
 <h2>Collection of Component Files used:</h2>
 
-   * Component: ARM::CMSIS:CORE:5.1.2
+   * Component: ARM::CMSIS:CORE:5.4.0
 
-   * Component: Keil.ARM Compiler::Compiler:I/O:STDIN:ITM:1.1.0
+   * Component: Keil.ARM Compiler::Compiler:I/O:STDERR:ITM:1.2.0
       Source file:   Source\retarget_io.c
 
-   * Component: Keil.ARM Compiler::Compiler:I/O:STDOUT:ITM:1.1.0
+   * Component: Keil.ARM Compiler::Compiler:I/O:STDIN:ITM:1.2.0
       Source file:   Source\retarget_io.c
 
-   * Component: Keil.ARM Compiler::Compiler:I/O:STDERR:ITM:1.1.0
+   * Component: Keil.ARM Compiler::Compiler:I/O:STDOUT:ITM:1.2.0
       Source file:   Source\retarget_io.c
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:05
 </pre>
 </body>
 </html>

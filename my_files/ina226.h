@@ -54,7 +54,7 @@
 #define ALERT_MODE_DEF (1<<11)
 //Calibration register: This value is needed to recalculate for each shunt
 #define CURRENT_LSB (0.001)  //A
-#define CURRENT_R_SHUNT (0.015)  //Ом
+#define CURRENT_R_SHUNT (0.010)  //Ом
 #define CAL_VAL (0.00512/(CURRENT_LSB*CURRENT_R_SHUNT))
 #define POWER_KOEFF_FROM_WT_TO_ADC (0.04/CURRENT_LSB)
 
