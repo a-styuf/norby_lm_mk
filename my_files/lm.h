@@ -21,7 +21,7 @@
 #include "debug.h"
 
 
-#define max(A, B) ((A) > (B) ? (A) : (B))
+#define max(A, B) ((A) > (B) ? (A) : (B))git
 #define min(A, B) ((A) < (B) ? (A) : (B))
 
 
@@ -29,7 +29,7 @@ typedef unsigned short uint16_t;
 
 // настройки прибора
 #define DEV_ID (0x06)
-#define SOFT_VERSION "2.00.1"
+#define SOFT_VERSION "2.00.0"
 // свойства микроконтроллера
 
 
