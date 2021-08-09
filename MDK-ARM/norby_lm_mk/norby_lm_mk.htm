@@ -3,7 +3,7 @@
 <title>Static Call Graph - [norby_lm_mk\norby_lm_mk.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image norby_lm_mk\norby_lm_mk.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060422: Last Updated: Sat Aug 15 16:09:13 2020
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Sat Aug 07 18:21:54 2021
 <BR><P>
 <H3>Maximum Stack Usage =       1088 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -272,9 +272,11 @@ Global Symbols
 
 <P><STRONG><a name="[339]"></a>_main_init</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry9a.o(.ARM.Collect$$$$0000000B))
 
-<P><STRONG><a name="[33a]"></a>__rt_final_cpp</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry10a.o(.ARM.Collect$$$$0000000D))
+<P><STRONG><a name="[33a]"></a>__rt_lib_shutdown_fini</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry12b.o(.ARM.Collect$$$$0000000E))
 
-<P><STRONG><a name="[33b]"></a>__rt_final_exit</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry11a.o(.ARM.Collect$$$$0000000F))
+<P><STRONG><a name="[33b]"></a>__rt_final_cpp</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry10a.o(.ARM.Collect$$$$0000000F))
+
+<P><STRONG><a name="[33c]"></a>__rt_final_exit</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry11a.o(.ARM.Collect$$$$00000011))
 
 <P><STRONG><a name="[31b]"></a>__asm___4_lm_c_lm_init____REV16</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, lm.o(.rev16_text))
 <BR><BR>[Called By]<UL><LI><a href="#[31a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pwr_create_report
@@ -517,9 +519,9 @@ Global Symbols
 <LI><a href="#[cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_llsl
 </UL>
 <BR>[Called By]<UL><LI><a href="#[171]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_GetSysClockFreq
+<LI><a href="#[1a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_SetConfig
 <LI><a href="#[20a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_printf_core
 <LI><a href="#[20c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_fp_digits
-<LI><a href="#[1a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_SetConfig
 </UL>
 
 <P><STRONG><a name="[c5]"></a>__aeabi_memcpy</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, memcpya.o(.text))
@@ -587,7 +589,7 @@ Global Symbols
 <LI><a href="#[15b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_Init
 </UL>
 
-<P><STRONG><a name="[33c]"></a>__aeabi_memcpy8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memcpya.o(.text), UNUSED)
+<P><STRONG><a name="[33d]"></a>__aeabi_memcpy8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memcpya.o(.text), UNUSED)
 
 <P><STRONG><a name="[cd]"></a>__aeabi_memset</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, memseta.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[264]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_report_create
@@ -612,9 +614,9 @@ Global Symbols
 <LI><a href="#[cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr
 </UL>
 
-<P><STRONG><a name="[33d]"></a>__aeabi_memset4</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
+<P><STRONG><a name="[33e]"></a>__aeabi_memset4</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
 
-<P><STRONG><a name="[33e]"></a>__aeabi_memset8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
+<P><STRONG><a name="[33f]"></a>__aeabi_memset8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
 
 <P><STRONG><a name="[cc]"></a>__aeabi_memclr</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, memseta.o(.text))
 <BR><BR>[Calls]<UL><LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memset
@@ -668,7 +670,7 @@ Global Symbols
 <LI><a href="#[15c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_MspInit
 </UL>
 
-<P><STRONG><a name="[33f]"></a>__aeabi_memclr8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
+<P><STRONG><a name="[340]"></a>__aeabi_memclr8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
 
 <P><STRONG><a name="[ce]"></a>_memset$wrapper</STRONG> (Thumb, 18 bytes, Stack size 8 bytes, memseta.o(.text), UNUSED)
 <BR><BR>[Calls]<UL><LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memset
@@ -747,6 +749,10 @@ Global Symbols
 <LI><a href="#[26e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;part_get_free_volume_in_percantage
 <LI><a href="#[2e1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pwr_ch_get_error
 <LI><a href="#[276]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ina226_read_data_process
+<LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_check_and_save_tmi
+<LI><a href="#[b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn12_check_and_save_tmi
+<LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_check_and_save_tmi
+<LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_check_and_save_tmi
 <LI><a href="#[250]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;part_rel_init
 <LI><a href="#[20c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_fp_digits
 </UL>
@@ -768,6 +774,10 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
 <LI><a href="#[26e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;part_get_free_volume_in_percantage
 <LI><a href="#[278]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ina226_init
+<LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_check_and_save_tmi
+<LI><a href="#[b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn12_check_and_save_tmi
+<LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_check_and_save_tmi
+<LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_check_and_save_tmi
 <LI><a href="#[250]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;part_rel_init
 </UL>
 
@@ -797,7 +807,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[2e1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pwr_ch_get_error
 </UL>
 
-<P><STRONG><a name="[340]"></a>__aeabi_uidiv</STRONG> (Thumb, 0 bytes, Stack size 12 bytes, uidiv.o(.text), UNUSED)
+<P><STRONG><a name="[341]"></a>__aeabi_uidiv</STRONG> (Thumb, 0 bytes, Stack size 12 bytes, uidiv.o(.text), UNUSED)
 
 <P><STRONG><a name="[215]"></a>__aeabi_uidivmod</STRONG> (Thumb, 44 bytes, Stack size 12 bytes, uidiv.o(.text), UNUSED)
 <BR><BR>[Called By]<UL><LI><a href="#[20a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_printf_core
@@ -810,7 +820,7 @@ Global Symbols
 <LI><a href="#[e2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2ulz
 </UL>
 
-<P><STRONG><a name="[341]"></a>_ll_shift_l</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, llshl.o(.text), UNUSED)
+<P><STRONG><a name="[342]"></a>_ll_shift_l</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, llshl.o(.text), UNUSED)
 
 <P><STRONG><a name="[ca]"></a>__aeabi_llsr</STRONG> (Thumb, 32 bytes, Stack size 0 bytes, llushr.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2uiz
@@ -820,13 +830,13 @@ Global Symbols
 <LI><a href="#[e2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2ulz
 </UL>
 
-<P><STRONG><a name="[342]"></a>_ll_ushift_r</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, llushr.o(.text), UNUSED)
+<P><STRONG><a name="[343]"></a>_ll_ushift_r</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, llushr.o(.text), UNUSED)
 
 <P><STRONG><a name="[d4]"></a>__aeabi_lasr</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, llsshr.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
 </UL>
 
-<P><STRONG><a name="[343]"></a>_ll_sshift_r</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, llsshr.o(.text), UNUSED)
+<P><STRONG><a name="[344]"></a>_ll_sshift_r</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, llsshr.o(.text), UNUSED)
 
 <P><STRONG><a name="[d2]"></a>_chval</STRONG> (Thumb, 28 bytes, Stack size 0 bytes, _chval.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_scanf_int
@@ -846,13 +856,13 @@ Global Symbols
 <P><STRONG><a name="[74]"></a>_sbackspace</STRONG> (Thumb, 34 bytes, Stack size 0 bytes, _sgetc.o(.text))
 <BR>[Address Reference Count : 1]<UL><LI> __0sscanf.o(.text)
 </UL>
-<P><STRONG><a name="[344]"></a>__I$use$fp</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, iusefp.o(.text), UNUSED)
+<P><STRONG><a name="[345]"></a>__I$use$fp</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, iusefp.o(.text), UNUSED)
 
 <P><STRONG><a name="[e0]"></a>_float_round</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, fepilogue.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[df]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2f
 </UL>
 
-<P><STRONG><a name="[345]"></a>_float_epilogue</STRONG> (Thumb, 92 bytes, Stack size 4 bytes, fepilogue.o(.text), UNUSED)
+<P><STRONG><a name="[346]"></a>_float_epilogue</STRONG> (Thumb, 92 bytes, Stack size 4 bytes, fepilogue.o(.text), UNUSED)
 
 <P><STRONG><a name="[d6]"></a>_double_round</STRONG> (Thumb, 30 bytes, Stack size 8 bytes, depilogue.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = _double_round
@@ -892,14 +902,14 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_main_scatterload
 </UL>
 
-<P><STRONG><a name="[346]"></a>__scatterload_rt2</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, init.o(.text), UNUSED)
+<P><STRONG><a name="[347]"></a>__scatterload_rt2</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, init.o(.text), UNUSED)
 
 <P><STRONG><a name="[76]"></a>isspace</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, isspace_c.o(.text))
 <BR><BR>[Calls]<UL><LI><a href="#[e4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ctype_lookup
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> scanf_char.o(.text)
 </UL>
-<P><STRONG><a name="[e1]"></a>__vfscanf</STRONG> (Thumb, 808 bytes, Stack size 88 bytes, _scanf.o(.text))
+<P><STRONG><a name="[e1]"></a>__vfscanf</STRONG> (Thumb, 810 bytes, Stack size 88 bytes, _scanf.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 144<LI>Call Chain = __vfscanf &rArr; _scanf_int
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_scanf_int
@@ -911,9 +921,9 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;isspace
 </UL>
 
-<P><STRONG><a name="[347]"></a>__decompress</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __dczerorl2.o(.text), UNUSED)
+<P><STRONG><a name="[348]"></a>__decompress</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __dczerorl2.o(.text), UNUSED)
 
-<P><STRONG><a name="[348]"></a>__decompress1</STRONG> (Thumb, 86 bytes, Stack size unknown bytes, __dczerorl2.o(.text), UNUSED)
+<P><STRONG><a name="[349]"></a>__decompress1</STRONG> (Thumb, 86 bytes, Stack size unknown bytes, __dczerorl2.o(.text), UNUSED)
 
 <P><STRONG><a name="[19]"></a>BusFault_Handler</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, stm32f4xx_it.o(i.BusFault_Handler))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f405xx.o(RESET)
@@ -2489,8 +2499,7 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1ec]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_LL_StallEP
 </UL>
-<BR>[Called By]<UL><LI><a href="#[d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_Setup
-<LI><a href="#[201]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_SetConfig
+<BR>[Called By]<UL><LI><a href="#[201]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_SetConfig
 <LI><a href="#[200]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_SetAddress
 <LI><a href="#[1f1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_GetStatus
 <LI><a href="#[1f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_GetDescriptor
@@ -2499,6 +2508,7 @@ Global Symbols
 <LI><a href="#[1fd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_StdItfReq
 <LI><a href="#[1fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_StdEPReq
 <LI><a href="#[1fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_StdDevReq
+<LI><a href="#[d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_Setup
 </UL>
 
 <P><STRONG><a name="[1e5]"></a>USBD_CtlPrepareRx</STRONG> (Thumb, 40 bytes, Stack size 16 bytes, usbd_ioreq.o(i.USBD_CtlPrepareRx))
@@ -2522,11 +2532,11 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_LL_Transmit
 </UL>
-<BR>[Called By]<UL><LI><a href="#[d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_Setup
-<LI><a href="#[1f1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_GetStatus
+<BR>[Called By]<UL><LI><a href="#[1f1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_GetStatus
 <LI><a href="#[1f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_GetDescriptor
 <LI><a href="#[1ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_GetConfig
 <LI><a href="#[1fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_StdEPReq
+<LI><a href="#[d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_Setup
 </UL>
 
 <P><STRONG><a name="[1e9]"></a>USBD_CtlSendStatus</STRONG> (Thumb, 26 bytes, Stack size 8 bytes, usbd_ioreq.o(i.USBD_CtlSendStatus))
@@ -2716,10 +2726,10 @@ Global Symbols
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_ReceivePacket
 <LI><a href="#[130]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_LL_DataInStage
-<LI><a href="#[b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_Init
 <LI><a href="#[1e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CtlPrepareRx
 <LI><a href="#[1ed]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CtlReceiveStatus
 <LI><a href="#[1ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CtlContinueRx
+<LI><a href="#[b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_Init
 </UL>
 
 <P><STRONG><a name="[164]"></a>USBD_LL_Reset</STRONG> (Thumb, 92 bytes, Stack size 8 bytes, usbd_core.o(i.USBD_LL_Reset))
@@ -3051,50 +3061,93 @@ Global Symbols
 <BR><BR>[Calls]<UL><LI><a href="#[20a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_printf_core
 </UL>
 
-<P><STRONG><a name="[349]"></a>__1printf</STRONG> (Thumb, 0 bytes, Stack size 24 bytes, printfa.o(i.__0printf), UNUSED)
+<P><STRONG><a name="[34a]"></a>__1printf</STRONG> (Thumb, 0 bytes, Stack size 24 bytes, printfa.o(i.__0printf), UNUSED)
 
 <P><STRONG><a name="[f3]"></a>__2printf</STRONG> (Thumb, 0 bytes, Stack size 24 bytes, printfa.o(i.__0printf))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = __2printf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[245]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cyclogram_start
+<LI><a href="#[242]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cyclogram_process
+<LI><a href="#[28a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_load_parameters
 <LI><a href="#[286]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_init
+<LI><a href="#[280]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_cyclogram_process
 <LI><a href="#[2b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_buff
+<LI><a href="#[20f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_pn_11_seq_read_request
+<LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_write_result
+<LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_tas_start_3
+<LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_tas_start_2
+<LI><a href="#[89]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_tas_start_1
+<LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_tas_read_3
+<LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_tas_read_2
+<LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_tas_read_1
 <LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_stop
+<LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_set_iku_pl_on
+<LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_set_iku_default
+<LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_sd_start_3
+<LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_sd_start_2
+<LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_sd_start_1
+<LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_sd_read_3
+<LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_sd_read_2
+<LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_sd_read_1
+<LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_read_sw_tmi_2
+<LI><a href="#[88]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_read_sw_tmi_1
 <LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_pwr_on
 <LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_pwr_off
+<LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_check_and_save_tmi
 <LI><a href="#[bb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn12_stop
+<LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn12_set_iku_default
+<LI><a href="#[b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn12_read_req_all
+<LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn12_read_all
 <LI><a href="#[b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn12_pwr_on
 <LI><a href="#[ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn12_pwr_off
 <LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn12_interface_init
+<LI><a href="#[b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn12_check_and_save_tmi
+<LI><a href="#[bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11_A_B_write_mode
+<LI><a href="#[bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11_A_B_stop
 <LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_write_mode
+<LI><a href="#[b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_stop
+<LI><a href="#[a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_set_iku_default
 <LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_read_req_mode
 <LI><a href="#[b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_read_req_all
 <LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_read_mode
+<LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_read_all
 <LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_pwr_on
 <LI><a href="#[b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_pwr_off
 <LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_interface_reset_and_sync
 <LI><a href="#[aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_fpga_on
+<LI><a href="#[af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_fpga_mcu_on
+<LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_check_and_save_tmi
 <LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_write_mode
+<LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_stop
+<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_set_iku_default
 <LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_read_req_mode
+<LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_read_req_all
 <LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_read_mode
+<LI><a href="#[a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_read_all
+<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_pwr_on
+<LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_pwr_off
 <LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_interface_reset_and_sync
 <LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_fpga_on
 <LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_fpga_mcu_on
+<LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_check_and_save_tmi
+<LI><a href="#[243]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cyclogram_stop_step_run
+<LI><a href="#[211]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_pn_12_seq_read_request
 <LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 <LI><a href="#[225]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;blocking_test
 <LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Error_Handler
 </UL>
 
-<P><STRONG><a name="[34a]"></a>__c89printf</STRONG> (Thumb, 0 bytes, Stack size 24 bytes, printfa.o(i.__0printf), UNUSED)
+<P><STRONG><a name="[34b]"></a>__c89printf</STRONG> (Thumb, 0 bytes, Stack size 24 bytes, printfa.o(i.__0printf), UNUSED)
 
-<P><STRONG><a name="[34b]"></a>printf</STRONG> (Thumb, 0 bytes, Stack size 24 bytes, printfa.o(i.__0printf), UNUSED)
+<P><STRONG><a name="[34c]"></a>printf</STRONG> (Thumb, 0 bytes, Stack size 24 bytes, printfa.o(i.__0printf), UNUSED)
 
 <P><STRONG><a name="[20b]"></a>__0sprintf</STRONG> (Thumb, 34 bytes, Stack size 24 bytes, printfa.o(i.__0sprintf), UNUSED)
 <BR><BR>[Calls]<UL><LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_sputc
 <LI><a href="#[20a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_printf_core
 </UL>
 
-<P><STRONG><a name="[34c]"></a>__1sprintf</STRONG> (Thumb, 0 bytes, Stack size 24 bytes, printfa.o(i.__0sprintf), UNUSED)
+<P><STRONG><a name="[34d]"></a>__1sprintf</STRONG> (Thumb, 0 bytes, Stack size 24 bytes, printfa.o(i.__0sprintf), UNUSED)
 
 <P><STRONG><a name="[2bf]"></a>__2sprintf</STRONG> (Thumb, 0 bytes, Stack size 24 bytes, printfa.o(i.__0sprintf))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = __2sprintf
@@ -3102,15 +3155,15 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[2b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_iss_get_app_lvl_reprot
 </UL>
 
-<P><STRONG><a name="[34d]"></a>__c89sprintf</STRONG> (Thumb, 0 bytes, Stack size 24 bytes, printfa.o(i.__0sprintf), UNUSED)
+<P><STRONG><a name="[34e]"></a>__c89sprintf</STRONG> (Thumb, 0 bytes, Stack size 24 bytes, printfa.o(i.__0sprintf), UNUSED)
 
-<P><STRONG><a name="[34e]"></a>sprintf</STRONG> (Thumb, 0 bytes, Stack size 24 bytes, printfa.o(i.__0sprintf), UNUSED)
+<P><STRONG><a name="[34f]"></a>sprintf</STRONG> (Thumb, 0 bytes, Stack size 24 bytes, printfa.o(i.__0sprintf), UNUSED)
 
-<P><STRONG><a name="[34f]"></a>__scatterload_copy</STRONG> (Thumb, 14 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_copy), UNUSED)
+<P><STRONG><a name="[350]"></a>__scatterload_copy</STRONG> (Thumb, 14 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_copy), UNUSED)
 
-<P><STRONG><a name="[350]"></a>__scatterload_null</STRONG> (Thumb, 2 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_null), UNUSED)
+<P><STRONG><a name="[351]"></a>__scatterload_null</STRONG> (Thumb, 2 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_null), UNUSED)
 
-<P><STRONG><a name="[351]"></a>__scatterload_zeroinit</STRONG> (Thumb, 14 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_zeroinit), UNUSED)
+<P><STRONG><a name="[352]"></a>__scatterload_zeroinit</STRONG> (Thumb, 14 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_zeroinit), UNUSED)
 
 <P><STRONG><a name="[21e]"></a>_app_lvl_error_collector</STRONG> (Thumb, 82 bytes, Stack size 0 bytes, pn_11_interface_app_lvl.o(i._app_lvl_error_collector))
 <BR><BR>[Called By]<UL><LI><a href="#[224]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_lvl_write
@@ -3150,10 +3203,11 @@ Global Symbols
 <LI><a href="#[2bb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_init
 </UL>
 
-<P><STRONG><a name="[20f]"></a>_pn_11_seq_read_request</STRONG> (Thumb, 96 bytes, Stack size 8 bytes, pn11.o(i._pn_11_seq_read_request))
-<BR><BR>[Stack]<UL><LI>Max Depth = 380<LI>Call Chain = _pn_11_seq_read_request &rArr; pn_11_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
+<P><STRONG><a name="[20f]"></a>_pn_11_seq_read_request</STRONG> (Thumb, 120 bytes, Stack size 16 bytes, pn11.o(i._pn_11_seq_read_request))
+<BR><BR>[Stack]<UL><LI>Max Depth = 388<LI>Call Chain = _pn_11_seq_read_request &rArr; pn_11_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
 </UL>
 <BR>[Calls]<UL><LI><a href="#[210]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_read_req_u32_data
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_seq_read_start
 <LI><a href="#[2db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_interface_process
@@ -3169,10 +3223,11 @@ Global Symbols
 <LI><a href="#[2ec]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_interface_process
 </UL>
 
-<P><STRONG><a name="[211]"></a>_pn_12_seq_read_request</STRONG> (Thumb, 96 bytes, Stack size 8 bytes, pn12.o(i._pn_12_seq_read_request))
-<BR><BR>[Stack]<UL><LI>Max Depth = 380<LI>Call Chain = _pn_12_seq_read_request &rArr; pn_12_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
+<P><STRONG><a name="[211]"></a>_pn_12_seq_read_request</STRONG> (Thumb, 120 bytes, Stack size 16 bytes, pn12.o(i._pn_12_seq_read_request))
+<BR><BR>[Stack]<UL><LI>Max Depth = 388<LI>Call Chain = _pn_12_seq_read_request &rArr; pn_12_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
 </UL>
 <BR>[Calls]<UL><LI><a href="#[212]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_read_req_u32_data
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_seq_read_start
 <LI><a href="#[2ec]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_interface_process
@@ -3532,10 +3587,12 @@ Global Symbols
 <LI><a href="#[286]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_init
 </UL>
 
-<P><STRONG><a name="[242]"></a>cyclogram_process</STRONG> (Thumb, 664 bytes, Stack size 32 bytes, pl_cyclogram.o(i.cyclogram_process))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = cyclogram_process &rArr; cyclogram_stop_step_run
+<P><STRONG><a name="[242]"></a>cyclogram_process</STRONG> (Thumb, 716 bytes, Stack size 32 bytes, pl_cyclogram.o(i.cyclogram_process))
+<BR><BR>[Stack]<UL><LI>Max Depth = 224<LI>Call Chain = cyclogram_process &rArr; cyclogram_stop_step_run &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[243]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cyclogram_stop_step_run
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[243]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cyclogram_stop_step_run
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[280]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_cyclogram_process
 </UL>
@@ -3554,11 +3611,13 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[245]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cyclogram_start
 </UL>
 
-<P><STRONG><a name="[245]"></a>cyclogram_start</STRONG> (Thumb, 110 bytes, Stack size 24 bytes, pl_cyclogram.o(i.cyclogram_start))
-<BR><BR>[Stack]<UL><LI>Max Depth = 40<LI>Call Chain = cyclogram_start &rArr; cyclogram_stop_step_run
+<P><STRONG><a name="[245]"></a>cyclogram_start</STRONG> (Thumb, 140 bytes, Stack size 24 bytes, pl_cyclogram.o(i.cyclogram_start))
+<BR><BR>[Stack]<UL><LI>Max Depth = 216<LI>Call Chain = cyclogram_start &rArr; cyclogram_stop_step_run &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[243]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cyclogram_stop_step_run
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[243]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cyclogram_stop_step_run
 <LI><a href="#[246]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cyclogram_single_init
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[28b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_set_cfg
 <LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
@@ -3576,8 +3635,11 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[23f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cyclogram_init
 </UL>
 
-<P><STRONG><a name="[243]"></a>cyclogram_stop_step_run</STRONG> (Thumb, 252 bytes, Stack size 16 bytes, pl_cyclogram.o(i.cyclogram_stop_step_run))
-<BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = cyclogram_stop_step_run
+<P><STRONG><a name="[243]"></a>cyclogram_stop_step_run</STRONG> (Thumb, 260 bytes, Stack size 16 bytes, pl_cyclogram.o(i.cyclogram_stop_step_run))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = cyclogram_stop_step_run &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
+</UL>
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[245]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cyclogram_start
 <LI><a href="#[242]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cyclogram_process
@@ -4025,11 +4087,13 @@ Global Symbols
 <LI><a href="#[286]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_init
 </UL>
 
-<P><STRONG><a name="[280]"></a>lm_cyclogram_process</STRONG> (Thumb, 168 bytes, Stack size 16 bytes, lm.o(i.lm_cyclogram_process))
-<BR><BR>[Stack]<UL><LI>Max Depth = 152<LI>Call Chain = lm_cyclogram_process &rArr; part_get_free_volume_in_percantage &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
+<P><STRONG><a name="[280]"></a>lm_cyclogram_process</STRONG> (Thumb, 200 bytes, Stack size 16 bytes, lm.o(i.lm_cyclogram_process))
+<BR><BR>[Stack]<UL><LI>Max Depth = 240<LI>Call Chain = lm_cyclogram_process &rArr; cyclogram_process &rArr; cyclogram_stop_step_run &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[26e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;part_get_free_volume_in_percantage
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[26e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;part_get_free_volume_in_percantage
 <LI><a href="#[242]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cyclogram_process
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -4069,16 +4133,17 @@ Global Symbols
 <LI><a href="#[288]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tmp_init
 <LI><a href="#[287]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pwr_init
 <LI><a href="#[27f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_ctrl_init
-<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 <LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__0sscanf
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[28a]"></a>lm_load_parameters</STRONG> (Thumb, 308 bytes, Stack size 16 bytes, lm.o(i.lm_load_parameters))
+<P><STRONG><a name="[28a]"></a>lm_load_parameters</STRONG> (Thumb, 340 bytes, Stack size 16 bytes, lm.o(i.lm_load_parameters))
 <BR><BR>[Stack]<UL><LI>Max Depth = 328<LI>Call Chain = lm_load_parameters &rArr; ext_mem_rd_param &rArr; ext_mem_any_read &rArr; cy15_read &rArr; HAL_SPI_TransmitReceive &rArr; SPI_EndRxTxTransaction &rArr; SPI_WaitFlagStateUntilTimeout
 </UL>
-<BR>[Calls]<UL><LI><a href="#[28f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_set_cfg
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[28f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_set_cfg
 <LI><a href="#[232]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_dcr_load_can_flight_task
 <LI><a href="#[28e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_set_cfg
 <LI><a href="#[28d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_set_cfg
@@ -4086,6 +4151,7 @@ Global Symbols
 <LI><a href="#[255]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ext_mem_rd_param
 <LI><a href="#[254]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ext_mem_rd_frame_from_part_by_addr
 <LI><a href="#[28b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_set_cfg
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -4140,7 +4206,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[28b]"></a>lm_set_cfg</STRONG> (Thumb, 142 bytes, Stack size 16 bytes, lm.o(i.lm_set_cfg))
-<BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = lm_set_cfg &rArr; cyclogram_start &rArr; cyclogram_stop_step_run
+<BR><BR>[Stack]<UL><LI>Max Depth = 232<LI>Call Chain = lm_set_cfg &rArr; cyclogram_start &rArr; cyclogram_stop_step_run &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
 <BR>[Calls]<UL><LI><a href="#[245]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cyclogram_start
 <LI><a href="#[291]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_set_inh
@@ -4154,7 +4220,7 @@ Global Symbols
 <LI><a href="#[290]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_pl_inhibit_set
 </UL>
 
-<P><STRONG><a name="[6f]"></a>main</STRONG> (Thumb, 1560 bytes, Stack size 8 bytes, main.o(i.main))
+<P><STRONG><a name="[6f]"></a>main</STRONG> (Thumb, 2248 bytes, Stack size 8 bytes, main.o(i.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 1088<LI>Call Chain = main &rArr; fill_pl_iss_last_frame &rArr; pn_12_get_last_frame_in_128B_format &rArr; app_lvl_get_last_rx_frame
 </UL>
 <BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
@@ -4311,11 +4377,15 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[7f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ProcCallbackISSInterface
 </UL>
 
-<P><STRONG><a name="[9b]"></a>pl_pn11A_check_and_save_tmi</STRONG> (Thumb, 42 bytes, Stack size 32 bytes, pl_cyclogram.o(i.pl_pn11A_check_and_save_tmi))
-<BR><BR>[Stack]<UL><LI>Max Depth = 232<LI>Call Chain = pl_pn11A_check_and_save_tmi &rArr; result_write_tmi_slice &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
+<P><STRONG><a name="[9b]"></a>pl_pn11A_check_and_save_tmi</STRONG> (Thumb, 144 bytes, Stack size 80 bytes, pl_cyclogram.o(i.pl_pn11A_check_and_save_tmi))
+<BR><BR>[Stack]<UL><LI>Max Depth = 280<LI>Call Chain = pl_pn11A_check_and_save_tmi &rArr; result_write_tmi_slice &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_tmi_slice_get_and_check
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_tmi_slice_get_and_check
+<LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ui2d
+<LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
 <LI><a href="#[2c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_write_tmi_slice
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
@@ -4347,24 +4417,30 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[a5]"></a>pl_pn11A_pwr_off</STRONG> (Thumb, 16 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11A_pwr_off))
-<BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = pl_pn11A_pwr_off &rArr; pn_11_pwr_off &rArr; pwr_ch_on_off &rArr; gpio_set
+<P><STRONG><a name="[a5]"></a>pl_pn11A_pwr_off</STRONG> (Thumb, 26 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11A_pwr_off))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn11A_pwr_off &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_pwr_off
-</UL>
-<BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
-</UL>
-<P><STRONG><a name="[9c]"></a>pl_pn11A_pwr_on</STRONG> (Thumb, 16 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11A_pwr_on))
-<BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = pl_pn11A_pwr_on &rArr; pn_11_pwr_on &rArr; pwr_ch_on_off &rArr; gpio_set
-</UL>
-<BR>[Calls]<UL><LI><a href="#[2c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_pwr_on
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_pwr_off
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[a4]"></a>pl_pn11A_read_all</STRONG> (Thumb, 26 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11A_read_all))
-<BR><BR>[Stack]<UL><LI>Max Depth = 248<LI>Call Chain = pl_pn11A_read_all &rArr; result_row_data_write &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
+<P><STRONG><a name="[9c]"></a>pl_pn11A_pwr_on</STRONG> (Thumb, 26 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11A_pwr_on))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn11A_pwr_on &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_row_data_write
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_pwr_on
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
+</UL>
+<BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
+</UL>
+<P><STRONG><a name="[a4]"></a>pl_pn11A_read_all</STRONG> (Thumb, 60 bytes, Stack size 24 bytes, pl_cyclogram.o(i.pl_pn11A_read_all))
+<BR><BR>[Stack]<UL><LI>Max Depth = 256<LI>Call Chain = pl_pn11A_read_all &rArr; result_row_data_write &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
+</UL>
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_row_data_write
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
@@ -4376,15 +4452,8 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[a3]"></a>pl_pn11A_read_req_all</STRONG> (Thumb, 22 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11A_read_req_all))
-<BR><BR>[Stack]<UL><LI>Max Depth = 412<LI>Call Chain = pl_pn11A_read_req_all &rArr; pn_11_seq_read_start &rArr; _pn_11_seq_read_request &rArr; pn_11_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
-</UL>
-<BR>[Calls]<UL><LI><a href="#[2c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_seq_read_start
-</UL>
-<BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
-</UL>
-<P><STRONG><a name="[a0]"></a>pl_pn11A_read_req_mode</STRONG> (Thumb, 32 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11A_read_req_mode))
-<BR><BR>[Stack]<UL><LI>Max Depth = 412<LI>Call Chain = pl_pn11A_read_req_mode &rArr; pn_11_seq_read_start &rArr; _pn_11_seq_read_request &rArr; pn_11_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
+<P><STRONG><a name="[a3]"></a>pl_pn11A_read_req_all</STRONG> (Thumb, 32 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11A_read_req_all))
+<BR><BR>[Stack]<UL><LI>Max Depth = 420<LI>Call Chain = pl_pn11A_read_req_all &rArr; pn_11_seq_read_start &rArr; _pn_11_seq_read_request &rArr; pn_11_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
 </UL>
 <BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
 <LI><a href="#[2c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_seq_read_start
@@ -4392,18 +4461,31 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[9a]"></a>pl_pn11A_set_iku_default</STRONG> (Thumb, 18 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11A_set_iku_default))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pl_pn11A_set_iku_default &rArr; pn_11_output_set &rArr; gpio_set
+<P><STRONG><a name="[a0]"></a>pl_pn11A_read_req_mode</STRONG> (Thumb, 32 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11A_read_req_mode))
+<BR><BR>[Stack]<UL><LI>Max Depth = 420<LI>Call Chain = pl_pn11A_read_req_mode &rArr; pn_11_seq_read_start &rArr; _pn_11_seq_read_request &rArr; pn_11_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_output_set
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_seq_read_start
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[a6]"></a>pl_pn11A_stop</STRONG> (Thumb, 24 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11A_stop))
+<P><STRONG><a name="[9a]"></a>pl_pn11A_set_iku_default</STRONG> (Thumb, 28 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11A_set_iku_default))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn11A_set_iku_default &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
+</UL>
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_output_set
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
+</UL>
+<BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
+</UL>
+<P><STRONG><a name="[a6]"></a>pl_pn11A_stop</STRONG> (Thumb, 34 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11A_stop))
 <BR><BR>[Stack]<UL><LI>Max Depth = 208<LI>Call Chain = pl_pn11A_stop &rArr; result_emergency_stop &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_pwr_off
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_pwr_off
 <LI><a href="#[2c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_emergency_stop
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
@@ -4416,18 +4498,24 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[a8]"></a>pl_pn11B_check_and_save_tmi</STRONG> (Thumb, 44 bytes, Stack size 32 bytes, pl_cyclogram.o(i.pl_pn11B_check_and_save_tmi))
-<BR><BR>[Stack]<UL><LI>Max Depth = 232<LI>Call Chain = pl_pn11B_check_and_save_tmi &rArr; result_write_tmi_slice &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
+<P><STRONG><a name="[a8]"></a>pl_pn11B_check_and_save_tmi</STRONG> (Thumb, 146 bytes, Stack size 80 bytes, pl_cyclogram.o(i.pl_pn11B_check_and_save_tmi))
+<BR><BR>[Stack]<UL><LI>Max Depth = 280<LI>Call Chain = pl_pn11B_check_and_save_tmi &rArr; result_write_tmi_slice &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_tmi_slice_get_and_check
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_tmi_slice_get_and_check
+<LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ui2d
+<LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
 <LI><a href="#[2c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_write_tmi_slice
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[af]"></a>pl_pn11B_fpga_mcu_on</STRONG> (Thumb, 20 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11B_fpga_mcu_on))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pl_pn11B_fpga_mcu_on &rArr; pn_11_output_set &rArr; gpio_set
+<P><STRONG><a name="[af]"></a>pl_pn11B_fpga_mcu_on</STRONG> (Thumb, 30 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11B_fpga_mcu_on))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn11B_fpga_mcu_on &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_output_set
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_output_set
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
@@ -4468,10 +4556,12 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[b1]"></a>pl_pn11B_read_all</STRONG> (Thumb, 30 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11B_read_all))
-<BR><BR>[Stack]<UL><LI>Max Depth = 248<LI>Call Chain = pl_pn11B_read_all &rArr; result_row_data_write &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
+<P><STRONG><a name="[b1]"></a>pl_pn11B_read_all</STRONG> (Thumb, 76 bytes, Stack size 24 bytes, pl_cyclogram.o(i.pl_pn11B_read_all))
+<BR><BR>[Stack]<UL><LI>Max Depth = 256<LI>Call Chain = pl_pn11B_read_all &rArr; result_row_data_write &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_row_data_write
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_row_data_write
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
@@ -4484,7 +4574,7 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
 <P><STRONG><a name="[b0]"></a>pl_pn11B_read_req_all</STRONG> (Thumb, 34 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11B_read_req_all))
-<BR><BR>[Stack]<UL><LI>Max Depth = 412<LI>Call Chain = pl_pn11B_read_req_all &rArr; pn_11_seq_read_start &rArr; _pn_11_seq_read_request &rArr; pn_11_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
+<BR><BR>[Stack]<UL><LI>Max Depth = 420<LI>Call Chain = pl_pn11B_read_req_all &rArr; pn_11_seq_read_start &rArr; _pn_11_seq_read_request &rArr; pn_11_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
 </UL>
 <BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
 <LI><a href="#[2c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_seq_read_start
@@ -4493,7 +4583,7 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
 <P><STRONG><a name="[ad]"></a>pl_pn11B_read_req_mode</STRONG> (Thumb, 34 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11B_read_req_mode))
-<BR><BR>[Stack]<UL><LI>Max Depth = 412<LI>Call Chain = pl_pn11B_read_req_mode &rArr; pn_11_seq_read_start &rArr; _pn_11_seq_read_request &rArr; pn_11_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
+<BR><BR>[Stack]<UL><LI>Max Depth = 420<LI>Call Chain = pl_pn11B_read_req_mode &rArr; pn_11_seq_read_start &rArr; _pn_11_seq_read_request &rArr; pn_11_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
 </UL>
 <BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
 <LI><a href="#[2c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_seq_read_start
@@ -4501,18 +4591,22 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[a7]"></a>pl_pn11B_set_iku_default</STRONG> (Thumb, 20 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11B_set_iku_default))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pl_pn11B_set_iku_default &rArr; pn_11_output_set &rArr; gpio_set
+<P><STRONG><a name="[a7]"></a>pl_pn11B_set_iku_default</STRONG> (Thumb, 30 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11B_set_iku_default))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn11B_set_iku_default &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_output_set
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_output_set
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[b3]"></a>pl_pn11B_stop</STRONG> (Thumb, 26 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11B_stop))
+<P><STRONG><a name="[b3]"></a>pl_pn11B_stop</STRONG> (Thumb, 36 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11B_stop))
 <BR><BR>[Stack]<UL><LI>Max Depth = 208<LI>Call Chain = pl_pn11B_stop &rArr; result_emergency_stop &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_pwr_off
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_pwr_off
 <LI><a href="#[2c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_emergency_stop
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
@@ -4525,26 +4619,34 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[bd]"></a>pl_pn11_A_B_stop</STRONG> (Thumb, 32 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11_A_B_stop))
+<P><STRONG><a name="[bd]"></a>pl_pn11_A_B_stop</STRONG> (Thumb, 42 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn11_A_B_stop))
 <BR><BR>[Stack]<UL><LI>Max Depth = 208<LI>Call Chain = pl_pn11_A_B_stop &rArr; result_emergency_stop &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_pwr_off
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_pwr_off
 <LI><a href="#[2c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_emergency_stop
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[bc]"></a>pl_pn11_A_B_write_mode</STRONG> (Thumb, 46 bytes, Stack size 24 bytes, pl_cyclogram.o(i.pl_pn11_A_B_write_mode))
+<P><STRONG><a name="[bc]"></a>pl_pn11_A_B_write_mode</STRONG> (Thumb, 60 bytes, Stack size 24 bytes, pl_cyclogram.o(i.pl_pn11_A_B_write_mode))
 <BR><BR>[Stack]<UL><LI>Max Depth = 404<LI>Call Chain = pl_pn11_A_B_write_mode &rArr; pn_11_write_u32_data &rArr; app_lvl_write &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2c9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_write_u32_data
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2c9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_write_u32_data
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[b5]"></a>pl_pn12_check_and_save_tmi</STRONG> (Thumb, 44 bytes, Stack size 32 bytes, pl_cyclogram.o(i.pl_pn12_check_and_save_tmi))
-<BR><BR>[Stack]<UL><LI>Max Depth = 232<LI>Call Chain = pl_pn12_check_and_save_tmi &rArr; result_write_tmi_slice &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
+<P><STRONG><a name="[b5]"></a>pl_pn12_check_and_save_tmi</STRONG> (Thumb, 146 bytes, Stack size 80 bytes, pl_cyclogram.o(i.pl_pn12_check_and_save_tmi))
+<BR><BR>[Stack]<UL><LI>Max Depth = 280<LI>Call Chain = pl_pn12_check_and_save_tmi &rArr; result_write_tmi_slice &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_tmi_slice_get_and_check
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ui2d
+<LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
+<LI><a href="#[2ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_tmi_slice_get_and_check
 <LI><a href="#[2c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_write_tmi_slice
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
@@ -4575,24 +4677,30 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[b9]"></a>pl_pn12_read_all</STRONG> (Thumb, 30 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn12_read_all))
+<P><STRONG><a name="[b9]"></a>pl_pn12_read_all</STRONG> (Thumb, 56 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn12_read_all))
 <BR><BR>[Stack]<UL><LI>Max Depth = 248<LI>Call Chain = pl_pn12_read_all &rArr; result_row_data_write &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_row_data_write
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_row_data_write
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[b8]"></a>pl_pn12_read_req_all</STRONG> (Thumb, 24 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn12_read_req_all))
-<BR><BR>[Stack]<UL><LI>Max Depth = 412<LI>Call Chain = pl_pn12_read_req_all &rArr; pn_12_seq_read_start &rArr; _pn_12_seq_read_request &rArr; pn_12_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
+<P><STRONG><a name="[b8]"></a>pl_pn12_read_req_all</STRONG> (Thumb, 34 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn12_read_req_all))
+<BR><BR>[Stack]<UL><LI>Max Depth = 420<LI>Call Chain = pl_pn12_read_req_all &rArr; pn_12_seq_read_start &rArr; _pn_12_seq_read_request &rArr; pn_12_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_seq_read_start
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_seq_read_start
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[b6]"></a>pl_pn12_set_iku_default</STRONG> (Thumb, 20 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn12_set_iku_default))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pl_pn12_set_iku_default &rArr; pn_12_output_set &rArr; gpio_set
+<P><STRONG><a name="[b6]"></a>pl_pn12_set_iku_default</STRONG> (Thumb, 30 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn12_set_iku_default))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn12_set_iku_default &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_output_set
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_output_set
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
@@ -4607,11 +4715,15 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[86]"></a>pl_pn20_check_and_save_tmi</STRONG> (Thumb, 44 bytes, Stack size 32 bytes, pl_cyclogram.o(i.pl_pn20_check_and_save_tmi))
-<BR><BR>[Stack]<UL><LI>Max Depth = 232<LI>Call Chain = pl_pn20_check_and_save_tmi &rArr; result_write_tmi_slice &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
+<P><STRONG><a name="[86]"></a>pl_pn20_check_and_save_tmi</STRONG> (Thumb, 146 bytes, Stack size 80 bytes, pl_cyclogram.o(i.pl_pn20_check_and_save_tmi))
+<BR><BR>[Stack]<UL><LI>Max Depth = 280<LI>Call Chain = pl_pn20_check_and_save_tmi &rArr; result_write_tmi_slice &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_tmi_slice_get_and_check
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ui2d
+<LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
+<LI><a href="#[2cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_tmi_slice_get_and_check
 <LI><a href="#[2c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_write_tmi_slice
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
@@ -4633,73 +4745,93 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[88]"></a>pl_pn20_read_sw_tmi_1</STRONG> (Thumb, 42 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_read_sw_tmi_1))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pl_pn20_read_sw_tmi_1 &rArr; pn_20_comm_queue_start
+<P><STRONG><a name="[88]"></a>pl_pn20_read_sw_tmi_1</STRONG> (Thumb, 52 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_read_sw_tmi_1))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn20_read_sw_tmi_1 &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
-</UL>
-<BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
-</UL>
-<P><STRONG><a name="[95]"></a>pl_pn20_read_sw_tmi_2</STRONG> (Thumb, 38 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_read_sw_tmi_2))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pl_pn20_read_sw_tmi_2 &rArr; pn_20_comm_queue_start
-</UL>
-<BR>[Calls]<UL><LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[90]"></a>pl_pn20_sd_read_1</STRONG> (Thumb, 38 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_sd_read_1))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pl_pn20_sd_read_1 &rArr; pn_20_comm_queue_start
+<P><STRONG><a name="[95]"></a>pl_pn20_read_sw_tmi_2</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_read_sw_tmi_2))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn20_read_sw_tmi_2 &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
-</UL>
-<BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
-</UL>
-<P><STRONG><a name="[92]"></a>pl_pn20_sd_read_2</STRONG> (Thumb, 38 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_sd_read_2))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pl_pn20_sd_read_2 &rArr; pn_20_comm_queue_start
-</UL>
-<BR>[Calls]<UL><LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[94]"></a>pl_pn20_sd_read_3</STRONG> (Thumb, 38 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_sd_read_3))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pl_pn20_sd_read_3 &rArr; pn_20_comm_queue_start
+<P><STRONG><a name="[90]"></a>pl_pn20_sd_read_1</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_sd_read_1))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn20_sd_read_1 &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
-</UL>
-<BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
-</UL>
-<P><STRONG><a name="[8f]"></a>pl_pn20_sd_start_1</STRONG> (Thumb, 38 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_sd_start_1))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pl_pn20_sd_start_1 &rArr; pn_20_comm_queue_start
-</UL>
-<BR>[Calls]<UL><LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[91]"></a>pl_pn20_sd_start_2</STRONG> (Thumb, 38 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_sd_start_2))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pl_pn20_sd_start_2 &rArr; pn_20_comm_queue_start
+<P><STRONG><a name="[92]"></a>pl_pn20_sd_read_2</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_sd_read_2))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn20_sd_read_2 &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
-</UL>
-<BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
-</UL>
-<P><STRONG><a name="[93]"></a>pl_pn20_sd_start_3</STRONG> (Thumb, 38 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_sd_start_3))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pl_pn20_sd_start_3 &rArr; pn_20_comm_queue_start
-</UL>
-<BR>[Calls]<UL><LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[84]"></a>pl_pn20_set_iku_default</STRONG> (Thumb, 20 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_set_iku_default))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pl_pn20_set_iku_default &rArr; pn_20_output_set &rArr; gpio_set
+<P><STRONG><a name="[94]"></a>pl_pn20_sd_read_3</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_sd_read_3))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn20_sd_read_3 &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_output_set
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[87]"></a>pl_pn20_set_iku_pl_on</STRONG> (Thumb, 20 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_set_iku_pl_on))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pl_pn20_set_iku_pl_on &rArr; pn_20_output_set &rArr; gpio_set
+<P><STRONG><a name="[8f]"></a>pl_pn20_sd_start_1</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_sd_start_1))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn20_sd_start_1 &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_output_set
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
+</UL>
+<BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
+</UL>
+<P><STRONG><a name="[91]"></a>pl_pn20_sd_start_2</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_sd_start_2))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn20_sd_start_2 &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
+</UL>
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
+</UL>
+<BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
+</UL>
+<P><STRONG><a name="[93]"></a>pl_pn20_sd_start_3</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_sd_start_3))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn20_sd_start_3 &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
+</UL>
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
+</UL>
+<BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
+</UL>
+<P><STRONG><a name="[84]"></a>pl_pn20_set_iku_default</STRONG> (Thumb, 30 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_set_iku_default))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn20_set_iku_default &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
+</UL>
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_output_set
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
+</UL>
+<BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
+</UL>
+<P><STRONG><a name="[87]"></a>pl_pn20_set_iku_pl_on</STRONG> (Thumb, 30 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_set_iku_pl_on))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn20_set_iku_pl_on &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
+</UL>
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_output_set
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
@@ -4714,52 +4846,66 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[8a]"></a>pl_pn20_tas_read_1</STRONG> (Thumb, 38 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_tas_read_1))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pl_pn20_tas_read_1 &rArr; pn_20_comm_queue_start
+<P><STRONG><a name="[8a]"></a>pl_pn20_tas_read_1</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_tas_read_1))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn20_tas_read_1 &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
-</UL>
-<BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
-</UL>
-<P><STRONG><a name="[8c]"></a>pl_pn20_tas_read_2</STRONG> (Thumb, 38 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_tas_read_2))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pl_pn20_tas_read_2 &rArr; pn_20_comm_queue_start
-</UL>
-<BR>[Calls]<UL><LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[8e]"></a>pl_pn20_tas_read_3</STRONG> (Thumb, 38 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_tas_read_3))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pl_pn20_tas_read_3 &rArr; pn_20_comm_queue_start
+<P><STRONG><a name="[8c]"></a>pl_pn20_tas_read_2</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_tas_read_2))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn20_tas_read_2 &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
-</UL>
-<BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
-</UL>
-<P><STRONG><a name="[89]"></a>pl_pn20_tas_start_1</STRONG> (Thumb, 38 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_tas_start_1))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pl_pn20_tas_start_1 &rArr; pn_20_comm_queue_start
-</UL>
-<BR>[Calls]<UL><LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[8b]"></a>pl_pn20_tas_start_2</STRONG> (Thumb, 38 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_tas_start_2))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pl_pn20_tas_start_2 &rArr; pn_20_comm_queue_start
+<P><STRONG><a name="[8e]"></a>pl_pn20_tas_read_3</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_tas_read_3))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn20_tas_read_3 &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
-</UL>
-<BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
-</UL>
-<P><STRONG><a name="[8d]"></a>pl_pn20_tas_start_3</STRONG> (Thumb, 38 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_tas_start_3))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = pl_pn20_tas_start_3 &rArr; pn_20_comm_queue_start
-</UL>
-<BR>[Calls]<UL><LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
-<P><STRONG><a name="[97]"></a>pl_pn20_write_result</STRONG> (Thumb, 28 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_write_result))
+<P><STRONG><a name="[89]"></a>pl_pn20_tas_start_1</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_tas_start_1))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn20_tas_start_1 &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
+</UL>
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
+</UL>
+<BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
+</UL>
+<P><STRONG><a name="[8b]"></a>pl_pn20_tas_start_2</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_tas_start_2))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn20_tas_start_2 &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
+</UL>
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
+</UL>
+<BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
+</UL>
+<P><STRONG><a name="[8d]"></a>pl_pn20_tas_start_3</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_tas_start_3))
+<BR><BR>[Stack]<UL><LI>Max Depth = 192<LI>Call Chain = pl_pn20_tas_start_3 &rArr; printf_time &rArr; __aeabi_dmul &rArr; _double_epilogue &rArr; _double_round
+</UL>
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_20_comm_queue_start
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
+</UL>
+<BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
+</UL>
+<P><STRONG><a name="[97]"></a>pl_pn20_write_result</STRONG> (Thumb, 38 bytes, Stack size 16 bytes, pl_cyclogram.o(i.pl_pn20_write_result))
 <BR><BR>[Stack]<UL><LI>Max Depth = 248<LI>Call Chain = pl_pn20_write_result &rArr; result_row_data_write &rArr; result_refresh &rArr; frame_create_header &rArr; clock_get_time_s &rArr; _get_month_offset
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_row_data_write
+<BR>[Calls]<UL><LI><a href="#[226]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;printf_time
+<LI><a href="#[2c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;result_row_data_write
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> pl_cyclogram.o(i.cyclogram_init)
 </UL>
@@ -4837,7 +4983,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[2db]"></a>pn_11_interface_process</STRONG> (Thumb, 176 bytes, Stack size 152 bytes, pn11.o(i.pn_11_interface_process))
-<BR><BR>[Stack]<UL><LI>Max Depth = 532<LI>Call Chain = pn_11_interface_process &rArr; _pn_11_seq_read_request &rArr; pn_11_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
+<BR><BR>[Stack]<UL><LI>Max Depth = 540<LI>Call Chain = pn_11_interface_process &rArr; _pn_11_seq_read_request &rArr; pn_11_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
 </UL>
 <BR>[Calls]<UL><LI><a href="#[2dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tr_lvl_process
 <LI><a href="#[21c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_lvl_process
@@ -4885,7 +5031,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[2a8]"></a>pn_11_process</STRONG> (Thumb, 32 bytes, Stack size 16 bytes, pn11.o(i.pn_11_process))
-<BR><BR>[Stack]<UL><LI>Max Depth = 548<LI>Call Chain = pn_11_process &rArr; pn_11_interface_process &rArr; _pn_11_seq_read_request &rArr; pn_11_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
+<BR><BR>[Stack]<UL><LI>Max Depth = 556<LI>Call Chain = pn_11_process &rArr; pn_11_interface_process &rArr; _pn_11_seq_read_request &rArr; pn_11_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
 </UL>
 <BR>[Calls]<UL><LI><a href="#[2df]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_tmp_process
 <LI><a href="#[2de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_11_pwr_process
@@ -4976,7 +5122,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[2c7]"></a>pn_11_seq_read_start</STRONG> (Thumb, 72 bytes, Stack size 16 bytes, pn11.o(i.pn_11_seq_read_start))
-<BR><BR>[Stack]<UL><LI>Max Depth = 396<LI>Call Chain = pn_11_seq_read_start &rArr; _pn_11_seq_read_request &rArr; pn_11_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
+<BR><BR>[Stack]<UL><LI>Max Depth = 404<LI>Call Chain = pn_11_seq_read_start &rArr; _pn_11_seq_read_request &rArr; pn_11_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
 </UL>
 <BR>[Calls]<UL><LI><a href="#[20f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_pn_11_seq_read_request
 <LI><a href="#[121]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
@@ -5127,7 +5273,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[2ec]"></a>pn_12_interface_process</STRONG> (Thumb, 172 bytes, Stack size 152 bytes, pn12.o(i.pn_12_interface_process))
-<BR><BR>[Stack]<UL><LI>Max Depth = 532<LI>Call Chain = pn_12_interface_process &rArr; _pn_12_seq_read_request &rArr; pn_12_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
+<BR><BR>[Stack]<UL><LI>Max Depth = 540<LI>Call Chain = pn_12_interface_process &rArr; _pn_12_seq_read_request &rArr; pn_12_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
 </UL>
 <BR>[Calls]<UL><LI><a href="#[2dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tr_lvl_process
 <LI><a href="#[21c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;app_lvl_process
@@ -5162,7 +5308,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[2a9]"></a>pn_12_process</STRONG> (Thumb, 32 bytes, Stack size 16 bytes, pn12.o(i.pn_12_process))
-<BR><BR>[Stack]<UL><LI>Max Depth = 548<LI>Call Chain = pn_12_process &rArr; pn_12_interface_process &rArr; _pn_12_seq_read_request &rArr; pn_12_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
+<BR><BR>[Stack]<UL><LI>Max Depth = 556<LI>Call Chain = pn_12_process &rArr; pn_12_interface_process &rArr; _pn_12_seq_read_request &rArr; pn_12_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
 </UL>
 <BR>[Calls]<UL><LI><a href="#[2ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_tmp_process
 <LI><a href="#[2ed]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pn_12_pwr_process
@@ -5249,7 +5395,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[2ce]"></a>pn_12_seq_read_start</STRONG> (Thumb, 62 bytes, Stack size 16 bytes, pn12.o(i.pn_12_seq_read_start))
-<BR><BR>[Stack]<UL><LI>Max Depth = 396<LI>Call Chain = pn_12_seq_read_start &rArr; _pn_12_seq_read_request &rArr; pn_12_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
+<BR><BR>[Stack]<UL><LI>Max Depth = 404<LI>Call Chain = pn_12_seq_read_start &rArr; _pn_12_seq_read_request &rArr; pn_12_read_req_u32_data &rArr; app_lvl_read_req &rArr; tr_lvl_send_data &rArr; tx_create_frame &rArr; tx_create_data_frame &rArr; crc8_rmap_data
 </UL>
 <BR>[Calls]<UL><LI><a href="#[211]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_pn_12_seq_read_request
 <LI><a href="#[121]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
@@ -5921,28 +6067,69 @@ Global Symbols
 <LI><a href="#[176]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_GetTime
 <LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
-<BR>[Called By]<UL><LI><a href="#[286]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_init
+<BR>[Called By]<UL><LI><a href="#[245]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cyclogram_start
+<LI><a href="#[242]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cyclogram_process
+<LI><a href="#[28a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_load_parameters
+<LI><a href="#[286]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_init
+<LI><a href="#[280]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lm_cyclogram_process
+<LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_write_result
+<LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_tas_start_3
+<LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_tas_start_2
+<LI><a href="#[89]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_tas_start_1
+<LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_tas_read_3
+<LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_tas_read_2
+<LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_tas_read_1
 <LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_stop
+<LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_set_iku_pl_on
+<LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_set_iku_default
+<LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_sd_start_3
+<LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_sd_start_2
+<LI><a href="#[8f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_sd_start_1
+<LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_sd_read_3
+<LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_sd_read_2
+<LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_sd_read_1
+<LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_read_sw_tmi_2
+<LI><a href="#[88]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_read_sw_tmi_1
 <LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_pwr_on
 <LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_pwr_off
+<LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn20_check_and_save_tmi
 <LI><a href="#[bb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn12_stop
+<LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn12_set_iku_default
+<LI><a href="#[b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn12_read_req_all
+<LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn12_read_all
 <LI><a href="#[b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn12_pwr_on
 <LI><a href="#[ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn12_pwr_off
 <LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn12_interface_init
+<LI><a href="#[b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn12_check_and_save_tmi
+<LI><a href="#[bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11_A_B_write_mode
+<LI><a href="#[bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11_A_B_stop
 <LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_write_mode
+<LI><a href="#[b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_stop
+<LI><a href="#[a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_set_iku_default
 <LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_read_req_mode
 <LI><a href="#[b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_read_req_all
 <LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_read_mode
+<LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_read_all
 <LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_pwr_on
 <LI><a href="#[b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_pwr_off
 <LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_interface_reset_and_sync
 <LI><a href="#[aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_fpga_on
+<LI><a href="#[af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_fpga_mcu_on
+<LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11B_check_and_save_tmi
 <LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_write_mode
+<LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_stop
+<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_set_iku_default
 <LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_read_req_mode
+<LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_read_req_all
 <LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_read_mode
+<LI><a href="#[a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_read_all
+<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_pwr_on
+<LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_pwr_off
 <LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_interface_reset_and_sync
 <LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_fpga_on
 <LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_fpga_mcu_on
+<LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pl_pn11A_check_and_save_tmi
+<LI><a href="#[243]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cyclogram_stop_step_run
 <LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 <LI><a href="#[225]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;blocking_test
 </UL>
@@ -7000,7 +7187,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[20a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_printf_core
 </UL>
 
-<P><STRONG><a name="[20a]"></a>_printf_core</STRONG> (Thumb, 1744 bytes, Stack size 136 bytes, printfa.o(i._printf_core), UNUSED)
+<P><STRONG><a name="[20a]"></a>_printf_core</STRONG> (Thumb, 1704 bytes, Stack size 136 bytes, printfa.o(i._printf_core), UNUSED)
 <BR><BR>[Calls]<UL><LI><a href="#[213]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_printf_pre_padding
 <LI><a href="#[214]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_printf_post_padding
 <LI><a href="#[20c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_fp_digits
