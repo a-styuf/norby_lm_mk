@@ -19,6 +19,7 @@
         "type_traits": "c",
         "xtr1common": "c",
         "can_usb_vcp.h": "c",
-        "pn12.h": "c"
+        "pn12.h": "c",
+        "iwdg.h": "c"
     }
 }
