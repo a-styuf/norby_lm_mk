@@ -1,10 +1,7 @@
 #ifndef _PL_CYCLOGRAM_H
 #define _PL_CYCLOGRAM_H
 
-#include "pn11.h"
-#include "pn12.h"
-#include "pn20.h"
-#include "pn_dcr.h"
+#include "pn_sol.h"
 #include "lm_interfaces.h"
 #include <stdio.h>
 #include "debug.h"
@@ -14,12 +11,7 @@
 
 // настройка циклограмм
 #define LM	 		(0)
-#define PL11A	 	(1)
-#define PL11B	 	(2)
-#define PL12		(3)
-#define PL20 		(4)
-#define PL_DCR1 (5)
-#define PL_DCR2 (6)
+#define PL_SOL	 	(1)
 
 // раскрашивание переменных
 #define CYCLEGRAMM_NUM 										(16)
@@ -38,11 +30,7 @@
 
 typedef struct
 { 
-	type_PN11_model _11A;
-	type_PN11_model _11B;
-	type_PN12_model _12;
-	type_PN20_model _20;
-	type_PN_DCR_model _dcr;
+	type_PN11_model _sol;
 } type_PL;
 
 // CYCLOGRAM //

@@ -189,7 +189,7 @@
             <hadIRAM2>1</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>1</useUlib>
+            <useUlib>0</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F405xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;             ../Drivers/STM32F4xx_HAL_Driver/Inc;             ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;             ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;             ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;             ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;             ../Drivers/CMSIS/Include;             ..\my_files;             ..\aa_can</IncludePath>
+              <IncludePath>../Inc;               ../Drivers/STM32F4xx_HAL_Driver/Inc;               ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;               ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;               ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;               ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;               ../Drivers/CMSIS/Include;               ..\my_files;               ..\aa_can</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -409,11 +409,6 @@
               <FilePath>..\my_files\my_gpio.c</FilePath>
             </File>
             <File>
-              <FileName>lm.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\my_files\lm.c</FilePath>
-            </File>
-            <File>
               <FileName>led.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\my_files\led.c</FilePath>
@@ -429,44 +424,9 @@
               <FilePath>..\my_files\tmp1075.c</FilePath>
             </File>
             <File>
-              <FileName>pn11.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\my_files\pn11.c</FilePath>
-            </File>
-            <File>
               <FileName>pwr_ch.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\my_files\pwr_ch.c</FilePath>
-            </File>
-            <File>
-              <FileName>pl_cyclogram.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\my_files\pl_cyclogram.c</FilePath>
-            </File>
-            <File>
-              <FileName>pn_11_interface_tr_lvl.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\my_files\pn_11_interface_tr_lvl.c</FilePath>
-            </File>
-            <File>
-              <FileName>pn_11_interface_app_lvl.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\my_files\pn_11_interface_app_lvl.c</FilePath>
-            </File>
-            <File>
-              <FileName>lm_interfaces.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\my_files\lm_interfaces.c</FilePath>
-            </File>
-            <File>
-              <FileName>lm_int_cb.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\my_files\lm_int_cb.c</FilePath>
-            </File>
-            <File>
-              <FileName>lm_interfaces_data.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\my_files\lm_interfaces_data.c</FilePath>
             </File>
             <File>
               <FileName>cy15b104qn_spi.c</FileName>
@@ -479,29 +439,9 @@
               <FilePath>..\my_files\ext_mem.c</FilePath>
             </File>
             <File>
-              <FileName>can_vcp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\my_files\can_vcp.c</FilePath>
-            </File>
-            <File>
-              <FileName>pn_dcr.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\my_files\pn_dcr.c</FilePath>
-            </File>
-            <File>
               <FileName>debug.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\my_files\debug.c</FilePath>
-            </File>
-            <File>
-              <FileName>pn20.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\my_files\pn20.c</FilePath>
-            </File>
-            <File>
-              <FileName>pn12.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\my_files\pn12.c</FilePath>
             </File>
             <File>
               <FileName>clock.c</FileName>
@@ -517,6 +457,16 @@
               <FileName>critical_lock.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\my_files\critical_lock.c</FilePath>
+            </File>
+            <File>
+              <FileName>pn_sol.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\my_files\pn_sol.c</FilePath>
+            </File>
+            <File>
+              <FileName>modbus.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\my_files\modbus.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -557,11 +507,6 @@
               <FileName>spi.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/spi.c</FilePath>
-            </File>
-            <File>
-              <FileName>sys.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Src/sys.c</FilePath>
             </File>
             <File>
               <FileName>tim.c</FileName>
