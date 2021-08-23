@@ -27,6 +27,7 @@ void mb_init(type_MODBUS* mb_ptr, UART_HandleTypeDef *uart_ptr)
 	mb_ptr->rx_timeout_flag = 0;
 	mb_ptr->rx_timeout = 0;
 	mb_ptr->rx_data_ready = 0;
+	mb_ptr->transaction_state = 0;
 	// чистим буферы приема и структуры кадров на всякий случай
 	memset(mb_ptr->tx_data, 0x00, sizeof(mb_ptr->tx_data));
 	memset(mb_ptr->rx_data, 0x00, sizeof(mb_ptr->rx_data));
@@ -42,7 +43,7 @@ void mb_process(type_MODBUS* mb_ptr, uint16_t period_ms)
 {
 	// обработка таймаута
 	mb_rx_timeout_cb(mb_ptr, period_ms);
-	// анализ принятых данных	
+	// анализ принятых данных
 }
 
 /**
@@ -55,6 +56,104 @@ void mb_rx_ptr_reset(type_MODBUS* mb_ptr)
 	mb_ptr->rx_ptr_offset = 0;
 	HAL_UART_AbortReceive_IT(mb_ptr->huart);
 	HAL_UART_Receive_IT(mb_ptr->huart, mb_ptr->rx_data + mb_ptr->rx_ptr, 1);
+}
+
+/**
+  * @brief  запуск транзакции ModBus
+  * @param  mb_ptr указатель на структуру управления
+	* @param  dev_id адрес утсройства
+	* @param  f_code код команды
+	* @param  reg_addr адрес начального регистра для передачи
+	* @param  reg_cnt количество регистров для передачи (проверяется только для команд с передачей/чтением нескольких регистров)
+	* @retval  статус: >= 0 - OK, < 0 - ошибка
+  */
+int8_t mb_run_transaction(type_MODBUS* mb_ptr, uint8_t dev_id, uint8_t f_code, uint16_t reg_addr, uint16_t reg_cnt, uint16_t* data)
+{
+	// проверяем, можем закончена ди предыдущая транзакция
+	if (mb_ptr->rx_timeout_flag) {
+		mb_ptr->error_cnt += 1;
+		return 0;
+	}
+	//
+	if ((dev_id == 0) || (f_code == 0)) {
+		return -1;
+	}
+	// подгатавливаем начальное состояние отпраки пакета
+	mb_ptr->transaction_state = MB_TRANSACTION_WRITE;
+	mb_ptr->rx_timeout = 0;
+	mb_ptr->rx_timeout_flag = 1;
+	memset((uint8_t*)&mb_ptr->tx_frame, 0x00, sizeof(mb_ptr->tx_frame));
+	memset((uint8_t*)&mb_ptr->rx_frame, 0x00, sizeof(mb_ptr->rx_frame));
+	// отправляем пакет
+	if (mb_send_frame(mb_ptr, dev_id, f_code, reg_addr, reg_cnt, data) < 0){
+		mb_ptr->error_cnt += 1;
+	}
+	else{
+		mb_ptr->tx_cnt += 1;
+	}
+	return 1;
+}
+
+/**
+  * @brief  запуск транзакции ModBus через структуру кадра type_MB_Frame
+  * @param  mb_ptr указатель на структуру управления
+	* @param  frame структура с кадром MB
+	* @retval  статус: >= 0 - OK, < 0 - ошибка
+  */
+int8_t mb_run_transaction_from_frame(type_MODBUS* mb_ptr, type_MB_Frame frame)
+{
+	return mb_run_transaction(mb_ptr, frame.dev_id, frame.f_code, frame.reg_addr, frame.reg_cnt, frame.data);
+}
+
+/**
+  * @brief  поддержка транзакции ModBus
+  * @param  mb_ptr указатель на структуру управления
+	* @param  period_ms период вызова поддержки данной функции
+  */
+void mb_process_transaction(type_MODBUS* mb_ptr, uint32_t period_ms)
+{
+	int8_t status;
+	if (mb_ptr->rx_timeout_flag){
+		mb_ptr->rx_timeout += period_ms;
+		if (mb_ptr->rx_timeout >= MB_UART_TIMEOUT_MS){
+			mb_ptr->rx_timeout_flag = 0;
+			mb_ptr->rx_timeout = 0;
+			mb_ptr->error_cnt += 1;
+			return;
+		}
+	}
+	// запрос одного пакета из принятой последовательности
+	status = mb_get_frame(mb_ptr, mb_ptr->rx_data, mb_ptr->rx_ptr, mb_ptr->transaction_state);
+	switch (status) {
+	case MB_UART_RX_STATUS_SHORT:
+		return;
+	case MB_UART_RX_STATUS_OK:
+		// проверка приема отправляемого пакета (из-за полудуплекса)
+		if (mb_ptr->transaction_state == MB_TRANSACTION_WRITE){
+			if (memcmp((uint8_t*)(&mb_ptr->rx_frame), (uint8_t*)(&mb_ptr->tx_frame), sizeof(type_MB_Frame)) == 0){
+				mb_ptr->transaction_state = MB_TRANSACTION_READ;
+			}
+			else{
+				mb_ptr->error_cnt += 1;
+				mb_ptr->transaction_state = MB_TRANSACTION_READ;
+			}
+		}
+		else if(mb_ptr->transaction_state == MB_TRANSACTION_READ){
+			mb_ptr->rx_timeout_flag = 0;
+			mb_ptr->rx_timeout = 0;
+			mb_ptr->transaction_state = MB_TRANSACTION_IDLE;
+			mb_ptr->rx_data_ready = 1;
+		}
+		break;
+	case MB_UART_RX_STATUS_LENGTH:
+	case MB_UART_UNEXPECTED_FRAME:
+	case MB_UART_CRC_ERROR:
+		mb_ptr->transaction_state = MB_TRANSACTION_IDLE;
+		mb_ptr->error_cnt += 1;
+		break;
+	default:
+		break;
+	}
 }
 
 /**
@@ -86,14 +185,113 @@ int8_t mb_send_frame(type_MODBUS* mb_ptr, uint8_t dev_id, uint8_t f_code, uint16
 
 /**
   * @brief  выборка пакета MB из входящего потока данных
+	* @note данная функция не разбирает сам пакета, а только определяет его наличие
   * @param  mb_ptr указатель на структуру управления
-	* @retval  1 - пакет принят, 0 - отсутсвие пакета, -1 = потрянный пакет
+	* @param  data данные для разбора
+	* @param  leng длина входного буфера
+	* @param  frame_type - тип кадра (отправка, прием или неожиданный)
+	* @retval  статус разбора
   */
-int8_t mb_get_frame(type_MODBUS* mb_ptr)
+int8_t mb_get_frame(type_MODBUS* mb_ptr, uint8_t* data, uint8_t leng, uint8_t frame_type)
 {
-		//todo
-}
+	uint8_t frame_length = 0;
+	uint16_t crc16_tmp = 0x00;
 
+	if (leng < 5) { // если меньше 5-ти байт (минимальная длина кадра для ModBus), то ждем еще данных
+		return MB_UART_RX_STATUS_SHORT;
+	}
+	else {
+		mb_ptr->rx_frame.dev_id = data[0];
+		mb_ptr->rx_frame.f_code = data[1];
+		if (mb_ptr->rx_frame.f_code & MB_F_CODE_ERROR) {
+			mb_ptr->rx_frame.f_code &= ~MB_F_CODE_ERROR;
+			mb_ptr->rx_frame.error_code = data[2];
+			frame_length = 5;
+			mb_ptr->rx_frame.crc_16 = (data[frame_length-1] << 8) | (data[frame_length-2]);
+			crc16_tmp = __mb_crc16(data, frame_length-2, MB_CRC16_INIT_VAL);
+		}
+		else {
+			if (mb_ptr->transaction_state == MB_TRANSACTION_WRITE){
+				switch(mb_ptr->rx_frame.f_code) {
+					case MB_F_CODE_3:
+						mb_ptr->rx_frame.reg_addr = __REVSH (*((uint16_t*)&data[2]));
+						mb_ptr->rx_frame.reg_cnt = __REVSH (*((uint16_t*)&data[4]));
+						mb_ptr->rx_frame.byte_cnt = mb_ptr->rx_frame.reg_cnt * 2;
+						frame_length = 8;
+						if (frame_length > leng) return MB_UART_RX_STATUS_SHORT;
+						mb_ptr->rx_frame.crc_16 = (data[frame_length-2] << 8) | (data[frame_length-1]);
+						crc16_tmp = __REVSH(__mb_crc16(data, frame_length-2, MB_CRC16_INIT_VAL));
+					break;
+					case MB_F_CODE_6:
+						mb_ptr->rx_frame.reg_addr = __REVSH (*((uint16_t*)&data[2]));
+						memcpy(mb_ptr->rx_frame.data, &data[4], 2);
+						frame_length = 8;
+						if (frame_length > leng) return MB_UART_RX_STATUS_SHORT;
+						mb_ptr->rx_frame.crc_16 = (data[frame_length-2] << 8) | (data[frame_length-1]);
+						crc16_tmp = __REVSH(__mb_crc16(data, frame_length-2, MB_CRC16_INIT_VAL));
+					break;
+					case MB_F_CODE_16:
+						mb_ptr->rx_frame.reg_addr = __REVSH (*((uint16_t*)&data[2]));
+						mb_ptr->rx_frame.reg_cnt = __REVSH (*((uint16_t*)&data[4]));
+						mb_ptr->rx_frame.byte_cnt = data[5];
+						memcpy(mb_ptr->rx_frame.data, &data[6], mb_ptr->rx_frame.byte_cnt);
+						frame_length = 9 + mb_ptr->rx_frame.byte_cnt;
+						if (frame_length > leng) return MB_UART_RX_STATUS_SHORT;
+						mb_ptr->rx_frame.crc_16 = (data[frame_length-2] << 8) | (data[frame_length-1]);
+						crc16_tmp = __REVSH(__mb_crc16(data, frame_length-2, MB_CRC16_INIT_VAL));
+					break;
+				}
+			}
+			else if (mb_ptr->transaction_state == MB_TRANSACTION_READ){
+				switch(mb_ptr->rx_frame.f_code) {
+					case MB_F_CODE_3:
+						mb_ptr->rx_frame.byte_cnt = data[2];
+						mb_ptr->rx_frame.reg_cnt = mb_ptr->rx_frame.byte_cnt / 2;
+						frame_length = mb_ptr->rx_frame.byte_cnt + 5;
+						if (frame_length > leng) return MB_UART_RX_STATUS_SHORT;
+						memcpy(mb_ptr->rx_frame.data, &data[3], mb_ptr->rx_frame.byte_cnt);
+						mb_ptr->rx_frame.crc_16 = (data[frame_length-2] << 8) | (data[frame_length-1]);
+						crc16_tmp = __REVSH(__mb_crc16(data, frame_length-2, MB_CRC16_INIT_VAL));
+					break;
+					case MB_F_CODE_6:
+						mb_ptr->rx_frame.reg_addr = __REVSH (*((uint16_t*)&data[2]));
+						memcpy(mb_ptr->rx_frame.data, &data[4], 2);
+						frame_length = 8;
+						if (frame_length > leng) return MB_UART_RX_STATUS_SHORT;
+						mb_ptr->rx_frame.crc_16 = (data[frame_length-2] << 8) | (data[frame_length-1]);
+						crc16_tmp = __REVSH(__mb_crc16(data, frame_length-2, MB_CRC16_INIT_VAL));
+					break;
+					case MB_F_CODE_16:
+						mb_ptr->rx_frame.reg_addr = __REVSH (*((uint16_t*)&data[2]));
+						mb_ptr->rx_frame.reg_cnt = __REVSH (*((uint16_t*)&data[4]));
+						mb_ptr->rx_frame.byte_cnt = mb_ptr->rx_frame.reg_cnt * 2;
+						frame_length = 8;
+						if (frame_length > leng) return MB_UART_RX_STATUS_SHORT;
+						mb_ptr->rx_frame.crc_16 = (data[frame_length-2] << 8) | (data[frame_length-1]);
+						crc16_tmp = __REVSH(__mb_crc16(data, frame_length-2, MB_CRC16_INIT_VAL));
+					break;
+				}
+			}
+			else{
+				return MB_UART_UNEXPECTED_FRAME;
+			}
+			if (mb_ptr->rx_frame.crc_16 != crc16_tmp){
+				memmove(mb_ptr->rx_data, mb_ptr->rx_data + 1, mb_ptr->rx_ptr - 1);
+				mb_ptr->rx_ptr -= 1;
+				mb_ptr->error_cnt += 1;
+				return MB_UART_CRC_ERROR;
+			}
+			else{
+				memmove(mb_ptr->rx_data, mb_ptr->rx_data + frame_length, mb_ptr->rx_ptr - frame_length);
+				mb_ptr->rx_ptr -= frame_length;
+				mb_ptr->rx_cnt += 1;
+				mb_ptr->rx_frame.type = mb_ptr->transaction_state;
+				return MB_UART_RX_STATUS_OK;
+			}
+		}
+	}
+	return MB_ERROR_TYPE_EXCEPTION;
+}
 
 /**
   * @brief  обработка колбэка на прием данных (для вызова в CB от прерывания на прием)
@@ -128,66 +326,71 @@ void mb_rx_timeout_cb(type_MODBUS* mb_ptr, uint16_t period_ms)
 }
 
 /**
-  * @brief  проверка массива на наличие в нем пакета ModBus
+  * @brief  заполнение одного шага очереди командой
   * @param  mb_ptr указатель на структуру управления
-	* @param  data указатель на массив данных для проверки
-	* @param  len длина массива данных для проверки
-	* @retval  статус
+  * @param  step_num номер шага очереди
+	* @param  dev_id адрес утсройства
+	* @param  f_code код команды
+	* @param  reg_addr адрес начального регистра для передачи
+	* @param  reg_cnt количество регистров для передачи (проверяется только для команд с передачей/чтением нескольких регистров)
   */
-int8_t mb_int_check_frame(type_MODBUS* mb_ptr, uint8_t* data, uint8_t len)
+void mb_queue_fill(type_MODBUS* mb_ptr, uint8_t step_num, uint8_t dev_id, uint8_t f_code, uint16_t reg_addr, uint16_t reg_cnt, uint16_t* data)
 {
-	uint8_t dev_id, f_code = 0, b_cnter = 0, frame_length = 0;
-	uint8_t error_code;
-	uint16_t reg_addr, reg_cnter;
-	uint16_t mb_data[128] = {0};
-	if (len < 5){ // если меньше 5-ти байт (минимальная длина кадра для ModBus), то ждем еще данных
-		return MB_UART_RX_STATUS_SHORT;
+	type_MB_Frame* frame_ptr = &mb_ptr->prepare_queue.tx_frame[step_num];
+	frame_ptr->type = MB_FRAME_TYPE_TX;
+	frame_ptr->dev_id = dev_id;
+	frame_ptr->f_code = f_code;
+	frame_ptr->reg_addr = reg_addr;
+	frame_ptr->reg_cnt = reg_cnt;
+	frame_ptr->byte_cnt = reg_cnt * 2;
+	if ((f_code == 6) || (f_code == 16)){
+		memcpy((uint8_t*)frame_ptr->data, (uint8_t*)data, reg_cnt*2);
+	}
+	mb_frame_calc_crc16(frame_ptr);
+}
+
+/**
+  * @brief  запуск чтения очереди регистров MB
+  * @param  mb_ptr указатель на структуру управления
+  */
+int8_t mb_queue_run(type_MODBUS* mb_ptr)
+{
+	if (mb_ptr->queue_state == 0){
+		memcpy((uint8_t*)&mb_ptr->work_queue, (uint8_t*)&mb_ptr->prepare_queue, sizeof(type_MB_Queue));
+		mb_ptr->queue_state = MB_QEUEU_START;
+		mb_ptr->queue_cnt = 0;
 	}
 	else{
-		dev_id = data[0];
-		f_code = data[1];
-		if (f_code & 0x80){
-			f_code &= 0x7F;
-			error_code = data[2];
-			frame_length = 5;
-			if (__mb_crc16(data, frame_length, MB_CRC16_INIT_VAL) == 0){
-				return MB_UART_RX_STATUS_OK;
+		return -1;
+	}
+	return 0;
+}
+
+/**
+  * @brief  обработка чтении серии регистров MB
+  * @param  mb_ptr указатель на структуру управления
+  */
+int8_t mb_queue_process(type_MODBUS* mb_ptr, uint32_t period_ms)
+{
+	if (mb_ptr->queue_state == MB_QEUEU_START){
+		if (mb_ptr->rx_timeout_flag == 0){
+			if (mb_run_transaction_from_frame(mb_ptr, mb_ptr->work_queue.tx_frame[mb_ptr->queue_cnt]) < 0){
+				mb_ptr->queue_state = MB_QUUE_IDLE;
+				mb_ptr->queue_cnt = 0;
 			}
-			else{
-				return MB_UART_CRC_ERROR;
+			else {
+				mb_ptr->queue_state = MB_QEUEU_WORK;
 			}
+			
 		}
-		else{
-			switch(f_code){
-				case 3:
-					b_cnter = data[2];
-					frame_length = b_cnter + 5;
-					if (__mb_crc16(data, frame_length, MB_CRC16_INIT_VAL) == 0){
-						return MB_UART_RX_STATUS_OK;
-					}
-					else{
-						return MB_UART_CRC_ERROR;
-					}
-				case 6:
-					reg_addr = *((uint16_t*)&data[2]);
-					memcpy(&mb_data, &data[4], 2);
-					frame_length = 8;
-					if (__mb_crc16(data, frame_length, MB_CRC16_INIT_VAL) == 0){
-						return MB_UART_RX_STATUS_OK;
-					}
-					else{
-						return MB_UART_CRC_ERROR;
-					}
-				case 10:
-					reg_addr = *((uint16_t*)&data[2]);
-					reg_cnter = *((uint16_t*)&data[4]);
-					frame_length = 8;
-					if (__mb_crc16(data, frame_length, MB_CRC16_INIT_VAL) == 0){
-						return MB_UART_RX_STATUS_OK;
-					}
-					else{
-						return MB_UART_CRC_ERROR;
-					}
+	}
+	else if(mb_ptr->queue_state == MB_QEUEU_WORK){
+		if (mb_ptr->rx_timeout_flag == 0){
+			memcpy((uint8_t*)&mb_ptr->work_queue.rx_frame[mb_ptr->queue_cnt], (uint8_t*)&mb_ptr->rx_frame, sizeof(type_MB_Frame));
+			mb_ptr->queue_cnt += 1;
+			if (mb_run_transaction_from_frame(mb_ptr, mb_ptr->work_queue.tx_frame[mb_ptr->queue_cnt]) < 0){
+				mb_ptr->queue_state = MB_QUUE_IDLE;
+				mb_ptr->queue_cnt = 0;
 			}
 		}
 	}
@@ -263,7 +466,7 @@ uint16_t mb_frame_calc_crc16(type_MB_Frame* frame_ptr)
 				break;
 		}
 	}
-	frame_ptr->crc_16 = crc16;
+	frame_ptr->crc_16 = __REVSH(crc16);
 	return crc16;
 }
 
@@ -341,11 +544,12 @@ void mb_frame_form_packet(type_MB_Frame* frame_ptr, uint8_t* data, uint8_t* leng
 				break;
 		}
 	}
-	data[l] = (frame_ptr->crc_16 >> 0) & 0xFF;
-	data[l+1] = (frame_ptr->crc_16 >> 8) & 0xFF;
+	data[l] = (frame_ptr->crc_16 >> 8) & 0xFF;
+	data[l+1] = (frame_ptr->crc_16 >> 0) & 0xFF;
 	l += 2;
 	*leng = l;
 }
+
 
 /* --------------------------- CRC16 ---------------------------------- */
 

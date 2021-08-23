@@ -478,6 +478,7 @@ void SystemClock_Config(void)
 
 void blocking_test(void)
 {
+  uint8_t i;
   // test
   printf_time();
   printf("Start blocking test\n");
@@ -490,31 +491,18 @@ void blocking_test(void)
 
   mb_init(&mb, &huart2);
   
-  mb_send_frame(&mb, 2, 3, 0x113, 1, NULL);
-	printf("\t tx: "); printf_buff(mb.tx_data, mb.tx_len, '\n');
-  HAL_Delay(100);
+  mb_queue_fill(&mb, 0, 2, 3, 0x113, 1, NULL);
+  mb_queue_fill(&mb, 1, 2, 3, 0x114, 1, NULL);
+  mb_queue_fill(&mb, 2, 2, 3, 0x115, 1, NULL);
+  mb_queue_fill(&mb, 3, 2, 3, 0x116, 1, NULL);
+  mb_queue_run(&mb);
+  HAL_Delay(5);
+  for(i=0; i<200; i++){
+    HAL_Delay(5);
+    mb_process_transaction(&mb, 5);
+    mb_queue_process(&mb, 5);
+    }
   
-	printf("\t rx: "); printf_buff(mb.rx_data, mb.rx_ptr, '\n');
-  HAL_Delay(100);
-  mb_rx_ptr_reset(&mb);
-
-  mb_send_frame(&mb, 2, 3, 0x100, 1, NULL);
-	printf("\t tx: "); printf_buff(mb.tx_data, mb.tx_len, '\n');
-  HAL_Delay(100);
-  
-	printf("\t rx: "); printf_buff(mb.rx_data, mb.rx_ptr, '\n');
-  HAL_Delay(100);
-  mb_rx_ptr_reset(&mb);
-
-  mb_send_frame(&mb, 2, 3, 0x113, 1, NULL);
-	printf("\t tx: "); printf_buff(mb.tx_data, mb.tx_len, '\n');
-  HAL_Delay(100);
-  
-	printf("\t rx: "); printf_buff(mb.rx_data, mb.rx_ptr, '\n');
-  HAL_Delay(100);
-  mb_rx_ptr_reset(&mb);
-  //
-  HAL_Delay(500);
   printf_time();
   printf("Finish test\n\n");
 }
